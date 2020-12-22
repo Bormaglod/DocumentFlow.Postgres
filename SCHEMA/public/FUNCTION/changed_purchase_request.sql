@@ -5,8 +5,8 @@ declare
 	detail_count integer;
 	goods_name varchar;
 begin
-	-- => КОРРЕКТЕН
-	if (new.status_id = 1001) then
+	-- СОСТАВЛЕН или ИЗМЕНЯЕТСЯ => КОРРЕКТЕН
+	if (old.status_id in (1000, 1004) and new.status_id = 1001) then
 		if (new.contractor_id is null) then
 			raise 'Необходимо выбрать контрагента!';
 		end if;
@@ -35,3 +35,5 @@ end;
 $$;
 
 ALTER FUNCTION public.changed_purchase_request() OWNER TO postgres;
+
+COMMENT ON FUNCTION public.changed_purchase_request() IS 'Заявка на приобретение материалов - ПРОВЕРКА ДАННЫХ';

@@ -1,7 +1,8 @@
 CREATE TABLE public.invoice (
 	contractor_id uuid,
 	invoice_number character varying(20),
-	invoice_date date
+	invoice_date date,
+	contract_id uuid
 )
 INHERITS (public.document);
 

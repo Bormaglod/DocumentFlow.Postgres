@@ -106,3 +106,8 @@ ALTER TABLE public.invoice_sales
 
 ALTER TABLE public.invoice_sales
 	ADD CONSTRAINT pk_invoice_sales_id PRIMARY KEY (id);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.invoice_sales
+	ADD CONSTRAINT fk_invoice_sales_contract FOREIGN KEY (contract_id) REFERENCES public.contract(id) ON UPDATE CASCADE;

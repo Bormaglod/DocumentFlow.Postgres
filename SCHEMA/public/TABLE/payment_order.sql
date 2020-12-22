@@ -3,7 +3,8 @@ CREATE TABLE public.payment_order (
 	date_debited date,
 	amount_debited money,
 	direction public.document_direction,
-	purchase_id uuid
+	purchase_id uuid,
+	invoice_receipt_id uuid
 )
 INHERITS (public.document);
 
@@ -29,6 +30,8 @@ COMMENT ON COLUMN public.payment_order.amount_debited IS 'Сумма списа�
 COMMENT ON COLUMN public.payment_order.direction IS 'Направление списания';
 
 COMMENT ON COLUMN public.payment_order.purchase_id IS 'Заявка на расход';
+
+COMMENT ON COLUMN public.payment_order.invoice_receipt_id IS 'Приходная накладная / Поступление товара (материалов)';
 
 --------------------------------------------------------------------------------
 
@@ -119,3 +122,8 @@ ALTER TABLE public.payment_order
 
 ALTER TABLE public.payment_order
 	ADD CONSTRAINT fk_payment_order_purchase FOREIGN KEY (purchase_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.payment_order
+	ADD CONSTRAINT fk_payment_order_invoice_receipt FOREIGN KEY (invoice_receipt_id) REFERENCES public.invoice_receipt(id) ON UPDATE CASCADE;
