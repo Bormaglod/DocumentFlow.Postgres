@@ -4,6 +4,8 @@ CREATE OR REPLACE FUNCTION public.access_changing_status(document_id uuid, chang
 declare
 	debt record;
 begin
+	-- ПОСТУПЛЕНИЕ ТОВАРОВ/МАТЕРИАЛОВ
+	
 	-- Материал получен (КОРРЕКТЕН => МАТЕРИАЛ ПОЛУЧЕН)
 	if (changing_status_id = '9687a7e2-6d68-4078-b6ee-37b0ec6bf983') then
     	select * from purchase_debt(document_id) into debt;
