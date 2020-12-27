@@ -6,14 +6,8 @@ CREATE VIEW public.payment_order_view AS
     po.doc_number,
     c.name AS contractor_name,
     po.date_debited,
-        CASE po.direction
-            WHEN 'expense'::public.document_direction THEN po.amount_debited
-            ELSE NULL::money
-        END AS expense,
-        CASE po.direction
-            WHEN 'income'::public.document_direction THEN po.amount_debited
-            ELSE NULL::money
-        END AS income,
+    public.iif((po.direction = 'expense'::public.document_direction), po.amount_debited, NULL::money) AS expense,
+    public.iif((po.direction = 'income'::public.document_direction), po.amount_debited, NULL::money) AS income,
     ua.name AS user_created,
     po.organization_id,
     org.name AS organization_name

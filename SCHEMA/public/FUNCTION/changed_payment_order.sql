@@ -5,7 +5,9 @@ declare
 	purchase_status integer;
 	invoice_status integer;
 	new_invoice_status integer;
-	debt record;
+	debt money;
+	no_pay boolean;
+	new_invoice_id uuid;
 begin
 	-- => РАСХОД или ДОХОД
 	if (new.status_id in (1200, 1201)) then 
@@ -40,7 +42,7 @@ begin
 					raise 'Заявка на приобретение материалов должна быть в состоянии ПОЛУЧЕН СЧЁТ';
 				end if;
 			
-				update purchase_request set status_id = 3003 where id = new.purchase_id;
+				update purchase_request set status_id = status_code('invoice paid') where id = new.purchase_id;
 				perform send_notify_object('purchase_request', new.purchase_id, 'refresh');
 			else
 				select status_id into invoice_status from invoice_receipt where id = new.invoice_receipt_id;
@@ -48,35 +50,19 @@ begin
 					raise 'Поступление материалов/товаров должно быть в состоянии МАТЕРИАЛ ПОЛУЧЕН или ТРЕБУЕТСЯ ДОПЛАТА';
 				end if;
 			
-				select * from purchase_debt(new.invoice_receipt_id) into debt;
-				if (debt.debt_sum = 0) then
-					new_invoice_status = 3005;
+				select debt_sum from purchase_debt(new.invoice_receipt_id) into debt;
+				if (debt = 0::money) then
+					new_invoice_status = status_code('withdrawal');
 				else
-					new_invoice_status = 3006;
+					new_invoice_status = status_code('payment required');
 				end if;
 				
 				if (new_invoice_status != invoice_status) then
 					update invoice_receipt set status_id = new_invoice_status where id = new.invoice_receipt_id;
-					perform send_notify_object('invoice_receipt', new.purchase_id, 'refresh');
+					perform send_notify_object('invoice_receipt', new.invoice_receipt_id, 'refresh');
 				end if;
 			end if;
 		end if;
-		/*if (new.purchase_id is not null) then
-			select status_id into purchase_status from purchase_request where id = new.purchase_id;
-			if (purchase_status not in (3002, 3004)) then
-				raise 'Заявка на расход должна быть в состоянии "Получен счёт" или "Материал получен"';
-			end if;
-		
-			if (purchase_status = 3002) then
-				purchase_status = 3003;
-			else
-				purchase_status = 3005;
-			end if;
-		
-			update purchase_request set status_id = purchase_status where id = new.purchase_id;
-			
-			perform send_notify_object('purchase_request', new.purchase_id, 'refresh');
-		end if;*/
 	
 		perform send_notify_list('balance_contractor', new.contractor_id, 'refresh');
 	end if;
@@ -85,21 +71,41 @@ begin
 	if (old.status_id = 1002 and new.status_id = 1011) then
 		perform delete_balance_contractor(new.id);
 	
+		new_invoice_id = new.invoice_receipt_id;
 		if (new.purchase_id is not null) then
 			select status_id into purchase_status from purchase_request where id = new.purchase_id;
 			if (purchase_status = 3000) then
 				raise 'Заявка на расход уже закрыта. Отменить платёжный документ не представляется возможным!';
 			end if;
-		
-			if (purchase_status = 3003) then
-				purchase_status = 3002;
+
+			-- Заявку в состоянии СЧЁТ ОПЛАЧЕН вернём в ПОЛУЧЕН СЧЁТ, в иных случаях должен быть документ Поступление товаров/материалов.
+			-- Состояние именно этого документ надо будет поменять 
+			if (purchase_status = status_code('invoice paid')) then
+				update purchase_request set status_id = status_code('invoice recived') where id = new.purchase_id;
 			else
-				purchase_status = 3004;
+				select id into new_invoice_id from invoice_receipt where owner_id = owner_id;
 			end if;
 		
-			update purchase_request set status_id = purchase_status where id = new.purchase_id;
-		
 			perform send_notify_object('purchase_request', new.purchase_id, 'refresh');
+		end if;
+	
+		if (new_invoice_id is not null) then
+			select status_id into invoice_status from invoice_receipt where id = new_invoice_id;
+			if (invoice_status = 3000) then
+				raise 'Документ "Поступление товаров/материалов" уж закрыт. Отменить платёжный документ не представляется возможным!';
+			end if;
+		
+			select no_payment from purchase_debt(new_invoice_id) into no_pay;
+			if (no_pay) then
+				new_invoice_status = status_code('goods recived');
+			else
+				new_invoice_status = status_code('payment required');
+			end if;
+		
+			if (new_invoice_status != invoice_status) then
+				update invoice_receipt set status_id = new_invoice_status where id = new_invoice_id;
+				perform send_notify_object('invoice_receipt', new_invoice_id, 'refresh');
+			end if;
 		end if;
 	
 		perform send_notify_list('balance_contractor', new.contractor_id, 'refresh');

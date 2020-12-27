@@ -1,7 +1,7 @@
 CREATE TABLE public.contract (
+	tax_payer boolean DEFAULT true NOT NULL,
 	is_default boolean,
-	contractor_type public.contractor_type,
-	tax_payer boolean DEFAULT true NOT NULL
+	contractor_type public.contractor_type
 )
 INHERITS (public.directory);
 
@@ -12,9 +12,9 @@ ALTER TABLE public.contract OWNER TO postgres;
 GRANT ALL ON TABLE public.contract TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.contract TO users;
 
-COMMENT ON COLUMN public.contract.contractor_type IS 'Вид договора';
-
 COMMENT ON COLUMN public.contract.tax_payer IS 'Плательщик НДС';
+
+COMMENT ON COLUMN public.contract.contractor_type IS 'Вид договора';
 
 --------------------------------------------------------------------------------
 
