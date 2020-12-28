@@ -11,7 +11,7 @@ begin
 		into invoice_sum 
 		from invoice_receipt_detail ird 
 			join invoice_receipt ir on (ir.id = ird.owner_id) 
-		where ird.owner_id = document_id and ir.status_id in (3004, 3005, 3006);
+		where ird.owner_id = document_id and ir.status_id in (1001, 3004, 3005, 3006);
 	
     select sum(amount_debited) into payment_sum from payment_order where invoice_receipt_id = document_id and status_id = 1002;
     select owner_id into purchase from invoice_receipt where id = document_id;

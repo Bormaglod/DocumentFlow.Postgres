@@ -73,12 +73,12 @@ begin
 	end if;
 
 	-- КОРРЕКТЕН => МАТЕРИАЛ ПОЛУЧЕН И ОПЛАЧЕН
-	if (old.status_id = 1001 and new.status_id = 3005) then
+	if (old.status_id in (1001, 3004, 3006) and new.status_id = 3005) then
 		-- скорректируем состояние заказа (если он есть)
 		if (new.owner_id is not null) then
 			select status_id into purchase_status from purchase_request where id = new.owner_id;
-			if (purchase_status not in (3003, 3006)) then
-				raise 'Заказ должен находится в состоянии СЧЁТ ОПЛАЧЕН или ТРЕБУЕТСЯ ДОПЛАТА';
+			if (purchase_status not in (3003, 3004, 3006)) then
+				raise 'Заказ должен находится в состоянии МАТЕРИАЛ ПОЛУЧЕН, СЧЁТ ОПЛАЧЕН или ТРЕБУЕТСЯ ДОПЛАТА';
 			end if;
 		
 			-- заказ переводим в состояние МАТЕРИАЛ ПОЛУЧЕН И ОПЛАЧЕН
@@ -88,12 +88,12 @@ begin
 	end if;
 
 	-- КОРРЕКТЕН => ТРЕБУЕТСЯ ДОПЛАТА
-	if (old.status_id = 1001 and new.status_id = 3006) then
+	if (old.status_id in (1001, 3004) and new.status_id = 3006) then
 		-- скорректируем состояние заказа (если он есть)
 		if (new.owner_id is not null) then
 			select status_id into purchase_status from purchase_request where id = new.owner_id;
-			if (purchase_status not in (3003, 3006)) then
-				raise 'Заказ должен находится в состоянии СЧЁТ ОПЛАЧЕН или ТРЕБУЕТСЯ ДОПЛАТА';
+			if (purchase_status not in (3003, 3004, 3006)) then
+				raise 'Заказ должен находится в состоянии МАТЕРИАЛ ПОЛУЧЕН, СЧЁТ ОПЛАЧЕН или ТРЕБУЕТСЯ ДОПЛАТА';
 			end if;
 		
 			if (purchase_status = 3003) then
@@ -104,8 +104,8 @@ begin
 		end if;
 	end if;
 
-	-- МАТЕРИАЛ ПОЛУЧЕН => ОТМЕНЁН или ИЗМЕНЯЕТСЯ
-	if (old.status_id = 3004 and new.status_id in (1004, 1011)) then
+	-- МАТЕРИАЛ ПОЛУЧЕН, МАТЕРИАЛ ПОЛУЧЕН И ОПЛАЧЕН или ТРЕБУЕТСЯ ДОПЛАТА  => ОТМЕНЁН или ИЗМЕНЯЕТСЯ
+	if (old.status_id in (3004, 3005, 3006) and new.status_id in (1004, 1011)) then
 		-- уменьшим задолженность поставщику
 		perform delete_balance_contractor(new.id);
 		perform send_notify_list('balance_contractor', new.contractor_id, 'refresh');
