@@ -69,6 +69,14 @@ CREATE TRIGGER invoice_sales_biu
 
 --------------------------------------------------------------------------------
 
+CREATE CONSTRAINT TRIGGER invoice_sales_aiu_1
+	AFTER INSERT OR UPDATE ON public.invoice_sales
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.check_buyer_documents();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.invoice_sales
 	ADD CONSTRAINT fk_invoice_sales_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE;
 

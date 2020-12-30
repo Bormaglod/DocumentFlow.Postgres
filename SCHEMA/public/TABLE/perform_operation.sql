@@ -17,6 +17,8 @@ ALTER TABLE public.perform_operation OWNER TO postgres;
 GRANT ALL ON TABLE public.perform_operation TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.perform_operation TO users;
 
+COMMENT ON TABLE public.perform_operation IS 'Выполненные операции указанными сотрудниками';
+
 COMMENT ON COLUMN public.perform_operation.order_id IS 'Заказ';
 
 COMMENT ON COLUMN public.perform_operation.goods_id IS 'Изделие';

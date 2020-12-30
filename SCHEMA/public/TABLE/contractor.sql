@@ -1,7 +1,4 @@
 CREATE TABLE public.contractor (
-	tax_payer boolean,
-	supplier boolean,
-	buyer boolean
 )
 INHERITS (public.company);
 
@@ -11,12 +8,6 @@ ALTER TABLE public.contractor OWNER TO postgres;
 
 GRANT ALL ON TABLE public.contractor TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.contractor TO users;
-
-COMMENT ON COLUMN public.contractor.tax_payer IS 'Плательщик НДС';
-
-COMMENT ON COLUMN public.contractor.supplier IS 'Поставщик';
-
-COMMENT ON COLUMN public.contractor.buyer IS 'Покупатель';
 
 --------------------------------------------------------------------------------
 

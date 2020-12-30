@@ -65,6 +65,14 @@ CREATE TRIGGER invoice_receipt_au_status
 
 --------------------------------------------------------------------------------
 
+CREATE CONSTRAINT TRIGGER invoice_receipt_aiu_1
+	AFTER INSERT OR UPDATE ON public.invoice_receipt
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.check_seller_documents();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.invoice_receipt
 	ADD CONSTRAINT fk_invoice_receipt_owner FOREIGN KEY (owner_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE ON DELETE SET NULL;
 

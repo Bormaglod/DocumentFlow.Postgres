@@ -20,11 +20,6 @@ begin
 			raise 'Необходимо указать договор!';
 		end if;
 	
-		select contractor_type, tax_payer into ctype, is_tax from contract where id = new.contract_id;
-		if (ctype != 'seller'::contractor_type) then
-			raise 'Необходимо указать договор с продавцом!';
-		end if;
-	
 		if (is_tax) then
 			if (new.invoice_number is null) then
 				raise 'Укажите номер входной счёт-фактуры.';

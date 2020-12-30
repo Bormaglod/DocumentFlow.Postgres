@@ -1,5 +1,6 @@
 CREATE TABLE public.production_order (
-	contractor_id uuid
+	contractor_id uuid,
+	contract_id uuid
 )
 INHERITS (public.document);
 
@@ -11,6 +12,8 @@ GRANT ALL ON TABLE public.production_order TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.production_order TO users;
 
 COMMENT ON TABLE public.production_order IS 'Заказ на изготовление';
+
+COMMENT ON COLUMN public.production_order.contract_id IS 'Идентификатор договора с контрагентом';
 
 --------------------------------------------------------------------------------
 
@@ -51,6 +54,14 @@ CREATE TRIGGER production_order_au_status
 
 --------------------------------------------------------------------------------
 
+CREATE CONSTRAINT TRIGGER production_order_aiu_1
+	AFTER INSERT OR UPDATE ON public.production_order
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.check_buyer_documents();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.production_order
 	ADD CONSTRAINT pk_production_order_id PRIMARY KEY (id);
 
@@ -83,3 +94,13 @@ ALTER TABLE public.production_order
 
 ALTER TABLE public.production_order
 	ADD CONSTRAINT fk_production_order_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.production_order
+	ADD CONSTRAINT fk_production_order_contract FOREIGN KEY (contract_id) REFERENCES public.contract(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.production_order
+	ADD CONSTRAINT fk_production_order_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE;

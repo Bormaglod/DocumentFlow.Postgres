@@ -62,6 +62,14 @@ CREATE TRIGGER purchase_request_au_status
 
 --------------------------------------------------------------------------------
 
+CREATE CONSTRAINT TRIGGER purchase_request_aiu_1
+	AFTER INSERT OR UPDATE ON public.purchase_request
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.check_seller_documents();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.purchase_request
 	ADD CONSTRAINT pk_purchase_request_id PRIMARY KEY (id);
 
