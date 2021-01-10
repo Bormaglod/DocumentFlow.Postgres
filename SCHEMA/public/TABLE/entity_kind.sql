@@ -4,7 +4,8 @@ CREATE TABLE public.entity_kind (
 	name character varying(40),
 	title character varying(255),
 	has_group boolean DEFAULT false NOT NULL,
-	transition_id uuid NOT NULL
+	transition_id uuid NOT NULL,
+	copy_ability boolean DEFAULT false NOT NULL
 );
 
 ALTER TABLE public.entity_kind OWNER TO postgres;
@@ -20,6 +21,8 @@ COMMENT ON COLUMN public.entity_kind.code IS 'Уникальный тексто�
 COMMENT ON COLUMN public.entity_kind.name IS 'Сокращенное наименование документа/справочника';
 
 COMMENT ON COLUMN public.entity_kind.title IS 'Полное наименование документа/справочника';
+
+COMMENT ON COLUMN public.entity_kind.copy_ability IS 'Определяет, установлена ли процедура копирования для этого документа/справочника';
 
 --------------------------------------------------------------------------------
 

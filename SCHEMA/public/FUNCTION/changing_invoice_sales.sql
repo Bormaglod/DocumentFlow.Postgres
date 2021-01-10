@@ -14,14 +14,16 @@ begin
 			raise 'Необходимо указать контрагента!';
 		end if;
 	
-		select tax_payer into is_tax from contractor where id = new.contractor_id;
-		if (is_tax) then
-			if (new.invoice_number is null) then
-				new.invoice_number = new.doc_number;
-			end if;
+		if (new.contract_id is not null) then
+			select tax_payer into is_tax from contract where id = new.contract_id;
+			if (is_tax) then
+				if (new.invoice_number is null) then
+					new.invoice_number = new.doc_number;
+				end if;
 		
-			if (new.invoice_date is null) then
-				new.invoice_date = new.doc_date;
+				if (new.invoice_date is null) then
+					new.invoice_date = new.doc_date;
+				end if;
 			end if;
 		end if;
 	

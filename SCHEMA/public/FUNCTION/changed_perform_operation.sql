@@ -7,6 +7,7 @@ declare
 	r record;
 	g_id uuid;
 	debited numeric;
+	max_op integer;
 begin
 	-- => КОРРЕКТЕН
 	if (new.status_id = 1001) then
@@ -61,6 +62,17 @@ begin
 	
 		if (new.employee_id is null) then
 			raise 'Необходимо указать сотрудника выполнявшего операции.';
+		end if;
+	end if;
+
+	-- => КОРРЕКТЕН
+	-- ИСПРАВЛЯЕТСЯ => ВЫПОЛНЕНО
+	if (new.status_id = 1001 or (old.status_id = 3102 and new.status_id = 3101)) then 
+		if (new.using_goods_id is not null) then
+			max_op = get_required_operations(new.order_id, new.goods_id, new.operation_id, new.using_goods_id);
+			if (max_op < 0) then
+				raise 'Количество операций с указанным материалом превышает максимально возможное (%)', max_op + new.amount;
+			end if;
 		end if;
 	end if;
 

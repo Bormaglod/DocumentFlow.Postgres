@@ -6,7 +6,6 @@ CREATE TABLE public.command (
 	picture_id uuid,
 	note character varying(255),
 	entity_kind_id uuid,
-	data_schema jsonb,
 	script text,
 	date_updated timestamp with time zone
 );
@@ -21,13 +20,6 @@ GRANT UPDATE ON TABLE public.command TO sergio;
 --------------------------------------------------------------------------------
 
 CREATE UNIQUE INDEX unq_command_entity_kind_id ON public.command USING btree (entity_kind_id);
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER command_aiu
-	AFTER INSERT OR UPDATE ON public.command
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.check_data_schema();
 
 --------------------------------------------------------------------------------
 

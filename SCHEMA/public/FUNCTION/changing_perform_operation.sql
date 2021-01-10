@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION public.changing_perform_operation() RETURNS trigger
     AS $$
 begin
 	-- => КОРРЕКТЕН
-	-- ИСПРАВЛЯЕТСЯ => ВЫПОЛНЕНО
+	-- => ИСПРАВЛЯЕТСЯ => ВЫПОЛНЕНО
 	if (new.status_id = 1001 or (old.status_id = 3102 and new.status_id = 3101)) then
 		select new.amount * o.salary / coalesce(m.coefficient, 1)
 			into new.salary 
