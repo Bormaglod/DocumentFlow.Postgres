@@ -4,7 +4,8 @@ CREATE TABLE public.goods (
 	price money,
 	tax public.tax_nds,
 	min_order numeric(15,3),
-	is_service boolean
+	is_service boolean,
+	cross_id uuid
 )
 INHERITS (public.directory);
 
@@ -30,6 +31,8 @@ COMMENT ON COLUMN public.goods.tax IS 'Значение ставки НДС';
 COMMENT ON COLUMN public.goods.min_order IS 'Минимальная партия заказа';
 
 COMMENT ON COLUMN public.goods.is_service IS 'Это услуга';
+
+COMMENT ON COLUMN public.goods.cross_id IS 'Кросс-артикул';
 
 --------------------------------------------------------------------------------
 
@@ -120,3 +123,8 @@ ALTER TABLE public.goods
 
 ALTER TABLE public.goods
 	ADD CONSTRAINT fk_goods_measurement FOREIGN KEY (measurement_id) REFERENCES public.measurement(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.goods
+	ADD CONSTRAINT fk_goods_cross FOREIGN KEY (cross_id) REFERENCES public.goods(id) ON UPDATE CASCADE ON DELETE SET NULL;
