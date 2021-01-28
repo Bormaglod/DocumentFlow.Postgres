@@ -18,6 +18,10 @@ COMMENT ON COLUMN public.calc_item_operation.amount IS 'Количество о�
 
 --------------------------------------------------------------------------------
 
+CREATE INDEX unq_calc_item_operation_item ON public.calc_item_operation USING btree (owner_id, item_id);
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER calc_item_operation_aiu_0
 	AFTER INSERT OR UPDATE ON public.calc_item_operation
 	FOR EACH ROW

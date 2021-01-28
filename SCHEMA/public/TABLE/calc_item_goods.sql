@@ -27,6 +27,10 @@ COMMENT ON COLUMN public.calc_item_goods.uses IS 'Использовано в о
 
 --------------------------------------------------------------------------------
 
+CREATE INDEX unq_calc_item_goods_item ON public.calc_item_goods USING btree (owner_id, item_id);
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER calc_item_goods_aiu_0
 	AFTER INSERT OR UPDATE ON public.calc_item_goods
 	FOR EACH ROW

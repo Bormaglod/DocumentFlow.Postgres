@@ -20,6 +20,10 @@ COMMENT ON COLUMN public.calc_item_deduction.percentage IS 'Процент от 
 
 --------------------------------------------------------------------------------
 
+CREATE INDEX unq_calc_item_deduction_item ON public.calc_item_deduction USING btree (owner_id, item_id);
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER calc_item_deduction_aiu_0
 	AFTER INSERT OR UPDATE ON public.calc_item_deduction
 	FOR EACH ROW

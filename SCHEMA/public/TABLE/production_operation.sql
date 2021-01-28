@@ -28,6 +28,10 @@ COMMENT ON COLUMN public.production_operation.completed IS 'Количество
 
 --------------------------------------------------------------------------------
 
+CREATE INDEX unq_production_operation_owner ON public.production_operation USING btree (owner_id, goods_id, operation_id);
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER production_operation_ad
 	AFTER DELETE ON public.production_operation
 	FOR EACH ROW

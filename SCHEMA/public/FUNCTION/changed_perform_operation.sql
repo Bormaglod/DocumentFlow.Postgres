@@ -76,13 +76,13 @@ begin
 		end if;
 	end if;
 
+	select id, status_id, amount, completed
+		into r
+		from production_operation
+		where goods_id = new.goods_id and owner_id = new.order_id and operation_id = new.operation_id;
+
 	-- => ВЫПОЛНЕНО или ИСПРАВЛЯЕТСЯ
 	if (new.status_id in (3101, 3102)) then
-		select id, status_id, amount, completed
-			into r
-			from production_operation
-			where goods_id = new.goods_id and owner_id = new.order_id and operation_id = new.operation_id;
-		
 		if (r.id is null) then 
 			raise 'Не найдена ни одной записи содержащей указанные данные о заказе, номенклатуре и операции.';
 		end if;
