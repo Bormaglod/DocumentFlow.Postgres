@@ -4,7 +4,7 @@ CREATE TABLE public.printed_form (
 	name character varying(255) NOT NULL,
 	picture_id uuid,
 	schema_form jsonb,
-	date_updated timestamp(0) with time zone
+	date_updated timestamp with time zone
 );
 
 ALTER TABLE public.printed_form OWNER TO postgres;
