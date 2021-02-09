@@ -8,7 +8,7 @@ declare
 begin
 	select coalesce(sum(operation_summa::numeric), 0) as operation_summa, coalesce(sum(amount * sign(operation_summa::numeric)), 0) as amount
     	into r
-		from balance_goods
+		from only balance_goods
 		where
 			reference_id = ref_goods_id and
 			document_date < relevance_date and

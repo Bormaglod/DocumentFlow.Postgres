@@ -23,16 +23,21 @@ begin
 			raise 'Количество материала должно быть больше 0!';
 		end if;
 	
-		select price into goods_price from goods where id = new.item_id;
+		if (new.is_tolling) then
+			new.price = 0::money;
+			new.cost = 0::money;
+		else
+			select price into goods_price from goods where id = new.item_id;
 
-		do_update = false;
-		if (new.price = 0::money) then
-			new.price = goods_price;
-			do_update = true;
-		end if;
+			do_update = false;
+			if (new.price = 0::money) then
+				new.price = goods_price;
+				do_update = true;
+			end if;
 	
-		if (do_update or new.cost = 0::money) then
-			new.cost = new.price * new.amount;
+			if (do_update or new.cost = 0::money) then
+				new.cost = new.price * new.amount;
+			end if;
 		end if;
 	end if;
 

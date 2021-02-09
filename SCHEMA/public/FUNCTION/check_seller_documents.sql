@@ -13,7 +13,7 @@ begin
 	if (new.contract_id is not null) then
 		select contractor_type into ctype from contract where id = new.contract_id;
 		if (ctype = 'buyer'::contractor_type) then
-			raise 'договор должен быть с продавцом!';
+			raise 'Договор должен быть с продавцом!';
 		end if;
 	end if;
 

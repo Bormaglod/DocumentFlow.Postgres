@@ -1,6 +1,7 @@
 CREATE TABLE public.calc_item_goods (
 	amount numeric(12,3) DEFAULT 0,
-	uses numeric(12,3) DEFAULT 0
+	uses numeric(12,3) DEFAULT 0,
+	is_tolling boolean DEFAULT false
 )
 INHERITS (public.calc_item);
 
@@ -24,6 +25,8 @@ COMMENT ON COLUMN public.calc_item_goods.price IS 'Цена за единицу 
 COMMENT ON COLUMN public.calc_item_goods.amount IS 'Количество материала';
 
 COMMENT ON COLUMN public.calc_item_goods.uses IS 'Использовано в операциях';
+
+COMMENT ON COLUMN public.calc_item_goods.is_tolling IS 'Давальческий материал';
 
 --------------------------------------------------------------------------------
 

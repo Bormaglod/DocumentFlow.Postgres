@@ -1,5 +1,6 @@
 CREATE TABLE public.invoice_receipt (
-	receipt_date timestamp with time zone
+	receipt_date timestamp with time zone,
+	is_tolling boolean DEFAULT false
 )
 INHERITS (public.invoice);
 
@@ -17,6 +18,8 @@ COMMENT ON COLUMN public.invoice_receipt.invoice_date IS 'Дата счёт-фа
 COMMENT ON COLUMN public.invoice_receipt.invoice_number IS 'Номер счёт-фактуры';
 
 COMMENT ON COLUMN public.invoice_receipt.receipt_date IS 'Дата поступления';
+
+COMMENT ON COLUMN public.invoice_receipt.is_tolling IS 'Флаг определяющий тип получаемого товара (false - собственный, true - давальческий)';
 
 --------------------------------------------------------------------------------
 

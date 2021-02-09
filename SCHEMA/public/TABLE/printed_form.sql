@@ -9,6 +9,10 @@ CREATE TABLE public.printed_form (
 
 ALTER TABLE public.printed_form OWNER TO postgres;
 
+GRANT ALL ON TABLE public.printed_form TO admins;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.printed_form TO designers;
+GRANT SELECT ON TABLE public.printed_form TO users;
+
 ALTER TABLE ONLY public.printed_form ALTER COLUMN schema_form SET STATISTICS 0;
 
 --------------------------------------------------------------------------------

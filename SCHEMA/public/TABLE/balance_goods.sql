@@ -50,14 +50,6 @@ CREATE TRIGGER balance_goods_ad
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER balance_goods_aiu
-	AFTER INSERT OR UPDATE ON public.balance_goods
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_checking();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER balance_goods_bi
 	BEFORE INSERT ON public.balance_goods
 	FOR EACH ROW
@@ -85,6 +77,22 @@ CREATE TRIGGER balance_goods_au_status
 	FOR EACH ROW
 	WHEN ((old.status_id <> new.status_id))
 	EXECUTE PROCEDURE public.changed_balance();
+
+--------------------------------------------------------------------------------
+
+CREATE CONSTRAINT TRIGGER balance_goods_aiu1
+	AFTER INSERT OR UPDATE ON public.balance_goods
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE CONSTRAINT TRIGGER balance_goods_aiu0
+	AFTER INSERT OR UPDATE ON public.balance_goods
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.check_balance_goods();
 
 --------------------------------------------------------------------------------
 
@@ -130,10 +138,3 @@ ALTER TABLE public.balance_goods
 
 ALTER TABLE public.balance_goods
 	ADD CONSTRAINT unq_balance_goods_reference UNIQUE (owner_id, reference_id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_goods
-	ADD CONSTRAINT chk_balance_goods_amount CHECK ((((operation_summa <> (0)::money) AND (amount > (0)::numeric)) OR (status_id = 1000)));
-
-COMMENT ON CONSTRAINT chk_balance_goods_amount ON public.balance_goods IS 'Сумма операции должна быть отлична от 0, а количество больше 0.';

@@ -8,6 +8,7 @@ declare
 	g_id uuid;
 	debited numeric;
 	max_op integer;
+	contractor_tolling record;
 begin
 	-- => КОРРЕКТЕН
 	if (new.status_id = 1001) then
@@ -76,11 +77,20 @@ begin
 		end if;
 	end if;
 
-	select id, status_id, amount, completed
+	select id, status_id, amount, completed 
 		into r
 		from production_operation
 		where goods_id = new.goods_id and owner_id = new.order_id and operation_id = new.operation_id;
 
+	select o.contractor_id, cig.is_tolling 
+		into contractor_tolling
+		from perform_operation po 
+			join production_order o on (o.id = po.order_id)
+			join production_order_detail pod on (pod.owner_id = o.id and pod.goods_id = po.goods_id)
+			join calculation c on (c.id = pod.calculation_id)
+			join calc_item_goods cig on (cig.owner_id = c.id and cig.item_id = po.using_goods_id)
+		where o.id = new.order_id;
+	
 	-- => ВЫПОЛНЕНО или ИСПРАВЛЯЕТСЯ
 	if (new.status_id in (3101, 3102)) then
 		if (r.id is null) then 
@@ -122,7 +132,12 @@ begin
 					gp.id = new.goods_id and
 					um.goods_id = new.using_goods_id;
 	
-			perform goods_balance_expense(new.id, new.entity_kind_id, new.doc_number, g_id, debited, new.doc_date);
+			if (contractor_tolling.is_tolling) then
+				perform goods_balance_expense(new.id, new.entity_kind_id, new.doc_number, g_id, debited, new.doc_date, contractor_tolling.contractor_id);
+			else
+				perform goods_balance_expense(new.id, new.entity_kind_id, new.doc_number, g_id, debited, new.doc_date);
+			end if;
+		
 			perform send_notify_list('balance_goods', g_id, 'refresh');
 		end if;
 	end if;
@@ -144,7 +159,12 @@ begin
 	
 		perform send_notify_object('production_operation', r.id, 'refresh');
 	
-		perform delete_balance_goods(new.id);
+		if (contractor_tolling.is_tolling) then
+			perform delete_balance_tolling(new.id, contractor_tolling.contractor_id);
+		else
+			perform delete_balance_goods(new.id);
+		end if;
+	
 		if (g_id is not null) then
 			perform send_notify_list('balance_goods', g_id, 'refresh');
 		end if;
