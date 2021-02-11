@@ -6,7 +6,7 @@ declare
 	r record;
 	avg_sum numeric;
 begin
-	select coalesce(sum(operation_summa::numeric), 0) as operation_summa, coalesce(sum(amount * sign(operation_summa::numeric)), 0) as amount
+	select coalesce(sum(operation_summa::numeric * sign(amount)), 0) as operation_summa, coalesce(sum(amount), 0) as amount
     	into r
 		from only balance_goods
 		where

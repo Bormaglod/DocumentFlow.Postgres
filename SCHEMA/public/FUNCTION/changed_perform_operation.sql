@@ -89,7 +89,7 @@ begin
 			join production_order_detail pod on (pod.owner_id = o.id and pod.goods_id = po.goods_id)
 			join calculation c on (c.id = pod.calculation_id)
 			join calc_item_goods cig on (cig.owner_id = c.id and cig.item_id = po.using_goods_id)
-		where o.id = new.order_id;
+		where po.id = new.id;
 	
 	-- => ВЫПОЛНЕНО или ИСПРАВЛЯЕТСЯ
 	if (new.status_id in (3101, 3102)) then

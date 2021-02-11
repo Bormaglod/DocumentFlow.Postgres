@@ -105,3 +105,8 @@ ALTER TABLE public.balance_contractor
 
 ALTER TABLE public.balance_contractor
 	ADD CONSTRAINT fk_balance_contractor_ref FOREIGN KEY (reference_id) REFERENCES public.contractor(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_contractor
+	ADD CONSTRAINT fk_balance_contractor_document FOREIGN KEY (document_kind) REFERENCES public.entity_kind(id) ON UPDATE CASCADE ON DELETE CASCADE;

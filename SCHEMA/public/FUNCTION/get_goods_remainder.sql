@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION public.get_goods_remainder(goods_id uuid, actual_date timestamp with time zone) RETURNS numeric
     LANGUAGE sql
     AS $$
-	select coalesce(sum(amount * sign(operation_summa::numeric)), 0)
+	select coalesce(sum(amount), 0)
 		from balance_goods
 		where
 			reference_id = goods_id and

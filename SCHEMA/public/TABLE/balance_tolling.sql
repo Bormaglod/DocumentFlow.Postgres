@@ -110,3 +110,8 @@ ALTER TABLE public.balance_tolling
 
 ALTER TABLE public.balance_tolling
 	ADD CONSTRAINT fk_balance_tolling_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_tolling
+	ADD CONSTRAINT fk_balance_tolling_document FOREIGN KEY (document_kind) REFERENCES public.entity_kind(id) ON UPDATE CASCADE ON DELETE CASCADE;

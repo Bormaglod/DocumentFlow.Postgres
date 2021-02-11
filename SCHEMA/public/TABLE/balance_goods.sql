@@ -138,3 +138,8 @@ ALTER TABLE public.balance_goods
 
 ALTER TABLE public.balance_goods
 	ADD CONSTRAINT unq_balance_goods_reference UNIQUE (owner_id, reference_id);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_goods
+	ADD CONSTRAINT fk_balance_goods_document FOREIGN KEY (document_kind) REFERENCES public.entity_kind(id) ON UPDATE CASCADE ON DELETE CASCADE;
