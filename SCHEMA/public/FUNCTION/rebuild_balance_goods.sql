@@ -10,17 +10,17 @@ begin
 	-- доход считать не будем, там ничего не пересчитывается
 	for r in
 		select id, amount, document_date, status_id, owner_id
-			from balance_goods 
+			from only balance_goods 
 			where 
 				reference_id = rel_goods_id and
 				document_date > relevance_date and 
 				(
-					(operation_summa < 0::money and status_id in (1110, 1111)) or
+					(amount < 0::money and status_id in (1110, 1111)) or
 					(status_id = 1112)
 				)
 			order by document_date
 	loop
-		avg_price = get_average_price(rel_goods_id, r.document_date, abs(r.amount));
+		avg_price = get_average_price(rel_goods_id, r.document_date, r.amount);
 		if (avg_price.avg_price = 0::money) then
 			avg_price.avg_price = get_price('goods', rel_goods_id, r.document_date);
 			avg_price.price = avg_price.avg_price * r.amount;
@@ -30,9 +30,9 @@ begin
 			select amount into inventory_amount from inventory_detail where owner_id = r.owner_id and goods_id = rel_goods_id;
 			
 			inventory_amount = inventory_amount - avg_price.amount;
-			update balance_goods set operation_summa = inventory_amount * avg_price.avg_price, amount = abs(inventory_amount) where id = r.id;
+			update balance_goods set operation_summa = inventory_amount * avg_price.avg_price, amount = inventory_amount where id = r.id;
 		else
-			update balance_goods set operation_summa = 0::money - avg_price.price where id = r.id;
+			update balance_goods set operation_summa = avg_price.price where id = r.id;
 		end if;
 	end loop;
 
