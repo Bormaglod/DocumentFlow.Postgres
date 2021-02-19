@@ -15,7 +15,7 @@ begin
 				reference_id = rel_goods_id and
 				document_date > relevance_date and 
 				(
-					(amount < 0::money and status_id in (1110, 1111)) or
+					(amount < 0 and status_id in (1110, 1111)) or
 					(status_id = 1112)
 				)
 			order by document_date
