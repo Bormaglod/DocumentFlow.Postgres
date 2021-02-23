@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION public.balance_sheet_goods(date_from timestamp with t
     AS $$
 with balance as
 (
-	select bg.reference_id as gds_id, sum(bg.amount * sign(bg.operation_summa::numeric)) as goods_balance
+	select bg.reference_id as gds_id, sum(bg.amount) as goods_balance
 		from balance_goods bg
 			left join document doc on (doc.id = bg.owner_id)
 		where
@@ -16,18 +16,8 @@ moving_goods as
 (
 	select
 		bg.reference_id as gds_id, 
-		sum(
-			case
-				when bg.operation_summa > 0::money then bg.amount
-				else 0
-			end
-		) as goods_income,
-		sum(
-			case
-				when bg.operation_summa < 0::money then bg.amount
-				else 0
-			end
-		) as goods_expense
+		sum(iif(bg.amount > 0, bg.amount, 0::numeric)) as goods_income,
+		sum(iif(bg.amount < 0, abs(bg.amount), 0::numeric)) as goods_expense
 		from balance_goods bg
 			left join document doc on (doc.id = bg.owner_id)
 		where
