@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.balance_sheet_goods(date_from timestamp with time zone, date_to timestamp with time zone) RETURNS TABLE(id uuid, name character varying, opening_balance numeric, income numeric, expense numeric, closing_balance numeric)
+CREATE OR REPLACE FUNCTION public.balance_sheet_goods(date_from timestamp with time zone, date_to timestamp with time zone, include_service boolean = false) RETURNS TABLE(id uuid, name character varying, opening_balance numeric, income numeric, expense numeric, closing_balance numeric)
     LANGUAGE sql
     AS $$
 with balance as
@@ -42,7 +42,7 @@ select
 			mg.goods_income is null and 
 			mg.goods_expense is null
 		) and
-		not g.is_service
+		g.is_service = include_service
 $$;
 
-ALTER FUNCTION public.balance_sheet_goods(date_from timestamp with time zone, date_to timestamp with time zone) OWNER TO postgres;
+ALTER FUNCTION public.balance_sheet_goods(date_from timestamp with time zone, date_to timestamp with time zone, include_service boolean) OWNER TO postgres;

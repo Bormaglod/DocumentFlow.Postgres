@@ -137,7 +137,7 @@ ALTER TABLE public.balance_goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_goods
-	ADD CONSTRAINT unq_balance_goods_reference UNIQUE (owner_id, reference_id);
+	ADD CONSTRAINT unq_balance_goods_reference UNIQUE (owner_id, reference_id, operation_summa);
 
 --------------------------------------------------------------------------------
 
