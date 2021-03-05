@@ -10,7 +10,7 @@ with balance as
 			(bg.status_id = 1110 and bg.document_date::date < date_from::date) or
 			(doc.doc_date::date < date_from::date)
 		group by bg.reference_id
-		having sum(bg.amount * sign(bg.operation_summa::numeric)) != 0
+		having sum(bg.amount * sign(bg.operation_summa)) != 0
 ),
 moving_goods as
 (

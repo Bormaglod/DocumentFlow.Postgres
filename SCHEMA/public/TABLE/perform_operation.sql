@@ -6,7 +6,7 @@ CREATE TABLE public.perform_operation (
 	amount integer DEFAULT 0,
 	using_goods_id uuid,
 	replacing_goods_id uuid,
-	salary money DEFAULT 0
+	salary numeric(15,2) DEFAULT 0
 )
 INHERITS (public.document);
 

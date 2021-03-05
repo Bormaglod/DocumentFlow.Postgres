@@ -5,7 +5,7 @@ declare
 	purchase_status integer;
 	invoice_status integer;
 	new_invoice_status integer;
-	debt money;
+	debt numeric;
 	no_pay boolean;
 	new_invoice_id uuid;
 begin
@@ -15,7 +15,7 @@ begin
 			raise 'Необходимо указать контрагента!';
 		end if;
 	
-		if (new.amount_debited = 0::money) then
+		if (new.amount_debited = 0) then
 			raise 'Укажите сумму операции';
 		end if;
 	
@@ -28,38 +28,36 @@ begin
 	if (new.status_id = 1002) then
 		perform add_contractor_balance(new.id, new.entity_kind_id, new.doc_number, new.contractor_id, new.amount_debited, new.date_debited, new.direction);
 		if (new.direction = 'expense'::document_direction) then
-			if (new.purchase_id is null and new.invoice_receipt_id is null) then 
-				raise 'Необходимо указать либо заявку на приобретение материалов, либо документ о поступлении материалов.';
-			end if;
-		
-			if (new.purchase_id is not null and new.invoice_receipt_id is not null) then
-				raise 'Необходимо указать одно из двух: либо заявку на приобретение материалов, либо документ о поступлении материалов.';
-			end if;
-		
-			if (new.purchase_id is not null) then
-				select status_id into purchase_status from purchase_request where id = new.purchase_id;
-				if (purchase_status != 3002) then
-					raise 'Заявка на приобретение материалов должна быть в состоянии ПОЛУЧЕН СЧЁТ';
+			if (new.purchase_id is not null or new.invoice_receipt_id is not null) then 
+				if (new.purchase_id is not null and new.invoice_receipt_id is not null) then
+					raise 'Необходимо указать одно из двух: либо заявку на приобретение материалов, либо документ о поступлении материалов.';
 				end if;
+		
+				if (new.purchase_id is not null) then
+					select status_id into purchase_status from purchase_request where id = new.purchase_id;
+					if (purchase_status != 3002) then
+						raise 'Заявка на приобретение материалов должна быть в состоянии ПОЛУЧЕН СЧЁТ';
+					end if;
 			
-				update purchase_request set status_id = status_code('invoice paid') where id = new.purchase_id;
-				perform send_notify_object('purchase_request', new.purchase_id, 'refresh');
-			else
-				select status_id into invoice_status from invoice_receipt where id = new.invoice_receipt_id;
-				if (invoice_status not in  (3004, 3006)) then
-					raise 'Поступление материалов/товаров должно быть в состоянии МАТЕРИАЛ ПОЛУЧЕН или ТРЕБУЕТСЯ ДОПЛАТА';
-				end if;
-			
-				select debt_sum from purchase_debt(new.invoice_receipt_id) into debt;
-				if (debt = 0::money) then
-					new_invoice_status = status_code('withdrawal');
+					update purchase_request set status_id = status_code('invoice paid') where id = new.purchase_id;
+					perform send_notify_object('purchase_request', new.purchase_id, 'refresh');
 				else
-					new_invoice_status = status_code('payment required');
-				end if;
+					select status_id into invoice_status from invoice_receipt where id = new.invoice_receipt_id;
+					if (invoice_status not in  (3004, 3006)) then
+						raise 'Поступление материалов/товаров должно быть в состоянии МАТЕРИАЛ ПОЛУЧЕН или ТРЕБУЕТСЯ ДОПЛАТА';
+					end if;
+			
+					select debt_sum from purchase_debt(new.invoice_receipt_id) into debt;
+					if (debt = 0) then
+						new_invoice_status = status_code('withdrawal');
+					else
+						new_invoice_status = status_code('payment required');
+					end if;
 				
-				if (new_invoice_status != invoice_status) then
-					update invoice_receipt set status_id = new_invoice_status where id = new.invoice_receipt_id;
-					perform send_notify_object('invoice_receipt', new.invoice_receipt_id, 'refresh');
+					if (new_invoice_status != invoice_status) then
+						update invoice_receipt set status_id = new_invoice_status where id = new.invoice_receipt_id;
+						perform send_notify_object('invoice_receipt', new.invoice_receipt_id, 'refresh');
+					end if;
 				end if;
 			end if;
 		end if;

@@ -15,13 +15,13 @@ begin
     -- Материал получен (КОРРЕКТЕН => МАТЕРИАЛ ПОЛУЧЕН И ОПЛАЧЕН)
     if (changing_status_id = 'c473f563-75b5-49b1-8038-5cc919499ac9') then
     	select * from purchase_debt(document_id) into debt;
-        return not debt.no_payment and debt.debt_sum = 0::money;
+        return not debt.no_payment and debt.debt_sum = 0;
     end if;
     
     -- Материал получен (КОРРЕКТЕН => ТРЕБУЕТСЯ ДОПЛАТА)
     if (changing_status_id = '3b8ebbff-d1a2-436c-bd87-dd716911ff4a') then
     	select * from purchase_debt(document_id) into debt;
-        return not debt.no_payment and debt.debt_sum > 0::money;
+        return not debt.no_payment and debt.debt_sum > 0;
     end if;
     
 	return true;

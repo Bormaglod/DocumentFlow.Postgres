@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION public.changing_calc_item_deduction() RETURNS trigger
     AS $$
 declare
 	status_value integer;
-	deduction_base money;
+	deduction_base numeric;
 	r_d record;
 begin
 	select status_id into status_value from calculation where id = new.owner_id;
@@ -35,7 +35,7 @@ begin
 				where owner_id = new.owner_id and status_id = 1001; 
 		end if;
 
-		new.price = coalesce(new.price, 0::money);
+		new.price = coalesce(new.price, 0);
 		new.cost = new.price * new.percentage / 100;
 	end if;
 

@@ -2,12 +2,12 @@ CREATE OR REPLACE FUNCTION public.get_price(object_name character varying, objec
     LANGUAGE plpgsql
     AS $$
 declare
-	obj_price money;
-	arch_price money;
+	obj_price numeric;
+	arch_price numeric;
 begin
 	case object_name
 		when 'goods' then
-			select coalesce(price, 0::money) into obj_price from goods where id = object_id;
+			select coalesce(price, 0) into obj_price from goods where id = object_id;
 			if (on_date is not null) then
 				select price_value 
 					into arch_price 

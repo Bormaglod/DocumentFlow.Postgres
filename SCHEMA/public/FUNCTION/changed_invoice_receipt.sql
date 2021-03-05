@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION public.changed_invoice_receipt() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 declare
-	invoice_cost money;
+	invoice_cost numeric;
 	purchase_status integer;
 	rgoods record;
 	balance_id uuid;

@@ -6,7 +6,7 @@ declare
 	ap average_price;
 	b_id uuid;
 	kind_name varchar;
-	goods_price money;
+	goods_price numeric;
 begin
 	-- => УТВЕРДИТЬ
 	if (new.status_id = 1002) then
@@ -16,7 +16,7 @@ begin
 		loop
 			ap = get_average_price(rgoods.goods_id, new.doc_date);
 			
-			if (ap.avg_price = 0::money) then
+			if (ap.avg_price = 0) then
 				select price into goods_price from goods where id = rgoods.goods_id;
 			else
 				goods_price = ap.avg_price;
@@ -25,7 +25,7 @@ begin
 			rgoods.amount = rgoods.amount - ap.amount;
 		
 			insert into balance_goods (owner_id, document_date, document_name, document_number, reference_id, amount, operation_summa)
-				values (new.id, new.doc_date, kind_name, new.doc_number, rgoods.goods_id, rgoods.amount, abs(goods_price::numeric * rgoods.amount)) returning id into b_id;
+				values (new.id, new.doc_date, kind_name, new.doc_number, rgoods.goods_id, rgoods.amount, abs(goods_price * rgoods.amount)) returning id into b_id;
 			update balance_goods
 				set status_id = 1112
 				where id = b_id;

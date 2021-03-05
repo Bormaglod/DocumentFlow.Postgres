@@ -5,7 +5,7 @@ declare
 	r record;
 	completed numeric;
 	d integer;
-	goods_cost money;
+	goods_cost numeric;
 begin
 	-- => КОРРЕКТЕН
 	if (new.status_id = 1001) then
@@ -17,11 +17,11 @@ begin
 			raise 'Количество изделий должно быть больше 0!';
 		end if;
 	
-		if (coalesce(new.price, 0::money) <= 0::money) then
+		if (coalesce(new.price, 0) <= 0) then
 			raise 'Цена изделия должна быть больше 0!';
 		end if;
 	
-		if (coalesce(new.cost, 0::money) <= 0::money) then
+		if (coalesce(new.cost, 0) <= 0) then
 			raise 'Стоимость готовых изделий должна быть больше 0!';
 		end if;
 	end if;

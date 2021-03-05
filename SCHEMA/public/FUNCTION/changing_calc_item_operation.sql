@@ -9,7 +9,7 @@ declare
 	r_goods record;
 	g_items record;
 	operation_amount integer;
-	delta money;
+	delta numeric;
 begin
 	select status_id into status_value from calculation where id = new.owner_id;
 	if (status_value not in (1000, 1004)) then
@@ -32,21 +32,21 @@ begin
 			raise 'Расчётное количество операций (%) не соответствует указанному (%)', operation_amount, new.amount;
 		end if;
 	
-		select o.salary::numeric / coalesce(m.coefficient, 1)
+		select o.salary / coalesce(m.coefficient, 1)
 			into operation_salary
 			from operation o 
 				left join measurement m on (m.id = o.measurement_id)
 			where o.id = new.item_id;
 	
 		do_update = false;
-		if (new.price = 0::money) then
+		if (new.price = 0) then
 			new.price = operation_salary;
 			do_update = true;
 		else
 			operation_salary = new.price;
 		end if;
 	
-		if (do_update or new.cost = 0::money) then
+		if (do_update or new.cost = 0) then
 			new.cost = operation_salary * new.amount;
 		end if;
 	

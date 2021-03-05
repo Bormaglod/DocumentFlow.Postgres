@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION public.changing_goods() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 declare
-	goods_price money;
+	goods_price numeric;
 begin
 	if (new.status_id = 1001) then
 		if (new.tax is null) then
@@ -15,8 +15,8 @@ begin
 	
 		select price into goods_price from calculation where owner_id = new.id and status_id = 1002;
 		if (goods_price is null) then
-			new.price = coalesce(new.price, 0::money);
-			if (new.price = 0::money) then
+			new.price = coalesce(new.price, 0);
+			if (new.price = 0) then
 				raise 'Должна быть установлена цена изделия.';
 			end if;
 		else

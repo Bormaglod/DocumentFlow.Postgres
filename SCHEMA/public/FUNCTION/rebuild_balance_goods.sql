@@ -21,7 +21,7 @@ begin
 			order by document_date
 	loop
 		avg_price = get_average_price(rel_goods_id, r.document_date, r.amount);
-		if (avg_price.avg_price = 0::money) then
+		if (avg_price.avg_price = 0) then
 			avg_price.avg_price = get_price('goods', rel_goods_id, r.document_date);
 			avg_price.price = avg_price.avg_price * r.amount;
 		end if;

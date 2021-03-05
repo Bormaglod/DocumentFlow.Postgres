@@ -1,7 +1,7 @@
 CREATE TABLE public.calc_item (
 	item_id uuid,
-	price money,
-	cost money
+	price numeric(15,2),
+	cost numeric(15,2)
 )
 INHERITS (public.directory);
 

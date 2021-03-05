@@ -2,10 +2,10 @@ CREATE OR REPLACE FUNCTION public.purchase_debt(document_id uuid, OUT debt_sum m
     LANGUAGE plpgsql
     AS $$
 declare
-	invoice_sum money;
-    payment_sum money;
+	invoice_sum numeric;
+    payment_sum numeric;
     purchase uuid;
-    purchase_payment_sum money;
+    purchase_payment_sum numeric;
 begin
 	select sum(ird.cost_with_tax) 
 		into invoice_sum 
@@ -19,10 +19,10 @@ begin
     	select sum(amount_debited) into purchase_payment_sum from payment_order where purchase_id = purchase and status_id = 1002;
     end if;
         
-    invoice_sum = coalesce(invoice_sum, 0::money);
-    payment_sum = coalesce(payment_sum, 0::money) + coalesce(purchase_payment_sum, 0::money);
+    invoice_sum = coalesce(invoice_sum, 0);
+    payment_sum = coalesce(payment_sum, 0) + coalesce(purchase_payment_sum, 0);
     
-    no_payment = (payment_sum = 0::money);
+    no_payment = (payment_sum = 0);
     debt_sum = invoice_sum - payment_sum;
     return;
 end;

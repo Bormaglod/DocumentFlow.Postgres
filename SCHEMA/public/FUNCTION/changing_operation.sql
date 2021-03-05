@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION public.changing_operation() RETURNS trigger
     AS $$
 declare
 	root_code varchar;
-	hs money;
+	hs numeric;
 	coeff integer;
 	program_code varchar;
 begin

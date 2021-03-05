@@ -1,7 +1,7 @@
 CREATE TABLE public.goods (
 	ext_article character varying(100),
 	measurement_id uuid,
-	price money,
+	price numeric(15,2),
 	tax public.tax_nds,
 	min_order numeric(15,3),
 	is_service boolean,

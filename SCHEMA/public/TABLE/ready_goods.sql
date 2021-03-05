@@ -1,8 +1,8 @@
 CREATE TABLE public.ready_goods (
 	goods_id uuid,
 	amount numeric(12,3),
-	price money,
-	cost money
+	price numeric(15,2),
+	cost numeric(15,2)
 )
 INHERITS (public.document);
 

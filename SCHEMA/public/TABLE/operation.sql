@@ -3,7 +3,7 @@ CREATE TABLE public.operation (
 	prod_time integer,
 	production_rate integer,
 	type_id uuid,
-	salary money,
+	salary numeric(15,2),
 	length integer,
 	left_cleaning numeric(4,1),
 	left_sweep integer,

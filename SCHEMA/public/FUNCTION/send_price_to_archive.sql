@@ -3,8 +3,8 @@ CREATE OR REPLACE FUNCTION public.send_price_to_archive() RETURNS trigger
     AS $$
 declare
 	price_id uuid;
-	price_prev money;
-	price_new money;
+	price_prev numeric;
+	price_new numeric;
 begin
 	if (TG_TABLE_NAME not in ('goods', 'operation_type', 'operation')) then
 		raise 'Для таблицы % не предусмотрен архив цен!', TG_TABLE_NAME;
@@ -19,7 +19,7 @@ begin
 			price_prev = old.salary;
 		end if;
 	
-		if (price_prev != 0::money) then
+		if (price_prev != 0) then
 			insert into archive_price (owner_id, price_value) values (old.id, price_prev);
 		end if;
 	end if;

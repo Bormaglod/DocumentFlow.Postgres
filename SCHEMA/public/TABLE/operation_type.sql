@@ -1,5 +1,5 @@
 CREATE TABLE public.operation_type (
-	hourly_salary money
+	hourly_salary numeric(15,2)
 )
 INHERITS (public.directory);
 

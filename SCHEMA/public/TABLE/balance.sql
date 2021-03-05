@@ -3,7 +3,7 @@ CREATE TABLE public.balance (
 	document_name character varying(40),
 	document_number character varying(20),
 	reference_id uuid,
-	operation_summa money DEFAULT 0,
+	operation_summa numeric(15,2) DEFAULT 0,
 	amount numeric(12,3) DEFAULT 0,
 	document_kind uuid
 )

@@ -6,7 +6,7 @@ declare
 	r record;
 	avg_sum numeric;
 begin
-	select coalesce(sum(operation_summa::numeric * sign(amount)), 0) as operation_summa, coalesce(sum(amount), 0) as amount
+	select coalesce(sum(operation_summa * sign(amount)), 0) as operation_summa, coalesce(sum(amount), 0) as amount
     	into r
 		from only balance_goods
 		where
@@ -21,11 +21,11 @@ begin
 	end if;
 
 	if (r.amount = 0) then
-		p.avg_price = 0::money;
-		p.price = 0::money;
+		p.avg_price = 0;
+		p.price = 0;
 	else
 		avg_sum = r.operation_summa / r.amount;
-		p.avg_price = round(avg_sum, 2)::money;
+		p.avg_price = round(avg_sum, 2);
 		p.price = avg_sum * p.amount;
 	end if;
 

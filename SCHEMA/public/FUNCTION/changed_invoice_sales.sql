@@ -2,10 +2,10 @@ CREATE OR REPLACE FUNCTION public.changed_invoice_sales() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 declare
-	invoice_cost money;
+	invoice_cost numeric;
 	rgoods record;
 	order_status integer;
-	duty money;
+	duty numeric;
 begin
 	-- => УТВЕРДИТЬ
 	if (new.status_id = 1002) then
@@ -23,7 +23,7 @@ begin
 	
 		-- ДЗСтп
 		if (new.contractor_id = '5a5778be-f5ae-4761-a7c5-b64c13d88078') then
-			select sum(amount * 2)::money from invoice_sales_detail isd
+			select sum(amount * 2) from invoice_sales_detail isd
 				into duty
 				join goods g on (g.id = isd.goods_id)
 				where isd.owner_id = new.id and not g.is_service;

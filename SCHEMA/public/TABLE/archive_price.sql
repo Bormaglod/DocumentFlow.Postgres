@@ -1,5 +1,5 @@
 CREATE TABLE public.archive_price (
-	price_value money,
+	price_value numeric(15,2),
 	date_to timestamp with time zone
 )
 INHERITS (public.directory);

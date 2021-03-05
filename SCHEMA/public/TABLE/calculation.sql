@@ -1,8 +1,8 @@
 CREATE TABLE public.calculation (
-	cost money,
+	cost numeric(15,2),
 	profit_percent numeric(6,2),
-	profit_value money,
-	price money,
+	profit_value numeric(15,2),
+	price numeric(15,2),
 	note character varying
 )
 INHERITS (public.directory);

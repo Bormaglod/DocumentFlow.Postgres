@@ -3,11 +3,11 @@ CREATE TABLE public.goods_price_detail (
 	owner_id uuid,
 	goods_id uuid,
 	amount numeric(12,3) DEFAULT 0,
-	price money DEFAULT 0,
-	cost money DEFAULT 0,
+	price numeric(15,2) DEFAULT 0,
+	cost numeric(15,2) DEFAULT 0,
 	tax public.tax_nds DEFAULT 20,
-	tax_value money DEFAULT 0,
-	cost_with_tax money DEFAULT 0
+	tax_value numeric(15,2) DEFAULT 0,
+	cost_with_tax numeric(15,2) DEFAULT 0
 );
 
 ALTER TABLE public.goods_price_detail OWNER TO postgres;

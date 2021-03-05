@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.add_contractor_balance(document_id uuid, doc_kind uuid, doc_number character varying, ref_id uuid, amount money, debited timestamp with time zone, doc_direction public.document_direction) RETURNS void
+CREATE OR REPLACE FUNCTION public.add_contractor_balance(document_id uuid, doc_kind uuid, doc_number character varying, ref_id uuid, amount numeric, debited timestamp with time zone, doc_direction public.document_direction) RETURNS void
     LANGUAGE plpgsql
     AS $$
 declare
@@ -32,9 +32,9 @@ begin
 end;
 $$;
 
-ALTER FUNCTION public.add_contractor_balance(document_id uuid, doc_kind uuid, doc_number character varying, ref_id uuid, amount money, debited timestamp with time zone, doc_direction public.document_direction) OWNER TO postgres;
+ALTER FUNCTION public.add_contractor_balance(document_id uuid, doc_kind uuid, doc_number character varying, ref_id uuid, amount numeric, debited timestamp with time zone, doc_direction public.document_direction) OWNER TO postgres;
 
-COMMENT ON FUNCTION public.add_contractor_balance(document_id uuid, doc_kind uuid, doc_number character varying, ref_id uuid, amount money, debited timestamp with time zone, doc_direction public.document_direction) IS 'Создает движение по задолженности контрагента
+COMMENT ON FUNCTION public.add_contractor_balance(document_id uuid, doc_kind uuid, doc_number character varying, ref_id uuid, amount numeric, debited timestamp with time zone, doc_direction public.document_direction) IS 'Создает движение по задолженности контрагента
 - document_id - идентификатор документа добавляющего запись
 - doc_kind  - тип этого документа (идентификатор entity_kind) (может быть NULL)
 - doc_number - номер документа (может быть NULL)

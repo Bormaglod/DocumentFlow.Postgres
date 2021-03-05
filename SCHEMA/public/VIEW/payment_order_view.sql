@@ -6,8 +6,8 @@ CREATE VIEW public.payment_order_view AS
     po.doc_number,
     c.name AS contractor_name,
     po.date_debited,
-    public.iif((po.direction = 'expense'::public.document_direction), po.amount_debited, NULL::money) AS expense,
-    public.iif((po.direction = 'income'::public.document_direction), po.amount_debited, NULL::money) AS income,
+    public.iif((po.direction = 'expense'::public.document_direction), po.amount_debited, NULL::numeric) AS expense,
+    public.iif((po.direction = 'income'::public.document_direction), po.amount_debited, NULL::numeric) AS income,
     ua.name AS user_created,
     po.organization_id,
     org.name AS organization_name
@@ -19,5 +19,5 @@ CREATE VIEW public.payment_order_view AS
 
 ALTER VIEW public.payment_order_view OWNER TO postgres;
 
-GRANT ALL ON TABLE public.payment_order_view TO admins;
 GRANT SELECT ON TABLE public.payment_order_view TO users;
+GRANT ALL ON TABLE public.payment_order_view TO admins;

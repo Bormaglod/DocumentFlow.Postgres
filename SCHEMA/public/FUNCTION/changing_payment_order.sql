@@ -8,7 +8,7 @@ begin
 		else new.direction
 	end;
 
-	new.amount_debited = coalesce(new.amount_debited, 0::money);
+	new.amount_debited = coalesce(new.amount_debited, 0);
 
 	return new;
 end;

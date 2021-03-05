@@ -1,7 +1,7 @@
 CREATE TABLE public.payment_order (
 	contractor_id uuid,
 	date_debited date,
-	amount_debited money,
+	amount_debited numeric(15,2),
 	direction public.document_direction,
 	purchase_id uuid,
 	invoice_receipt_id uuid

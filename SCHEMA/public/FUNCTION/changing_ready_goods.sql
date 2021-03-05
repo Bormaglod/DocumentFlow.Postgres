@@ -8,7 +8,7 @@ begin
 	-- => КОРРЕКТЕН
 	if (new.status_id = 1001) then
 		need_calc = false;
-		if (coalesce(new.price, 0::money) = 0::money) then
+		if (coalesce(new.price, 0) = 0) then
 			if (new.owner_id is null) then
 				select g.price into new.price from goods g where g.id = new.goods_id;
 			else
@@ -39,7 +39,7 @@ begin
 			need_calc = true;
 		end if;
 
-		if (coalesce(new.cost, 0::money) = 0::money or need_calc) then
+		if (coalesce(new.cost, 0) = 0 or need_calc) then
 			new.cost = new.amount * new.price;
 		end if;
 	end if;

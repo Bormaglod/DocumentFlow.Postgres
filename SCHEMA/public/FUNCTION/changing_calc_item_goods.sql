@@ -3,10 +3,10 @@ CREATE OR REPLACE FUNCTION public.changing_calc_item_goods() RETURNS trigger
     AS $$
 declare
 	status_value integer;
-	goods_price money;
+	goods_price numeric;
 	do_update boolean;
 	r_item record;
-	delta money;
+	delta numeric;
 begin
 	select status_id into status_value from calculation where id = new.owner_id;
 	if (status_value not in (1000, 1004)) then
@@ -24,18 +24,18 @@ begin
 		end if;
 	
 		if (new.is_tolling) then
-			new.price = 0::money;
-			new.cost = 0::money;
+			new.price = 0;
+			new.cost = 0;
 		else
 			select price into goods_price from goods where id = new.item_id;
 
 			do_update = false;
-			if (new.price = 0::money) then
+			if (new.price = 0) then
 				new.price = goods_price;
 				do_update = true;
 			end if;
 	
-			if (do_update or new.cost = 0::money) then
+			if (do_update or new.cost = 0) then
 				new.cost = new.price * new.amount;
 			end if;
 		end if;
