@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.purchase_debt(document_id uuid, OUT debt_sum money, OUT no_payment boolean) RETURNS record
+CREATE OR REPLACE FUNCTION public.purchase_debt(document_id uuid, OUT debt_sum numeric, OUT no_payment boolean) RETURNS record
     LANGUAGE plpgsql
     AS $$
 declare
@@ -28,9 +28,4 @@ begin
 end;
 $$;
 
-ALTER FUNCTION public.purchase_debt(document_id uuid, OUT debt_sum money, OUT no_payment boolean) OWNER TO postgres;
-
-COMMENT ON FUNCTION public.purchase_debt(document_id uuid, OUT debt_sum money, OUT no_payment boolean) IS 'Возвращает сумму задолженности контрагенту по поставленным товарам/материалам
-- document_id - идентификатор документа (invoice_receipt)
-- debt_sum - (ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ) сумма задолженности
-- no_payment - (ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ) true, если отсутстуют платежи';
+ALTER FUNCTION public.purchase_debt(document_id uuid, OUT debt_sum numeric, OUT no_payment boolean) OWNER TO postgres;
