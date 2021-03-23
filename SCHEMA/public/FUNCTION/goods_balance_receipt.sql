@@ -14,8 +14,8 @@ begin
 	end if;
 
 	select name into kind_name from entity_kind where id = doc_kind;
-	insert into balance_tolling (owner_id, document_date, document_name, document_number, reference_id, amount, contractor_id)
-		values (document_id, receipt_date, kind_name, doc_number, ref_id, amount, seller_id) returning id into b_id;
+	insert into balance_tolling (owner_id, document_date, document_name, document_number, reference_id, amount, contractor_id, document_kind)
+		values (document_id, receipt_date, kind_name, doc_number, ref_id, amount, seller_id, doc_kind) returning id into b_id;
 	update balance_tolling
 		set status_id = 1111
 		where id = b_id;
@@ -42,8 +42,8 @@ begin
 	end if;
 
 	select name into kind_name from entity_kind where id = doc_kind;
-	insert into balance_goods (owner_id, document_date, document_name, document_number, reference_id, amount, operation_summa)
-		values (document_id, receipt_date, kind_name, doc_number, ref_id, amount, cost) returning id into b_id;
+	insert into balance_goods (owner_id, document_date, document_name, document_number, reference_id, amount, operation_summa, document_kind)
+		values (document_id, receipt_date, kind_name, doc_number, ref_id, amount, cost, doc_kind) returning id into b_id;
 	update balance_goods
 		set status_id = 1111
 		where id = b_id;

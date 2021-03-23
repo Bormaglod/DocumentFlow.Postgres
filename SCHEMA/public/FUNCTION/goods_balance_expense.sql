@@ -34,14 +34,14 @@ begin
 	if (_contractor_id is null) then
 		avg_price = get_average_price(ref_id, expense_date, goods_amount);
 
-		insert into balance_goods (owner_id, document_date, document_name, document_number, reference_id, amount, operation_summa)
-			values (document_id, expense_date, kind_name, doc_number, ref_id, 0::numeric - goods_amount, avg_price.price) returning id into b_id;
+		insert into balance_goods (owner_id, document_date, document_name, document_number, reference_id, amount, operation_summa, document_kind)
+			values (document_id, expense_date, kind_name, doc_number, ref_id, 0::numeric - goods_amount, avg_price.price, doc_kind) returning id into b_id;
 		update balance_goods
 			set status_id = 1111
 			where id = b_id;
 	else
-   		insert into balance_tolling (owner_id, document_date, document_name, document_number, reference_id, amount, contractor_id)
-			values (document_id, expense_date, kind_name, doc_number, ref_id, 0::numeric - goods_amount, _contractor_id) returning id into b_id;
+   		insert into balance_tolling (owner_id, document_date, document_name, document_number, reference_id, amount, contractor_id, document_kind)
+			values (document_id, expense_date, kind_name, doc_number, ref_id, 0::numeric - goods_amount, _contractor_id, doc_kind) returning id into b_id;
         update balance_tolling
 			set status_id = 1111
 			where id = b_id;

@@ -5,7 +5,8 @@ CREATE TABLE public.goods (
 	tax public.tax_nds,
 	min_order numeric(15,3),
 	is_service boolean,
-	cross_id uuid
+	cross_id uuid,
+	weight numeric(15,3)
 )
 INHERITS (public.directory);
 
@@ -33,6 +34,8 @@ COMMENT ON COLUMN public.goods.min_order IS 'Минимальная партия
 COMMENT ON COLUMN public.goods.is_service IS 'Это услуга';
 
 COMMENT ON COLUMN public.goods.cross_id IS 'Кросс-артикул';
+
+COMMENT ON COLUMN public.goods.weight IS 'Вес';
 
 --------------------------------------------------------------------------------
 
