@@ -23,6 +23,11 @@ begin
     	select * from purchase_debt(document_id) into debt;
         return not debt.no_payment and debt.debt_sum > 0;
     end if;
+   
+   -- Материал получен (МАТЕРИАЛ ПОЛУЧЕН => ЗАКРЫТ)
+   if (changing_status_id = '1c4f49e5-b5de-42ef-8ee1-fdad86a8423c') then
+    	return (select is_tolling from invoice_receipt ir where id = document_id); 
+    end if;
     
 	return true;
 end;
