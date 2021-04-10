@@ -24,8 +24,8 @@ begin
 		raise 'Не установленное значение направления движения денежных средств';
 	end if;
     
-	insert into balance_contractor (owner_id, document_date, document_name, document_number, reference_id, operation_summa)
-		values (document_id, debited, kind_name, doc_number, ref_id, amount * dir) returning id into balance_id;
+	insert into balance_contractor (owner_id, document_date, document_name, document_number, reference_id, operation_summa, document_kind)
+		values (document_id, debited, kind_name, doc_number, ref_id, amount * dir, doc_kind) returning id into balance_id;
 	update balance_contractor
     	set status_id = 1111
         where id = balance_id;

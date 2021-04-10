@@ -33,7 +33,7 @@ CREATE TRIGGER command_bi
 CREATE TRIGGER command_bu
 	BEFORE UPDATE OF script ON public.command
 	FOR EACH ROW
-	WHEN ((new.date_updated = old.date_updated))
+	WHEN (((new.date_updated = old.date_updated) OR (old.date_updated IS NULL)))
 	EXECUTE PROCEDURE public.command_initialize();
 
 --------------------------------------------------------------------------------

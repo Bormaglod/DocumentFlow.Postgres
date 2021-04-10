@@ -28,8 +28,10 @@ begin
 				join goods g on (g.id = isd.goods_id)
 				where isd.owner_id = new.id and not g.is_service;
 	
-			-- Кравчук С.А.
-			perform add_contractor_balance(new.id, new.entity_kind_id, new.doc_number, 'da28fcba-3199-4e92-8722-2424a9f1b4b2', duty, new.doc_date, 'income'::document_direction);
+			if (duty > 0) then
+				-- Кравчук С.А.
+				perform add_contractor_balance(new.id, new.entity_kind_id, new.doc_number, 'da28fcba-3199-4e92-8722-2424a9f1b4b2', duty, new.doc_date, 'income'::document_direction);
+			end if;
 		end if;
 	end if;
 
