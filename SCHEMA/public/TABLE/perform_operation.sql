@@ -44,14 +44,6 @@ CREATE TRIGGER perform_operation_ad
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER perform_operation_aiu
-	AFTER INSERT OR UPDATE ON public.perform_operation
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_checking();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER perform_operation_bi
 	BEFORE INSERT ON public.perform_operation
 	FOR EACH ROW
@@ -79,6 +71,14 @@ CREATE TRIGGER perform_operation_bu_status
 	FOR EACH ROW
 	WHEN ((old.status_id <> new.status_id))
 	EXECUTE PROCEDURE public.changing_perform_operation();
+
+--------------------------------------------------------------------------------
+
+CREATE CONSTRAINT TRIGGER perform_operation_aiu
+	AFTER INSERT OR UPDATE ON public.perform_operation
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_checking();
 
 --------------------------------------------------------------------------------
 

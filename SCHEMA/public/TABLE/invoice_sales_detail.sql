@@ -24,12 +24,12 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.invoice_sales_detail TO users;
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.invoice_sales_detail
-	ADD CONSTRAINT fk_invoice_sales_detail_owner FOREIGN KEY (owner_id) REFERENCES public.invoice_sales(id) ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT fk_invoice_sales_detail_goods FOREIGN KEY (goods_id) REFERENCES public.goods(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.invoice_sales_detail
-	ADD CONSTRAINT fk_invoice_sales_detail_goods FOREIGN KEY (goods_id) REFERENCES public.goods(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_invoice_sales_detail_owner FOREIGN KEY (owner_id) REFERENCES public.invoice_sales(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
 

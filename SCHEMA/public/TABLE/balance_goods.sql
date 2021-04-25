@@ -107,22 +107,12 @@ ALTER TABLE public.balance_goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_goods
-	ADD CONSTRAINT fk_balance_goods_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_goods
-	ADD CONSTRAINT fk_balance_goods_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_goods
 	ADD CONSTRAINT fk_balance_goods_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_goods
-	ADD CONSTRAINT fk_balance_goods_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_balance_goods_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -137,9 +127,19 @@ ALTER TABLE public.balance_goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_goods
-	ADD CONSTRAINT unq_balance_goods_reference UNIQUE (owner_id, reference_id, operation_summa);
+	ADD CONSTRAINT fk_balance_goods_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_goods
+	ADD CONSTRAINT fk_balance_goods_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_goods
 	ADD CONSTRAINT fk_balance_goods_document FOREIGN KEY (document_kind) REFERENCES public.entity_kind(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_goods
+	ADD CONSTRAINT unq_balance_goods_reference UNIQUE (owner_id, reference_id, operation_summa);

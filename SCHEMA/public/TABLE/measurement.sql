@@ -52,11 +52,6 @@ ALTER TABLE public.measurement
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.measurement
-	ADD CONSTRAINT unq_measurement_code UNIQUE (code);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.measurement
 	ADD CONSTRAINT fk_measurement_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -83,3 +78,8 @@ ALTER TABLE public.measurement
 
 ALTER TABLE public.measurement
 	ADD CONSTRAINT fk_measurement_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.measurement
+	ADD CONSTRAINT unq_measurement_code UNIQUE (code);

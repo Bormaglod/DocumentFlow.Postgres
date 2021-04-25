@@ -34,6 +34,14 @@ CREATE CONSTRAINT TRIGGER account_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER account_au_status
+	AFTER UPDATE ON public.account
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.changed_account();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER account_bi
 	BEFORE INSERT ON public.account
 	FOR EACH ROW
@@ -48,26 +56,23 @@ CREATE TRIGGER account_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER account_au_status
-	AFTER UPDATE ON public.account
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_account();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.account
 	ADD CONSTRAINT pk_account_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.account
-	ADD CONSTRAINT unq_account_code UNIQUE (code);
+	ADD CONSTRAINT fk_account_bank FOREIGN KEY (bank_id) REFERENCES public.bank(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.account
 	ADD CONSTRAINT fk_account_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.account
+	ADD CONSTRAINT unq_account_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -93,8 +98,3 @@ ALTER TABLE public.account
 
 ALTER TABLE public.account
 	ADD CONSTRAINT fk_account_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.account
-	ADD CONSTRAINT fk_account_bank FOREIGN KEY (bank_id) REFERENCES public.bank(id) ON UPDATE CASCADE;

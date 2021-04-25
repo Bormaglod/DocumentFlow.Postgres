@@ -26,6 +26,14 @@ CREATE CONSTRAINT TRIGGER contractor_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER contractor_au_status
+	AFTER UPDATE ON public.contractor
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.changed_company();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER contractor_bi
 	BEFORE INSERT ON public.contractor
 	FOR EACH ROW
@@ -40,21 +48,8 @@ CREATE TRIGGER contractor_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER contractor_au_status
-	AFTER UPDATE ON public.contractor
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_company();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.contractor
 	ADD CONSTRAINT pk_contractor_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.contractor
-	ADD CONSTRAINT unq_contractor_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -64,7 +59,17 @@ ALTER TABLE public.contractor
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.contractor
+	ADD CONSTRAINT fk_contractor_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.contractor
 	ADD CONSTRAINT fk_contractor_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.contractor
+	ADD CONSTRAINT fk_contractor_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -84,14 +89,9 @@ ALTER TABLE public.contractor
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.contractor
-	ADD CONSTRAINT fk_contractor_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.contractor
-	ADD CONSTRAINT fk_contractor_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.contractor
 	ADD CONSTRAINT fk_contractor_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.contractor
+	ADD CONSTRAINT unq_contractor_code UNIQUE (code);

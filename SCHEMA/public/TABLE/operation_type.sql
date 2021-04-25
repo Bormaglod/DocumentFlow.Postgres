@@ -27,6 +27,14 @@ CREATE CONSTRAINT TRIGGER operation_type_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER operation_type_au_archive
+	AFTER UPDATE ON public.operation_type
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.send_price_to_archive();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER operation_type_bi
 	BEFORE INSERT ON public.operation_type
 	FOR EACH ROW
@@ -49,21 +57,8 @@ CREATE TRIGGER operation_type_bu_status
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER operation_type_au_archive
-	AFTER UPDATE ON public.operation_type
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.send_price_to_archive();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.operation_type
 	ADD CONSTRAINT pk_operation_type_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation_type
-	ADD CONSTRAINT unq_operation_type_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -89,3 +84,8 @@ ALTER TABLE public.operation_type
 
 ALTER TABLE public.operation_type
 	ADD CONSTRAINT fk_operation_type_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.operation_type
+	ADD CONSTRAINT unq_operation_type_code UNIQUE (code);

@@ -34,13 +34,6 @@ CREATE INDEX unq_calc_item_goods_item ON public.calc_item_goods USING btree (own
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER calc_item_goods_aiu_0
-	AFTER INSERT OR UPDATE ON public.calc_item_goods
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.checking_calc_item();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER calc_item_goods_ad
 	AFTER DELETE ON public.calc_item_goods
 	FOR EACH ROW
@@ -53,6 +46,13 @@ CREATE CONSTRAINT TRIGGER calc_item_goods_aiu
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER calc_item_goods_aiu_0
+	AFTER INSERT OR UPDATE ON public.calc_item_goods
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.checking_calc_item();
 
 --------------------------------------------------------------------------------
 
@@ -79,11 +79,6 @@ CREATE TRIGGER calc_item_goods_bu_status
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.calc_item_goods
-	ADD CONSTRAINT unq_calc_item_goods_code UNIQUE (code);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.calc_item_goods
 	ADD CONSTRAINT pk_calc_item_goods_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
@@ -99,7 +94,17 @@ ALTER TABLE public.calc_item_goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.calc_item_goods
+	ADD CONSTRAINT fk_calc_item_goods_item FOREIGN KEY (item_id) REFERENCES public.goods(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.calc_item_goods
 	ADD CONSTRAINT fk_calc_item_goods_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.calc_item_goods
+	ADD CONSTRAINT fk_calc_item_goods_owner FOREIGN KEY (owner_id) REFERENCES public.calculation(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -114,9 +119,4 @@ ALTER TABLE public.calc_item_goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.calc_item_goods
-	ADD CONSTRAINT fk_calc_item_goods_owner FOREIGN KEY (owner_id) REFERENCES public.calculation(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.calc_item_goods
-	ADD CONSTRAINT fk_calc_item_goods_item FOREIGN KEY (item_id) REFERENCES public.goods(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT unq_calc_item_goods_code UNIQUE (code);

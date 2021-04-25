@@ -34,6 +34,14 @@ CREATE CONSTRAINT TRIGGER bank_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER bank_au_status
+	AFTER UPDATE ON public.bank
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.changed_bank();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER bank_bi
 	BEFORE INSERT ON public.bank
 	FOR EACH ROW
@@ -48,21 +56,8 @@ CREATE TRIGGER bank_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER bank_au_status
-	AFTER UPDATE ON public.bank
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_bank();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.bank
 	ADD CONSTRAINT pk_bank_id UNIQUE (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.bank
-	ADD CONSTRAINT unq_bank_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -93,3 +88,8 @@ ALTER TABLE public.bank
 
 ALTER TABLE public.bank
 	ADD CONSTRAINT fk_bank_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.bank
+	ADD CONSTRAINT unq_bank_code UNIQUE (code);

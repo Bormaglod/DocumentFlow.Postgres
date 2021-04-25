@@ -79,22 +79,12 @@ ALTER TABLE public.balance_contractor
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_contractor
-	ADD CONSTRAINT fk_balance_contractor_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_contractor
-	ADD CONSTRAINT fk_balance_contractor_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_contractor
 	ADD CONSTRAINT fk_balance_contractor_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_contractor
-	ADD CONSTRAINT fk_balance_contractor_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_balance_contractor_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -105,6 +95,16 @@ ALTER TABLE public.balance_contractor
 
 ALTER TABLE public.balance_contractor
 	ADD CONSTRAINT fk_balance_contractor_ref FOREIGN KEY (reference_id) REFERENCES public.contractor(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_contractor
+	ADD CONSTRAINT fk_balance_contractor_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_contractor
+	ADD CONSTRAINT fk_balance_contractor_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 

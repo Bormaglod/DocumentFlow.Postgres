@@ -23,11 +23,10 @@ COMMENT ON COLUMN public.invoice_receipt.is_tolling IS 'Флаг определ�
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER invoice_receipt_aiu
-	AFTER INSERT OR UPDATE ON public.invoice_receipt
-	NOT DEFERRABLE INITIALLY IMMEDIATE
+CREATE TRIGGER invoice_receipt_ad
+	AFTER DELETE ON public.invoice_receipt
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_checking();
+	EXECUTE PROCEDURE public.document_deleting();
 
 --------------------------------------------------------------------------------
 
@@ -45,18 +44,11 @@ CREATE TRIGGER invoice_receipt_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER invoice_receipt_ad
-	AFTER DELETE ON public.invoice_receipt
+CREATE CONSTRAINT TRIGGER invoice_receipt_aiu
+	AFTER INSERT OR UPDATE ON public.invoice_receipt
+	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER invoice_receipt_bu_status
-	BEFORE UPDATE ON public.invoice_receipt
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changing_invoice_receipt();
+	EXECUTE PROCEDURE public.document_checking();
 
 --------------------------------------------------------------------------------
 
@@ -65,6 +57,14 @@ CREATE TRIGGER invoice_receipt_au_status
 	FOR EACH ROW
 	WHEN ((old.status_id <> new.status_id))
 	EXECUTE PROCEDURE public.changed_invoice_receipt();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER invoice_receipt_bu_status
+	BEFORE UPDATE ON public.invoice_receipt
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.changing_invoice_receipt();
 
 --------------------------------------------------------------------------------
 
@@ -77,12 +77,7 @@ CREATE CONSTRAINT TRIGGER invoice_receipt_aiu_1
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.invoice_receipt
-	ADD CONSTRAINT fk_invoice_receipt_owner FOREIGN KEY (owner_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.invoice_receipt
-	ADD CONSTRAINT fk_invoice_receipt_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT pk_invoice_receipt_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
@@ -97,6 +92,11 @@ ALTER TABLE public.invoice_receipt
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.invoice_receipt
+	ADD CONSTRAINT fk_invoice_receipt_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.invoice_receipt
 	ADD CONSTRAINT fk_invoice_receipt_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -107,17 +107,17 @@ ALTER TABLE public.invoice_receipt
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.invoice_receipt
+	ADD CONSTRAINT fk_invoice_receipt_owner FOREIGN KEY (owner_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.invoice_receipt
 	ADD CONSTRAINT fk_invoice_receipt_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.invoice_receipt
 	ADD CONSTRAINT fk_invoice_receipt_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.invoice_receipt
-	ADD CONSTRAINT pk_invoice_receipt_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 

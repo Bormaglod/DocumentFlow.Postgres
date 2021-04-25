@@ -31,6 +31,14 @@ CREATE CONSTRAINT TRIGGER employee_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER employee_au_status
+	AFTER UPDATE ON public.employee
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.changed_employee();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER employee_bi
 	BEFORE INSERT ON public.employee
 	FOR EACH ROW
@@ -45,21 +53,20 @@ CREATE TRIGGER employee_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER employee_au_status
-	AFTER UPDATE ON public.employee
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_employee();
+ALTER TABLE public.employee
+	ADD CONSTRAINT chk_employee_post_role CHECK (((post_role >= 0) AND (post_role < 5)));
+
+COMMENT ON CONSTRAINT chk_employee_post_role ON public.employee IS 'Неверно установлено щначение роли служащего. Допустимые значения: 
+0 - роль неопределена
+1 - руководитель
+2 - гл. бухгалтер
+3 - служащий
+4 - рабочий';
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.employee
 	ADD CONSTRAINT pk_employee_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.employee
-	ADD CONSTRAINT unq_employee_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -84,16 +91,6 @@ ALTER TABLE public.employee
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.employee
-	ADD CONSTRAINT fk_employee_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.employee
-	ADD CONSTRAINT fk_employee_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.employee
 	ADD CONSTRAINT fk_employee_person FOREIGN KEY (person_id) REFERENCES public.person(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -104,11 +101,14 @@ ALTER TABLE public.employee
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.employee
-	ADD CONSTRAINT chk_employee_post_role CHECK (((post_role >= 0) AND (post_role < 5)));
+	ADD CONSTRAINT fk_employee_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
 
-COMMENT ON CONSTRAINT chk_employee_post_role ON public.employee IS 'Неверно установлено щначение роли служащего. Допустимые значения: 
-0 - роль неопределена
-1 - руководитель
-2 - гл. бухгалтер
-3 - служащий
-4 - рабочий';
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.employee
+	ADD CONSTRAINT fk_employee_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.employee
+	ADD CONSTRAINT unq_employee_code UNIQUE (code);

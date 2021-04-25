@@ -44,14 +44,14 @@ ALTER TABLE public.command
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.command
+	ADD CONSTRAINT fk_command_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.command
 	ADD CONSTRAINT fk_command_parent FOREIGN KEY (parent_id) REFERENCES public.command(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.command
 	ADD CONSTRAINT fk_command_picture FOREIGN KEY (picture_id) REFERENCES public.picture(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.command
-	ADD CONSTRAINT fk_command_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE ON DELETE SET NULL;

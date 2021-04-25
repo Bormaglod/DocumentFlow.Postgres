@@ -24,13 +24,6 @@ CREATE INDEX unq_calc_item_deduction_item ON public.calc_item_deduction USING bt
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER calc_item_deduction_aiu_0
-	AFTER INSERT OR UPDATE ON public.calc_item_deduction
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.checking_calc_item();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER calc_item_deduction_ad
 	AFTER DELETE ON public.calc_item_deduction
 	FOR EACH ROW
@@ -43,6 +36,13 @@ CREATE CONSTRAINT TRIGGER calc_item_deduction_aiu
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER calc_item_deduction_aiu_0
+	AFTER INSERT OR UPDATE ON public.calc_item_deduction
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.checking_calc_item();
 
 --------------------------------------------------------------------------------
 
@@ -74,11 +74,6 @@ ALTER TABLE public.calc_item_deduction
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.calc_item_deduction
-	ADD CONSTRAINT unq_calc_item_deduction_code UNIQUE (code);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.calc_item_deduction
 	ADD CONSTRAINT fk_calc_item_deduction_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -100,3 +95,8 @@ ALTER TABLE public.calc_item_deduction
 
 ALTER TABLE public.calc_item_deduction
 	ADD CONSTRAINT fk_calc_item_deduction_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.calc_item_deduction
+	ADD CONSTRAINT unq_calc_item_deduction_code UNIQUE (code);

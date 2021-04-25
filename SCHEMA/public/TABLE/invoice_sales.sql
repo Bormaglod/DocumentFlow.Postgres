@@ -78,6 +78,11 @@ CREATE CONSTRAINT TRIGGER invoice_sales_aiu_1
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.invoice_sales
+	ADD CONSTRAINT pk_invoice_sales_id PRIMARY KEY (id);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.invoice_sales
 	ADD CONSTRAINT fk_invoice_sales_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -109,11 +114,6 @@ ALTER TABLE public.invoice_sales
 
 ALTER TABLE public.invoice_sales
 	ADD CONSTRAINT fk_invoice_sales_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.invoice_sales
-	ADD CONSTRAINT pk_invoice_sales_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 

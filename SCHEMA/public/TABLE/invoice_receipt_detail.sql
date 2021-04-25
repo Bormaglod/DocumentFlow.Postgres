@@ -32,14 +32,14 @@ CREATE INDEX fki_fk_invoice_detail_owner ON public.invoice_receipt_detail USING 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.invoice_receipt_detail
-	ADD CONSTRAINT fk_invoice_detail_owner FOREIGN KEY (owner_id) REFERENCES public.invoice_receipt(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.invoice_receipt_detail
 	ADD CONSTRAINT pk_invoice_detail_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.invoice_receipt_detail
 	ADD CONSTRAINT fk_invoice_detail_goods FOREIGN KEY (goods_id) REFERENCES public.goods(id) ON DELETE CASCADE NOT VALID;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.invoice_receipt_detail
+	ADD CONSTRAINT fk_invoice_detail_owner FOREIGN KEY (owner_id) REFERENCES public.invoice_receipt(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;

@@ -71,11 +71,6 @@ ALTER TABLE public.person
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.person
-	ADD CONSTRAINT unq_person_code UNIQUE (code);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.person
 	ADD CONSTRAINT fk_person_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -102,3 +97,8 @@ ALTER TABLE public.person
 
 ALTER TABLE public.person
 	ADD CONSTRAINT fk_person_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.person
+	ADD CONSTRAINT unq_person_code UNIQUE (code);

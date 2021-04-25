@@ -76,17 +76,12 @@ ALTER TABLE public.purchase_request
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.purchase_request
+	ADD CONSTRAINT fk_purchase_request_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.purchase_request
 	ADD CONSTRAINT fk_purchase_request_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.purchase_request
-	ADD CONSTRAINT fk_purchase_request_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.purchase_request
-	ADD CONSTRAINT fk_purchase_request_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -96,7 +91,7 @@ ALTER TABLE public.purchase_request
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.purchase_request
-	ADD CONSTRAINT fk_purchase_request_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_purchase_request_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -106,7 +101,12 @@ ALTER TABLE public.purchase_request
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.purchase_request
-	ADD CONSTRAINT fk_purchase_request_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_purchase_request_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.purchase_request
+	ADD CONSTRAINT fk_purchase_request_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 

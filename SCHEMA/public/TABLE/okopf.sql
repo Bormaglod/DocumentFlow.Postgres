@@ -20,6 +20,14 @@ CREATE TRIGGER okopf_ad
 
 --------------------------------------------------------------------------------
 
+CREATE CONSTRAINT TRIGGER okopf_aiu
+	AFTER INSERT OR UPDATE ON public.okopf
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER okopf_bi
 	BEFORE INSERT ON public.okopf
 	FOR EACH ROW
@@ -34,21 +42,8 @@ CREATE TRIGGER okopf_bu
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER okopf_aiu
-	AFTER INSERT OR UPDATE ON public.okopf
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_checking();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.okopf
 	ADD CONSTRAINT pk_okopf_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.okopf
-	ADD CONSTRAINT unq_okopf_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -79,3 +74,8 @@ ALTER TABLE public.okopf
 
 ALTER TABLE public.okopf
 	ADD CONSTRAINT fk_okopf_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.okopf
+	ADD CONSTRAINT unq_okopf_code UNIQUE (code);

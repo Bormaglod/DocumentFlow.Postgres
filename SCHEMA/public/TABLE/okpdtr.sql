@@ -46,11 +46,6 @@ ALTER TABLE public.okpdtr
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.okpdtr
-	ADD CONSTRAINT unq_okpdtr_code UNIQUE (code);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.okpdtr
 	ADD CONSTRAINT fk_okpdtr_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -77,3 +72,8 @@ ALTER TABLE public.okpdtr
 
 ALTER TABLE public.okpdtr
 	ADD CONSTRAINT fk_okpdtr_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.okpdtr
+	ADD CONSTRAINT unq_okpdtr_code UNIQUE (code);

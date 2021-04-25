@@ -54,6 +54,14 @@ CREATE CONSTRAINT TRIGGER goods_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER goods_au_archive
+	AFTER UPDATE ON public.goods
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.send_price_to_archive();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER goods_bi
 	BEFORE INSERT ON public.goods
 	FOR EACH ROW
@@ -76,21 +84,8 @@ CREATE TRIGGER goods_bu_status
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER goods_au_archive
-	AFTER UPDATE ON public.goods
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.send_price_to_archive();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.goods
 	ADD CONSTRAINT pk_goods_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.goods
-	ADD CONSTRAINT unq_goods_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -110,6 +105,11 @@ ALTER TABLE public.goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.goods
+	ADD CONSTRAINT fk_goods_measurement FOREIGN KEY (measurement_id) REFERENCES public.measurement(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.goods
 	ADD CONSTRAINT fk_goods_parent FOREIGN KEY (parent_id) REFERENCES public.goods(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ ALTER TABLE public.goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.goods
-	ADD CONSTRAINT fk_goods_measurement FOREIGN KEY (measurement_id) REFERENCES public.measurement(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT unq_goods_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 

@@ -35,14 +35,6 @@ COMMENT ON COLUMN public.payment_order.invoice_receipt_id IS 'Приходная
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER payment_order_bu_status
-	BEFORE UPDATE ON public.payment_order
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changing_payment_order();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER payment_order_ad
 	AFTER DELETE ON public.payment_order
 	FOR EACH ROW
@@ -55,6 +47,14 @@ CREATE CONSTRAINT TRIGGER payment_order_aiu
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER payment_order_au_status
+	AFTER UPDATE ON public.payment_order
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.changed_payment_order();
 
 --------------------------------------------------------------------------------
 
@@ -72,11 +72,11 @@ CREATE TRIGGER payment_order_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER payment_order_au_status
-	AFTER UPDATE ON public.payment_order
+CREATE TRIGGER payment_order_bu_status
+	BEFORE UPDATE ON public.payment_order
 	FOR EACH ROW
 	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_payment_order();
+	EXECUTE PROCEDURE public.changing_payment_order();
 
 --------------------------------------------------------------------------------
 
@@ -86,17 +86,12 @@ ALTER TABLE public.payment_order
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.payment_order
+	ADD CONSTRAINT fk_payment_order_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.payment_order
 	ADD CONSTRAINT fk_payment_order_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -106,7 +101,7 @@ ALTER TABLE public.payment_order
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_payment_order_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -116,12 +111,17 @@ ALTER TABLE public.payment_order
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_payment_order_purchase FOREIGN KEY (purchase_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_purchase FOREIGN KEY (purchase_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_payment_order_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.payment_order
+	ADD CONSTRAINT fk_payment_order_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 

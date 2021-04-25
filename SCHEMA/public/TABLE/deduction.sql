@@ -30,6 +30,14 @@ CREATE CONSTRAINT TRIGGER deduction_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER deduction_au_status
+	AFTER UPDATE ON public.deduction
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.changed_deduction();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER deduction_bi
 	BEFORE INSERT ON public.deduction
 	FOR EACH ROW
@@ -44,21 +52,15 @@ CREATE TRIGGER deduction_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER deduction_au_status
-	AFTER UPDATE ON public.deduction
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_deduction();
+ALTER TABLE public.deduction
+	ADD CONSTRAINT chk_deduction_accrual_base CHECK ((accrual_base = ANY (ARRAY[0, 1, 2])));
+
+COMMENT ON CONSTRAINT chk_deduction_accrual_base ON public.deduction IS 'Неверно указана база для начисления. Допустимые значения: 0 - не установлено, 1 - материалы, 2 - заработная плата';
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.deduction
 	ADD CONSTRAINT pk_deduction_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.deduction
-	ADD CONSTRAINT unq_deduction_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -88,6 +90,4 @@ ALTER TABLE public.deduction
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.deduction
-	ADD CONSTRAINT chk_deduction_accrual_base CHECK ((accrual_base = ANY (ARRAY[0, 1, 2])));
-
-COMMENT ON CONSTRAINT chk_deduction_accrual_base ON public.deduction IS 'Неверно указана база для начисления. Допустимые значения: 0 - не установлено, 1 - материалы, 2 - заработная плата';
+	ADD CONSTRAINT unq_deduction_code UNIQUE (code);

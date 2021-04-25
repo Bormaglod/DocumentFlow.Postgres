@@ -25,6 +25,14 @@ CREATE TRIGGER picture_ad
 
 --------------------------------------------------------------------------------
 
+CREATE CONSTRAINT TRIGGER picture_aiu
+	AFTER INSERT OR UPDATE ON public.picture
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER picture_bi
 	BEFORE INSERT ON public.picture
 	FOR EACH ROW
@@ -39,21 +47,8 @@ CREATE TRIGGER picture_bu
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER picture_aiu
-	AFTER INSERT OR UPDATE ON public.picture
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_checking();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.picture
 	ADD CONSTRAINT pk_picture_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.picture
-	ADD CONSTRAINT unq_picture_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -84,3 +79,8 @@ ALTER TABLE public.picture
 
 ALTER TABLE public.picture
 	ADD CONSTRAINT fk_picture_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.picture
+	ADD CONSTRAINT unq_picture_code UNIQUE (code);

@@ -16,19 +16,19 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.menu TO designers;
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.menu
-	ADD CONSTRAINT unq_menu_code UNIQUE (code);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.menu
 	ADD CONSTRAINT pk_menu_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.menu
-	ADD CONSTRAINT fk_menu_parent FOREIGN KEY (parent_id) REFERENCES public.menu(id) ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT unq_menu_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.menu
 	ADD CONSTRAINT fk_menu_command FOREIGN KEY (command_id) REFERENCES public.command(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.menu
+	ADD CONSTRAINT fk_menu_parent FOREIGN KEY (parent_id) REFERENCES public.menu(id) ON UPDATE CASCADE ON DELETE CASCADE;

@@ -7,5 +7,5 @@ CREATE SEQUENCE public.directory_code_seq
 
 ALTER SEQUENCE public.directory_code_seq OWNER TO postgres;
 
-GRANT USAGE ON SEQUENCE public.directory_code_seq TO users;
 GRANT ALL ON SEQUENCE public.directory_code_seq TO admins;
+GRANT USAGE ON SEQUENCE public.directory_code_seq TO users;

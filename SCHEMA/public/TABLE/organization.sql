@@ -31,6 +31,14 @@ CREATE CONSTRAINT TRIGGER organization_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER organization_au_status
+	AFTER UPDATE ON public.organization
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.changed_company();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER organization_bi
 	BEFORE INSERT ON public.organization
 	FOR EACH ROW
@@ -45,14 +53,6 @@ CREATE TRIGGER organization_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER organization_au_status
-	AFTER UPDATE ON public.organization
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_company();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.organization
 	ADD CONSTRAINT pk_organization_id PRIMARY KEY (id);
 
@@ -64,12 +64,17 @@ ALTER TABLE public.organization
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.organization
+	ADD CONSTRAINT fk_organization_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.organization
 	ADD CONSTRAINT fk_organization_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.organization
-	ADD CONSTRAINT fk_organization_parent FOREIGN KEY (parent_id) REFERENCES public.organization(id) ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT fk_organization_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -79,17 +84,12 @@ ALTER TABLE public.organization
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.organization
+	ADD CONSTRAINT fk_organization_parent FOREIGN KEY (parent_id) REFERENCES public.organization(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.organization
 	ADD CONSTRAINT fk_organization_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.organization
-	ADD CONSTRAINT fk_organization_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.organization
-	ADD CONSTRAINT fk_organization_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 

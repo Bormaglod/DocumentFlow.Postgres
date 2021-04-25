@@ -23,9 +23,9 @@ ALTER TABLE public.used_material
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.used_material
-	ADD CONSTRAINT fk_used_material_operation FOREIGN KEY (calc_item_operation_id) REFERENCES public.calc_item_operation(id) ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT fk_used_material_goods FOREIGN KEY (goods_id) REFERENCES public.goods(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.used_material
-	ADD CONSTRAINT fk_used_material_goods FOREIGN KEY (goods_id) REFERENCES public.goods(id) ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT fk_used_material_operation FOREIGN KEY (calc_item_operation_id) REFERENCES public.calc_item_operation(id) ON UPDATE CASCADE ON DELETE CASCADE;

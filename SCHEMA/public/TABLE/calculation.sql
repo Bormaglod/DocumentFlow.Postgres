@@ -30,14 +30,6 @@ CREATE INDEX unq_calculation_code ON public.calculation USING btree (owner_id, c
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER calculation_bu_status
-	BEFORE UPDATE ON public.calculation
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changing_calculation();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER calculation_ad
 	AFTER DELETE ON public.calculation
 	FOR EACH ROW
@@ -50,6 +42,14 @@ CREATE CONSTRAINT TRIGGER calculation_aiu
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER calculation_au_status
+	AFTER UPDATE ON public.calculation
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.changed_calculation();
 
 --------------------------------------------------------------------------------
 
@@ -67,16 +67,21 @@ CREATE TRIGGER calculation_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER calculation_au_status
-	AFTER UPDATE ON public.calculation
+CREATE TRIGGER calculation_bu_status
+	BEFORE UPDATE ON public.calculation
 	FOR EACH ROW
 	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_calculation();
+	EXECUTE PROCEDURE public.changing_calculation();
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.calculation
 	ADD CONSTRAINT pk_calculation_id PRIMARY KEY (id);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.calculation
+	ADD CONSTRAINT calculation_fk FOREIGN KEY (owner_id) REFERENCES public.goods(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -102,8 +107,3 @@ ALTER TABLE public.calculation
 
 ALTER TABLE public.calculation
 	ADD CONSTRAINT fk_calculation_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.calculation
-	ADD CONSTRAINT calculation_fk FOREIGN KEY (owner_id) REFERENCES public.goods(id) ON UPDATE CASCADE ON DELETE CASCADE;

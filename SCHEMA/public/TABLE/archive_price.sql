@@ -21,13 +21,6 @@ CREATE INDEX idx_archive_price_owner ON public.archive_price USING btree (owner_
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER archive_price_bi
-	BEFORE INSERT ON public.archive_price
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER archive_price_ad
 	AFTER DELETE ON public.archive_price
 	FOR EACH ROW
@@ -40,6 +33,13 @@ CREATE CONSTRAINT TRIGGER archive_price_aiu
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER archive_price_bi
+	BEFORE INSERT ON public.archive_price
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
 
 --------------------------------------------------------------------------------
 

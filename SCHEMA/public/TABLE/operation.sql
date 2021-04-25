@@ -60,6 +60,14 @@ CREATE CONSTRAINT TRIGGER operation_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER operation_au_archive
+	AFTER UPDATE ON public.operation
+	FOR EACH ROW
+	WHEN ((old.status_id <> new.status_id))
+	EXECUTE PROCEDURE public.send_price_to_archive();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER operation_bi
 	BEFORE INSERT ON public.operation
 	FOR EACH ROW
@@ -82,21 +90,8 @@ CREATE TRIGGER operation_bu_status
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER operation_au_archive
-	AFTER UPDATE ON public.operation
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.send_price_to_archive();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.operation
 	ADD CONSTRAINT pk_operation_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation
-	ADD CONSTRAINT unq_operation_code UNIQUE (code);
 
 --------------------------------------------------------------------------------
 
@@ -126,14 +121,19 @@ ALTER TABLE public.operation
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.operation
-	ADD CONSTRAINT fk_operation_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation
 	ADD CONSTRAINT fk_operation_type FOREIGN KEY (type_id) REFERENCES public.operation_type(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.operation
+	ADD CONSTRAINT fk_operation_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.operation
 	ADD CONSTRAINT fk_operation_measurement FOREIGN KEY (measurement_id) REFERENCES public.measurement(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.operation
+	ADD CONSTRAINT unq_operation_code UNIQUE (code);
