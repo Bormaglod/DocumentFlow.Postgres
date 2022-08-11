@@ -1,2 +1,4 @@
 eclipse.preferences.version=1
-prefLastDbStore=postgres@109.68.215.41/document_flow
+prefLastDbStore=postgres@109.68.215.41/erp_autokom
+prefLastDbStoreEditor=postgres@109.68.215.41/erp_autokom
+prefLastDirection=false

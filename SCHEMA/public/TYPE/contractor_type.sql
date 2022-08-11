@@ -5,6 +5,5 @@ CREATE TYPE public.contractor_type AS ENUM (
 
 ALTER TYPE public.contractor_type OWNER TO postgres;
 
-COMMENT ON TYPE public.contractor_type IS 'продвец
-покупатель
-';
+COMMENT ON TYPE public.contractor_type IS 'seller - продавец
+buyer - покупатель';

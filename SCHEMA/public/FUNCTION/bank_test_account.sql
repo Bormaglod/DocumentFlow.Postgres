@@ -5,6 +5,10 @@ declare
 	bik_a integer[];
 	account_a integer[];
 begin
+	if (table_name = 'our_account') then
+		table_name = 'account';
+	end if;
+
 	bik_a = case table_name
 		when 'bank' then string_to_array('0' || substring(lpad(bik::character varying, 9, '0') from 5 for 2), NULL)::integer[]
 		when 'account' then string_to_array((bik % 1000)::character varying, NULL)::integer[]

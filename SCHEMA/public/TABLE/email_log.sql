@@ -8,7 +8,6 @@ CREATE TABLE public.email_log (
 
 ALTER TABLE public.email_log OWNER TO postgres;
 
-GRANT ALL ON TABLE public.email_log TO admins;
 GRANT SELECT,INSERT ON TABLE public.email_log TO users;
 
 --------------------------------------------------------------------------------

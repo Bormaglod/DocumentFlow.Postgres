@@ -1,12 +1,9 @@
 CREATE OR REPLACE FUNCTION public.document_initialize() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
+    AS $_$
 declare
 	user_id uuid;
-	rkind record;
     parent_table varchar;
-    doc_prefix varchar;
-	doc_digits integer;
 begin
 	select id into user_id from user_alias where pg_name = session_user;
 
@@ -16,21 +13,7 @@ begin
 	new.user_updated_id = user_id;
 	new.date_updated = current_timestamp;
     
-	new.entity_kind_id = coalesce(new.entity_kind_id, get_uuid(TG_TABLE_NAME::varchar));
-
-    -- стартовое значение состояния документа указанное в new.entity_kind_id
-	select ek.has_group, t.starting_id
-		into rkind
-		from entity_kind ek
-			join transition t on (t.id = ek.transition_id)
-		where ek.id = new.entity_kind_id;
-
-	new.status_id = coalesce(new.status_id, rkind.starting_id);
-    if (new.status_id != 500 and new.status_id != rkind.starting_id) then
-    	new.status_id = rkind.starting_id;
-    end if;
-
-	parent_table = get_root_parent(TG_TABLE_NAME::varchar);
+	parent_table = get_info_table(TG_TABLE_NAME::varchar);
 
 	if (parent_table = 'directory') then
 		new.code = coalesce(new.code, '');
@@ -40,18 +23,26 @@ begin
 		end if;
     end if;
 
-	if (parent_table = 'document') then
-		new.doc_date = current_timestamp;
-		new.doc_year = extract(year from new.doc_date);
-		select max(substring(doc_number from '^\D*(\d+)')::bigint) + 1 into new.doc_number from document where entity_kind_id = new.entity_kind_id and doc_year = new.doc_year;
+	if (parent_table = 'base_document') then
+		new.document_date = coalesce(new.document_date, current_timestamp);
 
-		new.doc_number = coalesce(new.doc_number, '1');
+		if (new.document_number is null) then
+			execute 'select max(document_number) + 1 from ' || quote_ident(TG_TABLE_NAME::varchar) || ' where extract(year from document_date) = $1'
+				into new.document_number
+				using extract(year from new.document_date);
 		
+			new.document_number = coalesce(new.document_number, '1');
+		end if;
+	
+		if (TG_TABLE_NAME::varchar not like 'balance%') then
+			new.carried_out = false;
+		end if;
+	
 		select id into new.organization_id from organization where default_org = true limit 1;
 	end if;
 
 	return new;
 end;
-$$;
+$_$;
 
 ALTER FUNCTION public.document_initialize() OWNER TO postgres;

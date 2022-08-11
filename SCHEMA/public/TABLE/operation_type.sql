@@ -1,21 +1,28 @@
 CREATE TABLE public.operation_type (
-	hourly_salary numeric(15,2)
+	salary numeric(15,2) NOT NULL
 )
 INHERITS (public.directory);
 
+ALTER TABLE ONLY public.operation_type ALTER COLUMN deleted SET DEFAULT false;
+
 ALTER TABLE ONLY public.operation_type ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
+
+ALTER TABLE ONLY public.operation_type ALTER COLUMN is_folder SET DEFAULT false;
 
 ALTER TABLE public.operation_type OWNER TO postgres;
 
-GRANT ALL ON TABLE public.operation_type TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.operation_type TO users;
+
+COMMENT ON TABLE public.operation_type IS 'Основные типы производственных операций';
+
+COMMENT ON COLUMN public.operation_type.salary IS 'Базовая часовая ставка при расчёте заработной платы';
 
 --------------------------------------------------------------------------------
 
 CREATE TRIGGER operation_type_ad
 	AFTER DELETE ON public.operation_type
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
+	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -27,11 +34,10 @@ CREATE CONSTRAINT TRIGGER operation_type_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER operation_type_au_archive
-	AFTER UPDATE ON public.operation_type
+CREATE TRIGGER operation_type_aiu_0
+	AFTER INSERT OR UPDATE ON public.operation_type
 	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.send_price_to_archive();
+	EXECUTE PROCEDURE public.operation_type_changed();
 
 --------------------------------------------------------------------------------
 
@@ -49,11 +55,8 @@ CREATE TRIGGER operation_type_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER operation_type_bu_status
-	BEFORE UPDATE ON public.operation_type
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changing_operation_type();
+ALTER TABLE public.operation_type
+	ADD CONSTRAINT operation_type_check CHECK ((salary > (0)::numeric));
 
 --------------------------------------------------------------------------------
 
@@ -63,29 +66,19 @@ ALTER TABLE public.operation_type
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.operation_type
+	ADD CONSTRAINT unq_operation_type_code UNIQUE (code);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.operation_type
 	ADD CONSTRAINT fk_operation_type_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.operation_type
-	ADD CONSTRAINT fk_operation_type_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation_type
-	ADD CONSTRAINT fk_operation_type_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation_type
-	ADD CONSTRAINT fk_operation_type_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_operation_type_parent FOREIGN KEY (parent_id) REFERENCES public.operation_type(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.operation_type
 	ADD CONSTRAINT fk_operation_type_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation_type
-	ADD CONSTRAINT unq_operation_type_code UNIQUE (code);

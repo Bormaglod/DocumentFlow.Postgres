@@ -3,23 +3,42 @@ CREATE TABLE public.employee (
 	post_id uuid,
 	phone character varying(30),
 	email character varying(100),
-	post_role integer
+	j_role public.job_role
 )
 INHERITS (public.directory);
 
+ALTER TABLE ONLY public.employee ALTER COLUMN deleted SET DEFAULT false;
+
 ALTER TABLE ONLY public.employee ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
+
+ALTER TABLE ONLY public.employee ALTER COLUMN is_folder SET DEFAULT false;
+
+ALTER TABLE ONLY public.employee ALTER COLUMN owner_id SET NOT NULL;
 
 ALTER TABLE public.employee OWNER TO postgres;
 
-GRANT ALL ON TABLE public.employee TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.employee TO users;
+
+COMMENT ON TABLE public.employee IS 'Сотрудники контрагентов';
+
+COMMENT ON COLUMN public.employee.item_name IS 'Сотрудник (имя, фамилия)';
+
+COMMENT ON COLUMN public.employee.person_id IS 'Ссылка на физ. лицо представляющее сотрудника';
+
+COMMENT ON COLUMN public.employee.post_id IS 'Должность сотрудника';
+
+COMMENT ON COLUMN public.employee.phone IS 'Рабочий телефон';
+
+COMMENT ON COLUMN public.employee.email IS 'Рабочий адрес электронной почты';
+
+COMMENT ON COLUMN public.employee.j_role IS 'Должностная роль';
 
 --------------------------------------------------------------------------------
 
 CREATE TRIGGER employee_ad
 	AFTER DELETE ON public.employee
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
+	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -31,11 +50,11 @@ CREATE CONSTRAINT TRIGGER employee_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER employee_au_status
-	AFTER UPDATE ON public.employee
+CREATE CONSTRAINT TRIGGER employee_aiu_0
+	AFTER INSERT OR UPDATE ON public.employee
+	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_employee();
+	EXECUTE PROCEDURE public.employee_checking();
 
 --------------------------------------------------------------------------------
 
@@ -43,6 +62,13 @@ CREATE TRIGGER employee_bi
 	BEFORE INSERT ON public.employee
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER employee_biu_0
+	BEFORE INSERT OR UPDATE ON public.employee
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.employee_changing();
 
 --------------------------------------------------------------------------------
 
@@ -54,34 +80,22 @@ CREATE TRIGGER employee_bu
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.employee
-	ADD CONSTRAINT chk_employee_post_role CHECK (((post_role >= 0) AND (post_role < 5)));
-
-COMMENT ON CONSTRAINT chk_employee_post_role ON public.employee IS 'Неверно установлено щначение роли служащего. Допустимые значения: 
-0 - роль неопределена
-1 - руководитель
-2 - гл. бухгалтер
-3 - служащий
-4 - рабочий';
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.employee
 	ADD CONSTRAINT pk_employee_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.employee
+	ADD CONSTRAINT unq_employee_code UNIQUE (code);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.employee
+	ADD CONSTRAINT fk_employee_contractor FOREIGN KEY (owner_id) REFERENCES public.contractor(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.employee
 	ADD CONSTRAINT fk_employee_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.employee
-	ADD CONSTRAINT fk_employee_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.employee
-	ADD CONSTRAINT fk_employee_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -101,14 +115,9 @@ ALTER TABLE public.employee
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.employee
-	ADD CONSTRAINT fk_employee_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.employee
 	ADD CONSTRAINT fk_employee_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.employee
-	ADD CONSTRAINT unq_employee_code UNIQUE (code);
+	ADD CONSTRAINT unq_employee_person UNIQUE (owner_id, person_id);

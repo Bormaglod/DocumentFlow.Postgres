@@ -1,26 +1,27 @@
 CREATE TABLE public.measurement (
-	abbreviation character varying(10),
-	coefficient integer
+	abbreviation character varying(10)
 )
 INHERITS (public.directory);
 
+ALTER TABLE ONLY public.measurement ALTER COLUMN deleted SET DEFAULT false;
+
 ALTER TABLE ONLY public.measurement ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
+
+ALTER TABLE ONLY public.measurement ALTER COLUMN is_folder SET DEFAULT false;
 
 ALTER TABLE public.measurement OWNER TO postgres;
 
-GRANT ALL ON TABLE public.measurement TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.measurement TO users;
+GRANT SELECT ON TABLE public.measurement TO managers;
 
 COMMENT ON TABLE public.measurement IS 'Единицы измерений';
-
-COMMENT ON COLUMN public.measurement.abbreviation IS 'Сокращенное название единицы измерения';
 
 --------------------------------------------------------------------------------
 
 CREATE TRIGGER measurement_ad
 	AFTER DELETE ON public.measurement
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
+	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -52,17 +53,12 @@ ALTER TABLE public.measurement
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.measurement
+	ADD CONSTRAINT unq_measurement_code UNIQUE (code);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.measurement
 	ADD CONSTRAINT fk_measurement_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.measurement
-	ADD CONSTRAINT fk_measurement_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.measurement
-	ADD CONSTRAINT fk_measurement_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -72,14 +68,4 @@ ALTER TABLE public.measurement
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.measurement
-	ADD CONSTRAINT fk_measurement_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.measurement
 	ADD CONSTRAINT fk_measurement_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.measurement
-	ADD CONSTRAINT unq_measurement_code UNIQUE (code);

@@ -1,44 +1,36 @@
 CREATE TABLE public.payment_order (
 	contractor_id uuid,
-	date_debited date,
-	amount_debited numeric(15,2),
-	direction public.document_direction,
-	purchase_id uuid,
-	invoice_receipt_id uuid
+	date_operation date,
+	transaction_amount numeric(15,2),
+	direction public.payment_direction,
+	payment_number character varying(15)
 )
-INHERITS (public.document);
+INHERITS (public.accounting_document);
+
+ALTER TABLE ONLY public.payment_order ALTER COLUMN carried_out SET DEFAULT false;
+
+ALTER TABLE ONLY public.payment_order ALTER COLUMN deleted SET DEFAULT false;
 
 ALTER TABLE ONLY public.payment_order ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
 
+ALTER TABLE ONLY public.payment_order ALTER COLUMN re_carried_out SET DEFAULT false;
+
 ALTER TABLE public.payment_order OWNER TO postgres;
 
-GRANT ALL ON TABLE public.payment_order TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.payment_order TO users;
 
-COMMENT ON TABLE public.payment_order IS 'Платежный ордер';
+COMMENT ON COLUMN public.payment_order.payment_number IS 'Номер платежного поручения или расходного/приходного ордера';
 
-COMMENT ON COLUMN public.payment_order.doc_date IS 'Дата платежного поручения';
+--------------------------------------------------------------------------------
 
-COMMENT ON COLUMN public.payment_order.doc_number IS 'Номер платежного поручения';
-
-COMMENT ON COLUMN public.payment_order.contractor_id IS 'Контрагент (получатель, если direction = -1 или плательщик, если direction = 1)';
-
-COMMENT ON COLUMN public.payment_order.date_debited IS 'Дата списания денежных средств';
-
-COMMENT ON COLUMN public.payment_order.amount_debited IS 'Сумма списания';
-
-COMMENT ON COLUMN public.payment_order.direction IS 'Направление списания';
-
-COMMENT ON COLUMN public.payment_order.purchase_id IS 'Заявка на расход';
-
-COMMENT ON COLUMN public.payment_order.invoice_receipt_id IS 'Приходная накладная / Поступление товара (материалов)';
+CREATE UNIQUE INDEX unq_payment_order_doc_number ON public.payment_order USING btree (EXTRACT(year FROM date((document_date AT TIME ZONE '+04'::text))), document_number);
 
 --------------------------------------------------------------------------------
 
 CREATE TRIGGER payment_order_ad
 	AFTER DELETE ON public.payment_order
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
+	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -47,14 +39,6 @@ CREATE CONSTRAINT TRIGGER payment_order_aiu
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_checking();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER payment_order_au_status
-	AFTER UPDATE ON public.payment_order
-	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changed_payment_order();
 
 --------------------------------------------------------------------------------
 
@@ -72,11 +56,18 @@ CREATE TRIGGER payment_order_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER payment_order_bu_status
-	BEFORE UPDATE ON public.payment_order
+CREATE TRIGGER payment_order_au_0
+	AFTER UPDATE ON public.payment_order
 	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changing_payment_order();
+	WHEN ((old.carried_out <> new.carried_out))
+	EXECUTE PROCEDURE public.payment_order_accept();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER payment_order_au_1
+	AFTER UPDATE ON public.payment_order
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
 
 --------------------------------------------------------------------------------
 
@@ -96,34 +87,9 @@ ALTER TABLE public.payment_order
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payment_order
 	ADD CONSTRAINT fk_payment_order_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_purchase FOREIGN KEY (purchase_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payment_order
 	ADD CONSTRAINT fk_payment_order_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payment_order
-	ADD CONSTRAINT fk_payment_order_invoice_receipt FOREIGN KEY (invoice_receipt_id) REFERENCES public.invoice_receipt(id) ON UPDATE CASCADE;

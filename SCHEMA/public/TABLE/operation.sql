@@ -3,23 +3,22 @@ CREATE TABLE public.operation (
 	prod_time integer,
 	production_rate integer,
 	type_id uuid,
-	salary numeric(15,2),
-	length integer,
-	left_cleaning numeric(4,1),
-	left_sweep integer,
-	right_cleaning numeric(4,1),
-	right_sweep integer,
-	program integer,
-	measurement_id uuid
+	salary numeric(15,4) DEFAULT 0,
+	manual_input boolean
 )
 INHERITS (public.directory);
 
+ALTER TABLE ONLY public.operation ALTER COLUMN deleted SET DEFAULT false;
+
 ALTER TABLE ONLY public.operation ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
+
+ALTER TABLE ONLY public.operation ALTER COLUMN is_folder SET DEFAULT false;
 
 ALTER TABLE public.operation OWNER TO postgres;
 
-GRANT ALL ON TABLE public.operation TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.operation TO users;
+
+COMMENT ON TABLE public.operation IS 'Оборудование';
 
 COMMENT ON COLUMN public.operation.produced IS 'Выработка за время [prod_time], шт.';
 
@@ -29,26 +28,7 @@ COMMENT ON COLUMN public.operation.production_rate IS 'Норма выработ
 
 COMMENT ON COLUMN public.operation.type_id IS 'Тип операции';
 
-COMMENT ON COLUMN public.operation.salary IS 'Плата за выполнение 1 ед. операции';
-
-COMMENT ON COLUMN public.operation.length IS 'РЕЗКА: Длина провода';
-
-COMMENT ON COLUMN public.operation.left_cleaning IS 'РЕЗКА:  Длина зачистки с начала провода';
-
-COMMENT ON COLUMN public.operation.left_sweep IS 'РЕЗКА: Ширина окна на которое снимается изоляция в начале провода';
-
-COMMENT ON COLUMN public.operation.right_cleaning IS 'РЕЗКА: Длина зачистки с конца провода';
-
-COMMENT ON COLUMN public.operation.right_sweep IS 'РЕЗКА: Ширина окна на которое снимается изоляция в конце провода';
-
-COMMENT ON COLUMN public.operation.program IS 'РЕЗКА: Ноиер программы';
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER operation_ad
-	AFTER DELETE ON public.operation
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
+COMMENT ON COLUMN public.operation.salary IS 'Плата за выполнение ед. операции';
 
 --------------------------------------------------------------------------------
 
@@ -60,11 +40,11 @@ CREATE CONSTRAINT TRIGGER operation_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER operation_au_archive
-	AFTER UPDATE ON public.operation
+CREATE CONSTRAINT TRIGGER operation_aiu_0
+	AFTER INSERT OR UPDATE ON public.operation
+	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.send_price_to_archive();
+	EXECUTE PROCEDURE public.operation_checking();
 
 --------------------------------------------------------------------------------
 
@@ -75,6 +55,13 @@ CREATE TRIGGER operation_bi
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER operation_biu_0
+	BEFORE INSERT OR UPDATE ON public.operation
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.operation_changing();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER operation_bu
 	BEFORE UPDATE ON public.operation
 	FOR EACH ROW
@@ -82,11 +69,17 @@ CREATE TRIGGER operation_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER operation_bu_status
-	BEFORE UPDATE ON public.operation
+CREATE TRIGGER operation_ad_0
+	AFTER DELETE ON public.operation
 	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changing_operation();
+	EXECUTE PROCEDURE public.document_deleted();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER operation_ad_1
+	AFTER DELETE ON public.operation
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.operation_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -96,27 +89,17 @@ ALTER TABLE public.operation
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.operation
+	ADD CONSTRAINT unq_operation_code UNIQUE (code);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.operation
 	ADD CONSTRAINT fk_operation_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.operation
-	ADD CONSTRAINT fk_operation_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation
-	ADD CONSTRAINT fk_operation_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation
 	ADD CONSTRAINT fk_operation_parent FOREIGN KEY (parent_id) REFERENCES public.operation(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation
-	ADD CONSTRAINT fk_operation_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -127,13 +110,3 @@ ALTER TABLE public.operation
 
 ALTER TABLE public.operation
 	ADD CONSTRAINT fk_operation_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation
-	ADD CONSTRAINT fk_operation_measurement FOREIGN KEY (measurement_id) REFERENCES public.measurement(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operation
-	ADD CONSTRAINT unq_operation_code UNIQUE (code);

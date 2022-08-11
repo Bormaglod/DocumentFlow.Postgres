@@ -1,48 +1,44 @@
 CREATE TABLE public.goods (
-	ext_article character varying(100),
-	measurement_id uuid,
-	price numeric(15,2),
-	tax public.tax_nds,
-	min_order numeric(15,3),
-	is_service boolean,
-	cross_id uuid,
-	weight numeric(15,3)
+	is_service boolean DEFAULT false NOT NULL,
+	calculation_id uuid,
+	note text,
+	length integer,
+	width integer,
+	height integer
 )
-INHERITS (public.directory);
+INHERITS (public.product);
+
+ALTER TABLE ONLY public.goods ALTER COLUMN deleted SET DEFAULT false;
 
 ALTER TABLE ONLY public.goods ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
 
+ALTER TABLE ONLY public.goods ALTER COLUMN is_folder SET DEFAULT false;
+
 ALTER TABLE public.goods OWNER TO postgres;
 
-GRANT ALL ON TABLE public.goods TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.goods TO users;
+GRANT SELECT ON TABLE public.goods TO managers;
 
-COMMENT ON COLUMN public.goods.code IS 'Артикул';
+COMMENT ON TABLE public.goods IS 'Список производимых изделий';
 
-COMMENT ON COLUMN public.goods.name IS 'Наименование товара, материала или услуги';
+COMMENT ON COLUMN public.goods.price IS 'Цена продажи без НДС';
 
-COMMENT ON COLUMN public.goods.ext_article IS 'Дополнительный артикул';
-
-COMMENT ON COLUMN public.goods.measurement_id IS 'Еденица измерения';
-
-COMMENT ON COLUMN public.goods.price IS 'Цена';
-
-COMMENT ON COLUMN public.goods.tax IS 'Значение ставки НДС';
-
-COMMENT ON COLUMN public.goods.min_order IS 'Минимальная партия заказа';
-
-COMMENT ON COLUMN public.goods.is_service IS 'Это услуга';
-
-COMMENT ON COLUMN public.goods.cross_id IS 'Кросс-артикул';
+COMMENT ON COLUMN public.goods.vat IS 'Ставка НДС';
 
 COMMENT ON COLUMN public.goods.weight IS 'Вес';
+
+COMMENT ON COLUMN public.goods.length IS 'Длина';
+
+COMMENT ON COLUMN public.goods.width IS 'Ширина';
+
+COMMENT ON COLUMN public.goods.height IS 'Высота';
 
 --------------------------------------------------------------------------------
 
 CREATE TRIGGER goods_ad
 	AFTER DELETE ON public.goods
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
+	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -54,11 +50,11 @@ CREATE CONSTRAINT TRIGGER goods_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER goods_au_archive
-	AFTER UPDATE ON public.goods
+CREATE CONSTRAINT TRIGGER goods_aiu_0
+	AFTER INSERT OR UPDATE ON public.goods
+	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.send_price_to_archive();
+	EXECUTE PROCEDURE public.product_checking();
 
 --------------------------------------------------------------------------------
 
@@ -69,6 +65,13 @@ CREATE TRIGGER goods_bi
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER goods_biu_0
+	BEFORE INSERT OR UPDATE ON public.goods
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.product_changing();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER goods_bu
 	BEFORE UPDATE ON public.goods
 	FOR EACH ROW
@@ -76,11 +79,11 @@ CREATE TRIGGER goods_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER goods_bu_status
-	BEFORE UPDATE ON public.goods
+CREATE TRIGGER goods_au_0
+	AFTER UPDATE ON public.goods
 	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changing_goods();
+	WHEN ((NOT (old.deleted AND new.deleted)))
+	EXECUTE PROCEDURE public.goods_updated();
 
 --------------------------------------------------------------------------------
 
@@ -90,17 +93,17 @@ ALTER TABLE public.goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.goods
+	ADD CONSTRAINT unq_goods_code UNIQUE (code);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.goods
+	ADD CONSTRAINT fk_goods_calculation FOREIGN KEY (calculation_id) REFERENCES public.calculation(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.goods
 	ADD CONSTRAINT fk_goods_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.goods
-	ADD CONSTRAINT fk_goods_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.goods
-	ADD CONSTRAINT fk_goods_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -115,19 +118,4 @@ ALTER TABLE public.goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.goods
-	ADD CONSTRAINT fk_goods_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.goods
 	ADD CONSTRAINT fk_goods_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.goods
-	ADD CONSTRAINT unq_goods_code UNIQUE (code);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.goods
-	ADD CONSTRAINT fk_goods_cross FOREIGN KEY (cross_id) REFERENCES public.goods(id) ON UPDATE CASCADE ON DELETE SET NULL;

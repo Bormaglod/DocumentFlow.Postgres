@@ -7,11 +7,14 @@ CREATE TABLE public.person (
 )
 INHERITS (public.directory);
 
+ALTER TABLE ONLY public.person ALTER COLUMN deleted SET DEFAULT false;
+
 ALTER TABLE ONLY public.person ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
+
+ALTER TABLE ONLY public.person ALTER COLUMN is_folder SET DEFAULT false;
 
 ALTER TABLE public.person OWNER TO postgres;
 
-GRANT ALL ON TABLE public.person TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.person TO users;
 
 COMMENT ON TABLE public.person IS 'Физические лица';
@@ -22,7 +25,7 @@ COMMENT ON COLUMN public.person.first_name IS 'Имя';
 
 COMMENT ON COLUMN public.person.middle_name IS 'Отчество';
 
-COMMENT ON COLUMN public.person.phone IS 'Телефон';
+COMMENT ON COLUMN public.person.phone IS 'Личный телефон';
 
 COMMENT ON COLUMN public.person.email IS 'Адрес эл. почты';
 
@@ -31,7 +34,7 @@ COMMENT ON COLUMN public.person.email IS 'Адрес эл. почты';
 CREATE TRIGGER person_ad
 	AFTER DELETE ON public.person
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
+	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -50,6 +53,13 @@ CREATE TRIGGER person_bi
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER person_biu_0
+	BEFORE INSERT OR UPDATE ON public.person
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.person_changing();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER person_bu
 	BEFORE UPDATE ON public.person
 	FOR EACH ROW
@@ -57,11 +67,11 @@ CREATE TRIGGER person_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER person_bu_status
-	BEFORE UPDATE ON public.person
+CREATE CONSTRAINT TRIGGER person_aiu_0
+	AFTER INSERT OR UPDATE ON public.person
+	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changing_person();
+	EXECUTE PROCEDURE public.person_checking();
 
 --------------------------------------------------------------------------------
 
@@ -71,17 +81,12 @@ ALTER TABLE public.person
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.person
+	ADD CONSTRAINT unq_person_code UNIQUE (code);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.person
 	ADD CONSTRAINT fk_person_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.person
-	ADD CONSTRAINT fk_person_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.person
-	ADD CONSTRAINT fk_person_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -91,14 +96,4 @@ ALTER TABLE public.person
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.person
-	ADD CONSTRAINT fk_person_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.person
 	ADD CONSTRAINT fk_person_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.person
-	ADD CONSTRAINT unq_person_code UNIQUE (code);

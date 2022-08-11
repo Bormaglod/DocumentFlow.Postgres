@@ -7,8 +7,7 @@ CREATE SEQUENCE public.email_log_id_seq
 
 ALTER SEQUENCE public.email_log_id_seq OWNER TO postgres;
 
-GRANT USAGE ON SEQUENCE public.email_log_id_seq TO admins;
-GRANT USAGE ON SEQUENCE public.email_log_id_seq TO users;
+GRANT ALL ON SEQUENCE public.email_log_id_seq TO users;
 
 ALTER SEQUENCE public.email_log_id_seq
 	OWNED BY public.email_log.id;

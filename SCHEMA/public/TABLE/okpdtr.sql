@@ -1,20 +1,26 @@
 CREATE TABLE public.okpdtr (
+	signatory_name character varying(255)
 )
 INHERITS (public.directory);
 
+ALTER TABLE ONLY public.okpdtr ALTER COLUMN deleted SET DEFAULT false;
+
 ALTER TABLE ONLY public.okpdtr ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
+
+ALTER TABLE ONLY public.okpdtr ALTER COLUMN is_folder SET DEFAULT false;
 
 ALTER TABLE public.okpdtr OWNER TO postgres;
 
-GRANT ALL ON TABLE public.okpdtr TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.okpdtr TO users;
+
+COMMENT ON COLUMN public.okpdtr.signatory_name IS 'Наименование должности исплдьзуемое в договорах';
 
 --------------------------------------------------------------------------------
 
 CREATE TRIGGER okpdtr_ad
 	AFTER DELETE ON public.okpdtr
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
+	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -46,17 +52,12 @@ ALTER TABLE public.okpdtr
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.okpdtr
+	ADD CONSTRAINT unq_okpdtr_code UNIQUE (code);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.okpdtr
 	ADD CONSTRAINT fk_okpdtr_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.okpdtr
-	ADD CONSTRAINT fk_okpdtr_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.okpdtr
-	ADD CONSTRAINT fk_okpdtr_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -66,14 +67,4 @@ ALTER TABLE public.okpdtr
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.okpdtr
-	ADD CONSTRAINT fk_okpdtr_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.okpdtr
 	ADD CONSTRAINT fk_okpdtr_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.okpdtr
-	ADD CONSTRAINT unq_okpdtr_code UNIQUE (code);

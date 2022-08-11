@@ -1,8 +1,11 @@
 CREATE TABLE public.balance_contractor (
+	contract_id uuid NOT NULL
 )
 INHERITS (public.balance);
 
-ALTER TABLE ONLY public.balance_contractor ALTER COLUMN amount SET DEFAULT 0;
+ALTER TABLE ONLY public.balance_contractor ALTER COLUMN amount SET DEFAULT NULL::numeric;
+
+ALTER TABLE ONLY public.balance_contractor ALTER COLUMN deleted SET DEFAULT false;
 
 ALTER TABLE ONLY public.balance_contractor ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
 
@@ -10,31 +13,34 @@ ALTER TABLE ONLY public.balance_contractor ALTER COLUMN operation_summa SET DEFA
 
 ALTER TABLE public.balance_contractor OWNER TO postgres;
 
-GRANT ALL ON TABLE public.balance_contractor TO admins;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.balance_contractor TO users;
 
-COMMENT ON COLUMN public.balance_contractor.amount IS 'Количество';
+COMMENT ON COLUMN public.balance_contractor.amount IS 'Число больше 0 определяет увеличение долга контрагента, меньше 0 - уменьшение долга';
 
-COMMENT ON COLUMN public.balance_contractor.document_date IS 'Дата/время внесения изменения (дата документа из поля owber_id)';
+COMMENT ON COLUMN public.balance_contractor.document_date IS 'Дата получения документа';
 
-COMMENT ON COLUMN public.balance_contractor.document_name IS 'Наименование документа внесшего изменения (тип документа на который ссылается owner_id)';
+COMMENT ON COLUMN public.balance_contractor.document_number IS 'Порядковый номер документа';
 
-COMMENT ON COLUMN public.balance_contractor.document_number IS 'Номер документа внесшего изменения';
+COMMENT ON COLUMN public.balance_contractor.document_type_id IS 'Ссылка на тип документа который сформировал эту запись';
 
-COMMENT ON COLUMN public.balance_contractor.operation_summa IS 'Сумма операции (положительное значение - приход, иначе - расход)';
+COMMENT ON COLUMN public.balance_contractor.operation_summa IS 'Сумма операции';
 
-COMMENT ON COLUMN public.balance_contractor.reference_id IS 'Ссылка на контрагента по которому считаются остатки';
+COMMENT ON COLUMN public.balance_contractor.owner_id IS 'Ссылка на документ который сформировал эту запись';
+
+COMMENT ON COLUMN public.balance_contractor.reference_id IS 'Ссылка на контрагента по которому считаются долги';
+
+COMMENT ON COLUMN public.balance_contractor.contract_id IS 'Договор с контрагентом';
 
 --------------------------------------------------------------------------------
 
-CREATE INDEX fki_fk_balance_contractor_ref ON public.balance_contractor USING btree (reference_id);
+CREATE INDEX idx_balance_contractor_owner ON public.balance_contractor USING btree (owner_id);
 
 --------------------------------------------------------------------------------
 
 CREATE TRIGGER balance_contractor_ad
 	AFTER DELETE ON public.balance_contractor
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleting();
+	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -60,11 +66,18 @@ CREATE TRIGGER balance_contractor_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER balance_contractor_bu_status
-	BEFORE UPDATE ON public.balance_contractor
+CREATE CONSTRAINT TRIGGER balance_contractor_aiu_0
+	AFTER INSERT OR UPDATE ON public.balance_contractor
+	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	WHEN ((old.status_id <> new.status_id))
-	EXECUTE PROCEDURE public.changing_balance();
+	EXECUTE PROCEDURE public.balance_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER balance_contractor_ad_0
+	AFTER DELETE ON public.balance_contractor
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.balance_contractor_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -79,27 +92,12 @@ ALTER TABLE public.balance_contractor
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_contractor
-	ADD CONSTRAINT fk_balance_contractor_entity_kind FOREIGN KEY (entity_kind_id) REFERENCES public.entity_kind(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_balance_contractor_document_type FOREIGN KEY (document_type_id) REFERENCES public.document_type(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_contractor
-	ADD CONSTRAINT fk_balance_contractor_locked FOREIGN KEY (user_locked_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_contractor
-	ADD CONSTRAINT fk_balance_contractor_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_contractor
-	ADD CONSTRAINT fk_balance_contractor_ref FOREIGN KEY (reference_id) REFERENCES public.contractor(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_contractor
-	ADD CONSTRAINT fk_balance_contractor_status FOREIGN KEY (status_id) REFERENCES public.status(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_balance_contractor_reference FOREIGN KEY (reference_id) REFERENCES public.contractor(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -109,4 +107,4 @@ ALTER TABLE public.balance_contractor
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_contractor
-	ADD CONSTRAINT fk_balance_contractor_document FOREIGN KEY (document_kind) REFERENCES public.entity_kind(id) ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT fk_balance_contractor_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON DELETE CASCADE;
