@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE public.calculate_employee_wages(gross_id uuid, b_year integer, b_month integer)
+CREATE OR REPLACE PROCEDURE public.calculate_employee_wages(gross_id uuid)
     LANGUAGE plpgsql
     AS $$
 declare
@@ -7,8 +7,12 @@ declare
 	emp_wage numeric;
 	w1c numeric;
 	iid uuid;
+	b_year integer;
+	b_month integer;
 begin
 	delete from gross_payroll_employee where owner_id = gross_id;
+
+	select billing_year, billing_month into b_year, b_month from gross_payroll where id = gross_id;
 
 	for emp in
 		select * from our_employee
@@ -61,4 +65,4 @@ begin
 end;
 $$;
 
-ALTER PROCEDURE public.calculate_employee_wages(gross_id uuid, b_year integer, b_month integer) OWNER TO postgres;
+ALTER PROCEDURE public.calculate_employee_wages(gross_id uuid) OWNER TO postgres;
