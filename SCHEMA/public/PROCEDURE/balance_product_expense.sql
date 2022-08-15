@@ -6,7 +6,7 @@ declare
 	init_date timestamptz;
 	balance_name varchar;
 	remainder numeric;
-	avg_price numeric;
+	expense_summa numeric;
 	init_id uuid;
 begin
 	balance_name := regexp_replace(prod.table_name, '^.*_', '');
@@ -56,10 +56,14 @@ begin
 			remainder;
 	end if;
 
-	avg_price = average_price(prod.id, expense_date);
+	if (remainder = prod.amount) then
+		select price into expense_summa from get_balance_product_info(prod.id, expense_date);
+	else
+		expense_summa := average_price(prod.id, expense_date) * prod.amount;
+	end if;
 
 	execute 'insert into balance_' || balance_name || ' (owner_id, document_date, document_number, reference_id, operation_summa, amount, document_type_id) values ($1, $2, $3, $4, $5, $6, $7)'
-		using document_id, expense_date, doc_number, prod.id, avg_price * prod.amount, -prod.amount, type_id;
+		using document_id, expense_date, doc_number, prod.id, expense_summa, -prod.amount, type_id;
 	
 	call send_notify(balance_name, prod.id, 'refresh');
 	call send_notify('balance_' || balance_name, prod.id);
