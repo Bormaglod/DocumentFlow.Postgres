@@ -2,7 +2,7 @@ CREATE TABLE public.payment_order (
 	contractor_id uuid,
 	date_operation date,
 	transaction_amount numeric(15,2),
-	direction public.payment_direction,
+	direction public.payment_direction NOT NULL,
 	payment_number character varying(15)
 )
 INHERITS (public.accounting_document);

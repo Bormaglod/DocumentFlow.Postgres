@@ -1,22 +1,7 @@
 CREATE OR REPLACE FUNCTION public.average_price(product_id uuid, relevance_date timestamp with time zone) RETURNS numeric
-    LANGUAGE plpgsql
+    LANGUAGE sql
     AS $$
-declare
-	amount_balances record;
-begin
-	select coalesce(sum(operation_summa * sign(amount)), 0) as operation_summa, coalesce(sum(amount), 0) as amount
-    	into amount_balances
-		from balance_product
-		where
-			reference_id = product_id and
-			document_date < relevance_date;
-		
-	if (amount_balances.amount = 0) then
-		return 0;
-	else
-		return round(amount_balances.operation_summa / amount_balances.amount, 2);
-	end if;
-end;
+	select avg_price from get_balance_product_info(product_id, relevance_date);
 $$;
 
 ALTER FUNCTION public.average_price(product_id uuid, relevance_date timestamp with time zone) OWNER TO postgres;
