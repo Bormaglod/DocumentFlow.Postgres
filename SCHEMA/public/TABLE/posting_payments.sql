@@ -14,7 +14,7 @@ ALTER TABLE ONLY public.posting_payments ALTER COLUMN re_carried_out SET DEFAULT
 
 ALTER TABLE public.posting_payments OWNER TO postgres;
 
-GRANT SELECT ON TABLE public.posting_payments TO users;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.posting_payments TO users;
 
 COMMENT ON TABLE public.posting_payments IS 'Разнесение платежей по документам';
 
