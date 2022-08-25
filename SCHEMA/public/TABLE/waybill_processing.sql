@@ -76,7 +76,7 @@ CREATE TRIGGER waybill_processing_bu
 CREATE TRIGGER waybill_processing_biu_0
 	BEFORE INSERT OR UPDATE ON public.waybill_processing
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.waybill_receipt_changing();
+	EXECUTE PROCEDURE public.waybill_changing();
 
 --------------------------------------------------------------------------------
 

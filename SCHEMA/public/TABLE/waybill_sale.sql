@@ -86,6 +86,13 @@ CREATE TRIGGER waybill_sale_au_1
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER waybill_sale_biu_0
+	BEFORE INSERT OR UPDATE ON public.waybill_sale
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.waybill_changing();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.waybill_sale
 	ADD CONSTRAINT pk_waybill_sale_id PRIMARY KEY (id);
 

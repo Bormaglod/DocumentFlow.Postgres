@@ -84,7 +84,7 @@ CREATE TRIGGER waybill_receipt_au_0
 CREATE TRIGGER waybill_receipt_biu_0
 	BEFORE INSERT OR UPDATE ON public.waybill_receipt
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.waybill_receipt_changing();
+	EXECUTE PROCEDURE public.waybill_changing();
 
 --------------------------------------------------------------------------------
 
