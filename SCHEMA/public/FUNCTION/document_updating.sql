@@ -15,7 +15,7 @@ begin
 		end if;
 	else
 		if (not is_inherit_of(TG_TABLE_NAME::varchar, 'balance')) then
-			if (new.carried_out and old.carried_out) then
+			if (new.carried_out and old.carried_out and not is_system(new.id, 'lock_reaccept'::system_operation)) then
 				new.re_carried_out = true;
 			end if;
 		

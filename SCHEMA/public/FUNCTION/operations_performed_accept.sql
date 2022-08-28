@@ -8,6 +8,8 @@ declare
 	giving_material boolean;
 	wids record;
 	lot_info record;
+	prod_started bool;
+	state lot_state;
 begin
 	-- количество изделий в партии
 	select po.id as order_id, po.contractor_id, po.contract_id, pl.quantity, pl.calculation_id
@@ -98,6 +100,8 @@ begin
 				end if;
 			end if;
 		end if;
+	
+		call set_production_lot_state(new.owner_id, 'production'::lot_state);
 	else
 		if (giving_material) then
 			prices.amount = new.quantity * rec.material_amount;
@@ -130,8 +134,17 @@ begin
 		
 		delete from balance_material where owner_id = new.id;
 		delete from balance_contractor where owner_id = new.id;
-	end if;
 	
+		prod_started := exists(select 1 from operations_performed where owner_id = new.owner_id and carried_out);
+		if (prod_started) then
+			state := 'production'::lot_state;
+		else
+			state := 'created'::lot_state;
+		end if;
+	
+		call set_production_lot_state(new.owner_id, state);
+	end if;
+
 	return new;
 end;
 $$;

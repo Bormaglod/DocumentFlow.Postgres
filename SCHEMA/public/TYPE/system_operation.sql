@@ -5,6 +5,7 @@ CREATE TYPE public.system_operation AS ENUM (
 	'delete_owned',
 	'delete_nested',
 	'lock',
+	'lock_reaccept',
 	'update'
 );
 

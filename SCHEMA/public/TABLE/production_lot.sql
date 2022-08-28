@@ -1,6 +1,7 @@
 CREATE TABLE public.production_lot (
 	calculation_id uuid NOT NULL,
-	quantity numeric(12,3) NOT NULL
+	quantity numeric(12,3) NOT NULL,
+	state public.lot_state DEFAULT 'created'::public.lot_state NOT NULL
 )
 INHERITS (public.accounting_document);
 
