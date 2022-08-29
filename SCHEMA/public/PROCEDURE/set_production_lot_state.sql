@@ -7,8 +7,8 @@ begin
 	call clear_system_value(document_id);
 
 	call send_notify('production_lot');
-	call send_notify('production_lot', new.owner_id);
-	call send_notify('production_lot', new.owner_id, 'refresh');
+	call send_notify('production_lot', document_id);
+	call send_notify('production_lot', document_id, 'refresh');
 end;
 $$;
 
