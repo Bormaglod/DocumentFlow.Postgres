@@ -1,7 +1,12 @@
 CREATE OR REPLACE FUNCTION public.average_price(product_id uuid, relevance_date timestamp with time zone) RETURNS numeric
     LANGUAGE sql
     AS $$
-	select avg_price from get_balance_product_info(product_id, relevance_date);
+	select coalesce(avg(operation_summa / amount), 0)
+		from balance_product
+		where
+			reference_id = product_id and
+			document_date < relevance_date and
+			amount > 0;
 $$;
 
 ALTER FUNCTION public.average_price(product_id uuid, relevance_date timestamp with time zone) OWNER TO postgres;
