@@ -14,6 +14,8 @@ ALTER TABLE ONLY public.report_card ALTER COLUMN re_carried_out SET DEFAULT fals
 
 ALTER TABLE public.report_card OWNER TO postgres;
 
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.report_card TO payroll_accountant;
+
 COMMENT ON TABLE public.report_card IS 'Табель';
 
 COMMENT ON COLUMN public.report_card.billing_year IS 'Расчётный год';

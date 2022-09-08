@@ -14,7 +14,7 @@ ALTER TABLE ONLY public.gross_payroll ALTER COLUMN re_carried_out SET DEFAULT fa
 
 ALTER TABLE public.gross_payroll OWNER TO postgres;
 
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.gross_payroll TO users;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.gross_payroll TO payroll_accountant;
 
 COMMENT ON TABLE public.gross_payroll IS 'Начисленная заработная плата';
 

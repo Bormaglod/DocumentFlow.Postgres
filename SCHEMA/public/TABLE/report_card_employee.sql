@@ -8,6 +8,8 @@ CREATE TABLE public.report_card_employee (
 
 ALTER TABLE public.report_card_employee OWNER TO postgres;
 
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.report_card_employee TO payroll_accountant;
+
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.report_card_employee

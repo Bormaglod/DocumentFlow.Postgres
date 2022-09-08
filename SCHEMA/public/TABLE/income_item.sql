@@ -7,6 +7,7 @@ CREATE TABLE public.income_item (
 ALTER TABLE public.income_item OWNER TO postgres;
 
 GRANT SELECT ON TABLE public.income_item TO users;
+GRANT SELECT ON TABLE public.income_item TO payroll_accountant;
 
 COMMENT ON TABLE public.income_item IS 'Статьи доходов';
 

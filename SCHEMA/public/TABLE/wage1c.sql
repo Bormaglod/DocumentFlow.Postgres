@@ -14,6 +14,8 @@ ALTER TABLE ONLY public.wage1c ALTER COLUMN re_carried_out SET DEFAULT false;
 
 ALTER TABLE public.wage1c OWNER TO postgres;
 
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.wage1c TO payroll_accountant;
+
 COMMENT ON TABLE public.wage1c IS 'Заработная плата начисленная в 1С';
 
 COMMENT ON COLUMN public.wage1c.billing_year IS 'Расчётный год';

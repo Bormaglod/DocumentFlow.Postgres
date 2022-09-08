@@ -8,6 +8,8 @@ CREATE TABLE public.wage_previous_periods (
 
 ALTER TABLE public.wage_previous_periods OWNER TO postgres;
 
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.wage_previous_periods TO payroll_accountant;
+
 COMMENT ON TABLE public.wage_previous_periods IS 'Заработная плата предыдущих периодов';
 
 COMMENT ON COLUMN public.wage_previous_periods.owner_id IS 'Начальный остаток к которому относятся предыдущие периоды';

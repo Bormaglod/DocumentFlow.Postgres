@@ -8,7 +8,7 @@ CREATE TABLE public.gross_payroll_employee (
 
 ALTER TABLE public.gross_payroll_employee OWNER TO postgres;
 
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.gross_payroll_employee TO users;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.gross_payroll_employee TO payroll_accountant;
 
 COMMENT ON COLUMN public.gross_payroll_employee.owner_id IS 'Ведомость начисления';
 
