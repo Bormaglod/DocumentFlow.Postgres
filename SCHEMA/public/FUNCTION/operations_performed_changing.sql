@@ -5,7 +5,12 @@ declare
 	op_price numeric;
 begin
 	select price into op_price from calculation_operation where id = new.operation_id;
-	new.salary = coalesce(new.quantity * op_price, 0);
+	new.double_rate := extract(isodow from new.document_date) in (6, 7);
+	new.salary := coalesce(new.quantity * op_price, 0);
+
+	if (new.double_rate) then
+		new.salary := new.salary * 2;
+	end if;
 
 	return new;
 end;
