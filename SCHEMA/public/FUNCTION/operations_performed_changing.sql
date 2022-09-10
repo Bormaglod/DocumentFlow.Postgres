@@ -4,7 +4,8 @@ CREATE OR REPLACE FUNCTION public.operations_performed_changing() RETURNS trigge
 declare
 	op_price numeric;
 begin
-	select price into op_price from calculation_operation where id = new.operation_id;
+	select price + stimul_cost into op_price from calculation_operation where id = new.operation_id;
+
 	new.double_rate := extract(isodow from new.document_date) in (6, 7);
 	new.salary := coalesce(new.quantity * op_price, 0);
 
