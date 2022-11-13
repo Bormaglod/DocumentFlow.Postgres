@@ -18,7 +18,7 @@ begin
 		if (new.price = 0) then
 			new.price := average_price(new.item_id, now());
 			raise notice 'MATERIAL CHANGING: average_price = %', new.price;
-			if (new.price = 0) then
+			if (new.price is null) then
 				select price into new.price from material where id = new.item_id;
 			end if;
 			raise notice 'MATERIAL CHANGING: finally price = %', new.price;
