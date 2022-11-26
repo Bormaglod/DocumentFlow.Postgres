@@ -122,3 +122,8 @@ ALTER TABLE public.waybill_receipt
 
 ALTER TABLE public.waybill_receipt
 	ADD CONSTRAINT fk_waybill_receipt_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.waybill_receipt
+	ADD CONSTRAINT fk_waybill_receipt_purchase_request FOREIGN KEY (owner_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE ON DELETE SET NULL;
