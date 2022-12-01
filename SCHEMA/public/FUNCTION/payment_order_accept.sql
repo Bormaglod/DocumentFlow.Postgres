@@ -36,12 +36,19 @@ begin
 				select contract_id into cid from waybill_receipt where id = pp.document_id;
 			elsif (pp.table_name = 'posting_payments_purchase') then
 				select contract_id into cid from purchase_request where id = pp.document_id;
+			elseif (pp.table_name = 'posting_payments_sale') then
+				select contract_id into cid from waybill_sale where id = pp.document_id;
 			else
-				raise 'Для таблицы % нет соответствия с таблицей документов.', pp.table_name; 
+				raise 'payment_order_accept(). Для таблицы % нет соответствия с таблицей документов.', pp.table_name; 
 			end if;
 		
-			-- уменьшим наш долг перед контрагентом (увеличив его долг перед нами) по каждому договору в отдельности
-			call contractor_debt_increase(new.id, 'payment_order', new.document_number, new.document_date, new.contractor_id, cid, pp.transaction_amount);			
+			if (new.direction = 'expense'::payment_direction) then
+				-- уменьшим наш долг перед контрагентом (увеличив его долг перед нами) по каждому договору в отдельности
+				call contractor_debt_increase(new.id, 'payment_order', new.document_number, new.document_date, new.contractor_id, cid, pp.transaction_amount);
+			else
+				-- увеличим наш долг перед контрагентом (уменьшив его долг перед нами)
+				call contractor_debt_reduce(new.id, 'payment_order', new.document_number, new.document_date, new.contractor_id, cid, pp.transaction_amount);
+			end if;
 		end loop;
 	else 
 		for var_p in

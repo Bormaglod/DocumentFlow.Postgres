@@ -43,6 +43,14 @@ begin
 				from waybill_receipt wr
 					left join contractor c on (c.id = wr.contractor_id)
 				where wr.id = var_pp.document_id;
+		elsif (var_pp.table_name = 'posting_payments_sale') then
+			table_name = 'sale';
+			document_name = 'Реализация';
+			select c.item_name
+				into contractor_name
+				from waybill_sale wr
+					left join contractor c on (c.id = wr.contractor_id)
+				where wr.id = var_pp.document_id;
 		end if;
 		return next;
 	end loop;
