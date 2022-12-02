@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.posting_payments_sale ALTER COLUMN re_carried_out SET DE
 
 ALTER TABLE public.posting_payments_sale OWNER TO postgres;
 
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.posting_payments_sale TO users;
+
 COMMENT ON TABLE public.posting_payments_sale IS 'Разнесение платежей от контрагентов за поставленную продукцию';
 
 COMMENT ON COLUMN public.posting_payments_sale.document_id IS 'Реализация';
