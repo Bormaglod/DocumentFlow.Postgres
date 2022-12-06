@@ -12,10 +12,12 @@ declare
 	state lot_state;
 begin
 	-- количество изделий в партии
-	select po.id as order_id, po.contractor_id, po.contract_id, pl.quantity, pl.calculation_id
+	select po.id as order_id, po.contractor_id, po.contract_id, pl.quantity, pl.calculation_id, g.item_name as goods_name
 		into lot_info
 		from production_lot pl
 			join production_order po on po.id = pl.owner_id 
+			join calculation c on c.id = pl.calculation_id 
+			join goods g on g.id = c.owner_id
 		where pl.id = new.owner_id;
 
 	-- количество операций и материала необходимых для изготовления указанной партии
@@ -65,12 +67,21 @@ begin
 			-- по данному заказу (количество списанных материалов должно быть меньше переданных в переработку)
 			if (giving_material) then
 				for wids in
-					select wpp.id, wpp.price, wpp.amount - wpp.written_off as remaining
+					select wpp.id, wpp.price, wpp.amount - wpp.written_off as remaining, wp.contractor_id, wp.contract_id, m.item_name as material_name, c.item_name as contractor_name
 						from waybill_processing_price wpp
 							join waybill_processing wp on wp.id = wpp.owner_id 
+							join material m on m.id = wpp.reference_id
+							join contractor c on c.id = wp.contractor_id
 						where wp.owner_id = lot_info.order_id and wpp.reference_id = rec.material_id and wpp.written_off < wpp.amount 
 						order by wp.document_date
 				loop 
+					if (wids.contractor_id != lot_info.contractor_id) then
+						raise 'В реализацию добавлено изделие [%] на изготовление которого был использован материал [%] стороннего контрагента [%].',
+							lot_info.goods_name,
+							wids.material_name,
+							wids.contractor_name;
+					end if;
+				
 					raise notice 'Выполнение операции. id = %, price = %, remaining = %', wids.id, wids.price, wids.remaining;
 					-- если количество материалов, которое необходимо списать больше, чем возможно указать
 					-- в записи о передаче материало в переработку, то запишем туда максимум возможного, а остольное спишем 
@@ -81,14 +92,14 @@ begin
 							set written_off = amount
 							where id = wids.id;
 						raise notice 'Выполнение операции. Погашение долга в сумме %', wids.price * wids.remaining;
-						call contractor_debt_increase(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, lot_info.contractor_id, lot_info.contract_id, wids.price * wids.remaining);
+						call contractor_debt_increase(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, wids.contractor_id, wids.contract_id, wids.price * wids.remaining);
 					else
 						update waybill_processing_price
 							set written_off = written_off + prices.amount
 							where id = wids.id;
 						
 						raise notice 'Выполнение операции. Погашение долга в сумме %', wids.price * prices.amount;
-						call contractor_debt_increase(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, lot_info.contractor_id, lot_info.contract_id, wids.price * prices.amount);
+						call contractor_debt_increase(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, wids.contractor_id, wids.contract_id, wids.price * prices.amount);
 					
 						prices.amount := 0;
 						exit;
