@@ -2,7 +2,7 @@ CREATE OR REPLACE PROCEDURE public.set_system_value(doc_id uuid, system_value pu
     LANGUAGE plpgsql
     AS $$
 begin
-	raise notice 'SET SYSTEM VALUE document_id = %', doc_id;
+	raise notice 'SET SYSTEM VALUE document_id = % (%)', doc_id, system_value;
 	begin
 		insert into system_process (id, sysop, group_id) values (doc_id, system_value, txid_current());
 	exception

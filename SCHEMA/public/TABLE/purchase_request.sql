@@ -13,7 +13,8 @@ CREATE TABLE public.purchase_request (
 	re_carried_out boolean DEFAULT false,
 	contractor_id uuid,
 	contract_id uuid,
-	note text
+	note text,
+	state public.purchase_state DEFAULT 'not active'::public.purchase_state NOT NULL
 )
 INHERITS (public.shipment_document);
 
@@ -46,14 +47,6 @@ CREATE TRIGGER purchase_request_ad
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER purchase_request_aiu
-	AFTER INSERT OR UPDATE ON public.purchase_request
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_checking();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER purchase_request_bi
 	BEFORE INSERT ON public.purchase_request
 	FOR EACH ROW
@@ -80,6 +73,29 @@ CREATE TRIGGER purchase_request_au_1
 	AFTER UPDATE ON public.purchase_request
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
+CREATE CONSTRAINT TRIGGER purchase_request_aiu_0
+	AFTER INSERT OR UPDATE ON public.purchase_request
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE CONSTRAINT TRIGGER purchase_request_aiu_1
+	AFTER INSERT OR UPDATE ON public.purchase_request
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.purchase_request_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER purchase_request_biu_0
+	BEFORE INSERT OR UPDATE ON public.purchase_request
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.purchase_request_changing();
 
 --------------------------------------------------------------------------------
 

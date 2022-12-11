@@ -51,14 +51,6 @@ CREATE TRIGGER waybill_receipt_ad
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER waybill_receipt_aiu
-	AFTER INSERT OR UPDATE ON public.waybill_receipt
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_checking();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER waybill_receipt_bi
 	BEFORE INSERT ON public.waybill_receipt
 	FOR EACH ROW
@@ -92,6 +84,22 @@ CREATE TRIGGER waybill_receipt_au_1
 	AFTER UPDATE ON public.waybill_receipt
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
+CREATE CONSTRAINT TRIGGER waybill_receipt_aiu_0
+	AFTER INSERT OR UPDATE ON public.waybill_receipt
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE CONSTRAINT TRIGGER waybill_receipt_aiu_1
+	AFTER INSERT OR UPDATE ON public.waybill_receipt
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.waybill_receipt_checking();
 
 --------------------------------------------------------------------------------
 
