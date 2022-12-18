@@ -38,13 +38,14 @@ CREATE VIEW public.purchase_request_receipt AS
             sum(ppr.transaction_amount) AS receipt_payment
            FROM (public.posting_payments_receipt ppr
              JOIN public.waybill_receipt wr2 ON ((wr2.id = ppr.document_id)))
+          WHERE (ppr.carried_out AND wr2.carried_out)
           GROUP BY wr2.id) t ON ((t.owner_id = purchase_request.id)))
-     LEFT JOIN ( SELECT wr3.id,
-            wr3.owner_id,
+     LEFT JOIN ( SELECT wr3.owner_id,
             sum(wrp.full_cost) AS full_cost
            FROM (public.waybill_receipt_price wrp
              JOIN public.waybill_receipt wr3 ON ((wr3.id = wrp.owner_id)))
-          GROUP BY wr3.id) w ON ((w.owner_id = purchase_request.id)))
+          WHERE wr3.carried_out
+          GROUP BY wr3.owner_id) w ON ((w.owner_id = purchase_request.id)))
      LEFT JOIN ( SELECT purchase_request_price.owner_id,
             sum(purchase_request_price.product_cost) AS cost_order,
             sum(purchase_request_price.tax_value) AS tax_value,
