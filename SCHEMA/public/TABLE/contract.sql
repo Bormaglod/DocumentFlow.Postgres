@@ -27,6 +27,8 @@ COMMENT ON COLUMN public.contract.code IS 'Номер договора';
 
 COMMENT ON COLUMN public.contract.item_name IS 'Наименование договора';
 
+COMMENT ON COLUMN public.contract.owner_id IS 'Контрагент';
+
 COMMENT ON COLUMN public.contract.tax_payer IS 'Плательщик НДС';
 
 COMMENT ON COLUMN public.contract.c_type IS 'Вид договора';
