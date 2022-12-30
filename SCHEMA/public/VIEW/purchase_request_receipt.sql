@@ -28,8 +28,8 @@ CREATE VIEW public.purchase_request_receipt AS
     d.full_cost,
     p.transaction_amount AS prepayment,
     t.receipt_payment,
-    w.full_cost AS delivery_amount
-   FROM (((((((public.purchase_request
+    ((COALESCE(w.full_cost, (0)::numeric) + COALESCE(debt.amount, (0)::numeric)) - COALESCE(credit.amount, (0)::numeric)) AS delivery_amount
+   FROM (((((((((public.purchase_request
      JOIN public.organization o ON ((o.id = purchase_request.organization_id)))
      JOIN public.contractor c ON ((c.id = purchase_request.contractor_id)))
      LEFT JOIN public.contract ON ((contract.id = purchase_request.contract_id)))
@@ -56,7 +56,17 @@ CREATE VIEW public.purchase_request_receipt AS
             sum(posting_payments_purchase.transaction_amount) AS transaction_amount
            FROM public.posting_payments_purchase
           WHERE posting_payments_purchase.carried_out
-          GROUP BY posting_payments_purchase.document_id) p ON ((p.document_id = purchase_request.id)));
+          GROUP BY posting_payments_purchase.document_id) p ON ((p.document_id = purchase_request.id)))
+     LEFT JOIN ( SELECT wr.owner_id,
+            sum(da.transaction_amount) AS amount
+           FROM (public.debt_adjustment da
+             JOIN public.waybill_receipt wr ON ((wr.id = da.document_debt_id)))
+          GROUP BY wr.owner_id) debt ON ((debt.owner_id = purchase_request.id)))
+     LEFT JOIN ( SELECT wr.owner_id,
+            sum(da.transaction_amount) AS amount
+           FROM (public.debt_adjustment da
+             JOIN public.waybill_receipt wr ON ((wr.id = da.document_credit_id)))
+          GROUP BY wr.owner_id) credit ON ((credit.owner_id = purchase_request.id)));
 
 ALTER VIEW public.purchase_request_receipt OWNER TO postgres;
 
