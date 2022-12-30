@@ -38,6 +38,8 @@ begin
 				select contract_id into cid from purchase_request where id = pp.document_id;
 			elseif (pp.table_name = 'posting_payments_sale') then
 				select contract_id into cid from waybill_sale where id = pp.document_id;
+			elseif (pp.table_name = 'posting_payments_balance') then
+				select contract_id into cid from initial_balance_contractor where id = pp.document_id;
 			else
 				raise 'payment_order_accept(). Для таблицы % нет соответствия с таблицей документов.', pp.table_name; 
 			end if;

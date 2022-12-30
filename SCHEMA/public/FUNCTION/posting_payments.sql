@@ -51,7 +51,16 @@ begin
 				from waybill_sale wr
 					left join contractor c on (c.id = wr.contractor_id)
 				where wr.id = var_pp.document_id;
+		elseif (var_pp.table_name = 'posting_payments_balance') then
+			table_name = 'balance';
+			document_name = 'Нач. остаток';
+			select c.item_name
+				into contractor_name
+				from initial_balance_contractor ibc 
+					left join contractor c on (c.id = ibc.reference_id)
+				where ibc.id = var_pp.document_id;
 		end if;
+	
 		return next;
 	end loop;
 end;
