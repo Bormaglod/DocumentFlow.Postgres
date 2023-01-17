@@ -1,5 +1,4 @@
 CREATE TABLE public.waybill_processing_price (
-	written_off numeric(12,3) DEFAULT 0 NOT NULL
 )
 INHERITS (public.product_price);
 
@@ -36,8 +35,6 @@ COMMENT ON COLUMN public.waybill_processing_price.reference_id IS 'Ссылка 
 COMMENT ON COLUMN public.waybill_processing_price.tax IS 'Ставка НДС';
 
 COMMENT ON COLUMN public.waybill_processing_price.tax_value IS 'Сумма НДС';
-
-COMMENT ON COLUMN public.waybill_processing_price.written_off IS 'Списано материала';
 
 --------------------------------------------------------------------------------
 

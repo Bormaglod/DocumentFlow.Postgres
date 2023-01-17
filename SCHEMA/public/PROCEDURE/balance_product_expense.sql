@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE public.balance_product_expense(document_id uuid, doc_code character varying, doc_number integer, expense_date timestamp with time zone, prod public.price_data)
+CREATE OR REPLACE PROCEDURE public.balance_product_expense(document_id uuid, doc_code character varying, doc_number integer, expense_date timestamp with time zone, prod public.price_data, giving_product boolean = false)
     LANGUAGE plpgsql
     AS $_$
 declare
@@ -22,7 +22,7 @@ begin
 	end if;
 
 	if (doc_code is null) then
-		raise 'Добавить запись в таблицу остатоков материалов невозможно [doc_code = NULL].';
+		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Добавить запись в таблицу остатоков материалов невозможно [doc_code = NULL].');
 	end if;
 
 	select id into type_id from document_type where code = doc_code;
@@ -43,7 +43,7 @@ begin
 			using prod.id, init_id;
 			
 		if (init_date is not null and init_date >= expense_date) then 
-			raise 'Невозможно добавить запись, т.к. есть документ добавивший начальный остаток с более поздней датой';
+			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Невозможно добавить запись, т.к. есть документ добавивший начальный остаток с более поздней датой');
 		end if;
 	end if;
 	
@@ -56,25 +56,32 @@ begin
 			remainder;
 	end if;
 
-	if (remainder = prod.amount) then
-		select price into expense_summa from get_balance_product_info(prod.id, expense_date);
+	if (giving_product) then
+		expense_summa := 0;
 	else
-		expense_summa := average_price(prod.id, expense_date) * prod.amount;
+		if (remainder = prod.amount) then
+			select price into expense_summa from get_balance_product_info(prod.id, expense_date);
+		else
+			expense_summa := average_price(prod.id, expense_date) * prod.amount;
+		end if;
 	end if;
 
-	execute 'insert into balance_' || balance_name || ' (owner_id, document_date, document_number, reference_id, operation_summa, amount, document_type_id) values ($1, $2, $3, $4, $5, $6, $7)'
-		using document_id, expense_date, doc_number, prod.id, expense_summa, -prod.amount, type_id;
+	if (expense_summa != 0 or prod.amount != 0) then
+		execute 'insert into balance_' || balance_name || ' (owner_id, document_date, document_number, reference_id, operation_summa, amount, document_type_id) values ($1, $2, $3, $4, $5, $6, $7)'
+			using document_id, expense_date, doc_number, prod.id, expense_summa, -prod.amount, type_id;
+	end if;
 	
 	call send_notify(balance_name, prod.id, 'refresh');
 	call send_notify('balance_' || balance_name, prod.id);
 end;
 $_$;
 
-ALTER PROCEDURE public.balance_product_expense(document_id uuid, doc_code character varying, doc_number integer, expense_date timestamp with time zone, prod public.price_data) OWNER TO postgres;
+ALTER PROCEDURE public.balance_product_expense(document_id uuid, doc_code character varying, doc_number integer, expense_date timestamp with time zone, prod public.price_data, giving_product boolean) OWNER TO postgres;
 
-COMMENT ON PROCEDURE public.balance_product_expense(document_id uuid, doc_code character varying, doc_number integer, expense_date timestamp with time zone, prod public.price_data) IS 'Расход материалов или товаров/продукции
+COMMENT ON PROCEDURE public.balance_product_expense(document_id uuid, doc_code character varying, doc_number integer, expense_date timestamp with time zone, prod public.price_data, giving_product boolean) IS 'Расход материалов или товаров/продукции
 - document_id - идентификатор документа по которому осуществляется поступление материала
 - doc_code - вид документа
 - doc_number - номер документа (может быть NULL)
 - expense_date - дата поступления (может быть NULL)
-- prod - запись определяющая материал/товар/продукцию и его цену';
+- prod - запись определяющая материал/товар/продукцию и его цену
+- giving_product - продукт является давальческим, его цена учитываться не будет';

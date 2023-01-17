@@ -45,8 +45,10 @@ begin
 		end if;
 	end if;
 	
-	execute 'insert into balance_' || balance_name || ' (owner_id, document_date, document_number, reference_id, operation_summa, amount, document_type_id) values ($1, $2, $3, $4, $5, $6, $7)'
-		using document_id, receipt_date, doc_number, prod.id, prod.product_cost, prod.amount, type_id;
+	if (prod.product_cost != 0 or prod.amount != 0) then
+		execute 'insert into balance_' || balance_name || ' (owner_id, document_date, document_number, reference_id, operation_summa, amount, document_type_id) values ($1, $2, $3, $4, $5, $6, $7)'
+			using document_id, receipt_date, doc_number, prod.id, prod.product_cost, prod.amount, type_id;
+	end if;
 	
 	call send_notify(balance_name, prod.id, 'refresh');
 	call send_notify('balance_' || balance_name, prod.id);

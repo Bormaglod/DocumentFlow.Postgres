@@ -61,46 +61,50 @@ begin
 			raise notice 'Выполнение операции. Количество операций: %, Количество материала на 1 оп.: %', new.quantity, rec.material_amount;
 
 			-- Расход материала
-			call balance_product_expense(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, prices);
+			call balance_product_expense(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, prices, giving_material);
 		
 			-- в этом случае необходимо выбрать все записи переданных материалов в переработку
 			-- по данному заказу (количество списанных материалов должно быть меньше переданных в переработку)
 			if (giving_material) then
 				for wids in
-					select wpp.id, wpp.price, wpp.amount - wpp.written_off as remaining, wp.contractor_id, wp.contract_id, m.item_name as material_name, c.item_name as contractor_name
-						from waybill_processing_price wpp
-							join waybill_processing wp on wp.id = wpp.owner_id 
-							join material m on m.id = wpp.reference_id
-							join contractor c on c.id = wp.contractor_id
-						where wp.owner_id = lot_info.order_id and wpp.reference_id = rec.material_id and wpp.written_off < wpp.amount 
-						order by wp.document_date
-				loop 
+					select
+						wp.id,
+						wp.contractor_id,
+						wpp.amount - coalesce(wpw.written_off, 0) as remaining
+					from waybill_processing wp
+						join waybill_processing_price wpp on wpp.owner_id = wp.id 
+						left join (
+							select 
+								waybill_processing_id, 
+								material_id, 
+								sum(amount) as written_off
+							from waybill_processing_writeoff
+							group by waybill_processing_id, material_id
+						) wpw on (wpw.waybill_processing_id = wp.id and wpw.material_id = wpp.reference_id)
+					where 
+						wp.owner_id = lot_info.order_id and 
+						wpp.reference_id = rec.material_id and 
+						coalesce(wpw.written_off, 0) < wpp.amount
+					order by wp.document_date
+				loop
 					if (wids.contractor_id != lot_info.contractor_id) then
-						raise 'В реализацию добавлено изделие [%] на изготовление которого был использован материал [%] стороннего контрагента [%].',
+						raise 'Заказ содержит изделие [%] на изготовление которого был использован материал [%] контрагента [%] который не является заказчиком.',
 							lot_info.goods_name,
 							wids.material_name,
 							wids.contractor_name;
 					end if;
 				
-					raise notice 'Выполнение операции. id = %, price = %, remaining = %', wids.id, wids.price, wids.remaining;
+					raise notice 'Выполнение операции. id = %, remaining = %', wids.id, wids.remaining;
 					-- если количество материалов, которое необходимо списать больше, чем возможно указать
 					-- в записи о передаче материало в переработку, то запишем туда максимум возможного, а остольное спишем 
 					-- в следующей записи
 					if (prices.amount > wids.remaining) then
 						prices.amount := prices.amount - wids.remaining;
-						update waybill_processing_price
-							set written_off = amount
-							where id = wids.id;
-						raise notice 'Выполнение операции. Погашение долга в сумме %', wids.price * wids.remaining;
-						call contractor_debt_increase(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, wids.contractor_id, wids.contract_id, wids.price * wids.remaining);
+						insert into waybill_processing_writeoff (operation_write_off_id, waybill_processing_id, material_id, amount)
+							values (new.id, wids.id, rec.material_id, wids.remaining);
 					else
-						update waybill_processing_price
-							set written_off = written_off + prices.amount
-							where id = wids.id;
-						
-						raise notice 'Выполнение операции. Погашение долга в сумме %', wids.price * prices.amount;
-						call contractor_debt_increase(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, wids.contractor_id, wids.contract_id, wids.price * prices.amount);
-					
+						insert into waybill_processing_writeoff (operation_write_off_id, waybill_processing_id, material_id, amount)
+							values (new.id, wids.id, rec.material_id, prices.amount);
 						prices.amount := 0;
 						exit;
 					end if;
@@ -115,36 +119,10 @@ begin
 		call set_production_lot_state(new.owner_id, 'production'::lot_state);
 	else
 		if (giving_material) then
-			prices.amount = new.quantity * rec.material_amount;
-		
-			for wids in
-				select wpp.id, wpp.written_off
-					from waybill_processing_price wpp
-						join waybill_processing wp on wp.id = wpp.owner_id 
-					where wp.owner_id = lot_info.order_id and wpp.reference_id = rec.material_id and wpp.written_off > 0 
-					order by wp.document_date desc
-			loop 
-				if (prices.amount > wids.written_off) then
-					prices.amount := prices.amount - wids.written_off;
-					update waybill_processing_price
-						set written_off = 0
-						where id = wids.id;
-				else
-					update waybill_processing_price
-						set written_off = written_off - prices.amount
-						where id = wids.id;
-					prices.amount := 0;
-					exit;
-				end if;
-			end loop;
-			
-			if (prices.amount > 0) then
-				raise 'Не удалось восстановить % ед. материала. Операция не выполнена.', prices.amount;
-			end if;
+			delete from waybill_processing_writeoff where operation_write_off_id = new.id;
 		end if;
 		
 		delete from balance_material where owner_id = new.id;
-		delete from balance_contractor where owner_id = new.id;
 	
 		prod_started := exists(select 1 from operations_performed where owner_id = new.owner_id and carried_out);
 		if (prod_started) then

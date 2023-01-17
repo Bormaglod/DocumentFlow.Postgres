@@ -9,7 +9,8 @@ begin
 		from balance_product
 		where
 			reference_id = product_id and
-			document_date < relevance_date
+			document_date < relevance_date and
+			operation_summa != 0
 		having sum(amount) != 0;
 	
 	if (coalesce(avg_price, 0) = 0) then
@@ -20,7 +21,8 @@ begin
 			where
 				bp.reference_id = product_id and
 				bp.document_date <= relevance_date and
-				dt.account_avg
+				dt.account_avg and
+				bp.operation_summa != 0
 			having sum(bp.amount) != 0;
 			
 		if (coalesce(avg_price, 0) = 0) then

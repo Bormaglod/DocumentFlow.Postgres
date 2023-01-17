@@ -28,8 +28,10 @@ begin
 		end if;
 	end if;
 
-	insert into balance_contractor (owner_id, document_date, document_number, reference_id, operation_summa, amount, document_type_id, contract_id)
-		values (document_id, debt_date, doc_number, contractor_id, debt, change_type, type_id, contract_id);
+	if (debt != 0) then
+		insert into balance_contractor (owner_id, document_date, document_number, reference_id, operation_summa, amount, document_type_id, contract_id)
+			values (document_id, debt_date, doc_number, contractor_id, debt, change_type, type_id, contract_id);
+	end if;
 	
 	call send_notify('contractor', contractor_id, 'refresh');
 	call send_notify('balance_contractor', contractor_id);
