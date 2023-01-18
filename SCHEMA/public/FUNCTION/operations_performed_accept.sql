@@ -124,14 +124,22 @@ begin
 		
 		delete from balance_material where owner_id = new.id;
 	
-		prod_started := exists(select 1 from operations_performed where owner_id = new.owner_id and carried_out);
-		if (prod_started) then
-			state := 'production'::lot_state;
-		else
-			state := 'created'::lot_state;
-		end if;
+		for wids in
+			select * from system_process
+		loop
+			raise notice 'id = %, sysop = %', wids.id, wids.sysop;
+		end loop;
+		
+		if (not is_system(new.owner_id, 'accept'::system_operation)) then
+			prod_started := exists(select 1 from operations_performed where owner_id = new.owner_id and carried_out);
+			if (prod_started) then
+				state := 'production'::lot_state;
+			else
+				state := 'created'::lot_state;
+			end if;
 	
-		call set_production_lot_state(new.owner_id, state);
+			call set_production_lot_state(new.owner_id, state);
+		end if;
 	end if;
 
 	return new;

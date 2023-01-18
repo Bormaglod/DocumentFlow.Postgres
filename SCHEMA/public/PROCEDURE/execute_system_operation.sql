@@ -4,24 +4,48 @@ CREATE OR REPLACE PROCEDURE public.execute_system_operation(document_id uuid, sy
 declare
 	field varchar;
 	id_name varchar; 
-	is_carried_out bool;
-	gid bigint; 
+	is_accepted bool;
+	reaccept_needed bool;
+	is_reaccept bool;
+	gid bigint;
 begin
 	if (sys_operation = 'lock'::system_operation) then
 		return;
 	end if;
 
 	-- если помечается на удаление или перепроводится бухгалтерский документ, то сначала отменим проведение
-	if (is_inherit_of(table_name, 'accounting_document') and value) then
-		execute 'select carried_out from ' || table_name || ' where id = $1'
-			into is_carried_out
+	if (sys_operation in ('accept'::system_operation, 'delete'::system_operation) and is_inherit_of(table_name, 'accounting_document') and value) then
+		execute 'select carried_out, re_carried_out from ' || table_name || ' where id = $1'
+			into is_accepted, reaccept_needed
 			using document_id;
-		if (is_carried_out) then
-			call execute_system_operation(document_id, 'accept', false, table_name);
+		if (is_accepted) then
+			is_reaccept := true;
+			if (sys_operation = 'accept'::system_operation) then
+				if (exists(select * from pg_proc where proname = table_name || '_reaccept')) then
+					execute 'select ' || table_name || '_reaccept($1)'
+						into is_reaccept
+						using document_id; 
+				end if;
+			end if;
+		
+			if (is_reaccept) then
+				raise notice 'Отмена проведения % в связи с перепроведением', table_name;
+				call execute_system_operation(document_id, 'accept', false, table_name);
+			else
+				if (reaccept_needed) then
+					raise notice 'У документа % снят флаг re_carried_out', table_name;
+					call set_system_value(document_id, 'lock_reaccept'::system_operation);
+					execute 'update ' || table_name || ' set re_carried_out = false where id = $1'
+						using document_id;
+					call clear_system_value(document_id);
+					return;
+				end if;
+			end if;
 		end if;
 	end if;
 
 	gid = txid_current();
+	raise notice 'execute_system_operation gid = %', gid;
 
 	begin
 		/*if (sys_operation = 'delete_childs'::system_operation) then

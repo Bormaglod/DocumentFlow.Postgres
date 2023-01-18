@@ -6,7 +6,7 @@ declare
 begin
 	if (not new.carried_out) then
 		if (new.closed) then
-			raise 'Заказ закрыт. Отмена проаедения невозможна.';
+			raise 'Заказ закрыт. Отмена проведения невозможна.';
 		end if;
 	
 		for pid in

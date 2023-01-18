@@ -46,13 +46,6 @@ CREATE CONSTRAINT TRIGGER production_lot_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER production_lot_bu
-	BEFORE UPDATE ON public.production_lot
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER production_lot_au_0
 	AFTER UPDATE ON public.production_lot
 	FOR EACH ROW
@@ -80,6 +73,20 @@ CREATE TRIGGER production_lot_au_2
 	AFTER UPDATE ON public.production_lot
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER production_lot_bu_0
+	BEFORE UPDATE ON public.production_lot
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER production_lot_bu_1
+	BEFORE UPDATE ON public.production_lot
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.production_lot_updating();
 
 --------------------------------------------------------------------------------
 
