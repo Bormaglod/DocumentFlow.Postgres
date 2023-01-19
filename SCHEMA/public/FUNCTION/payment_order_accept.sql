@@ -54,7 +54,7 @@ begin
 		end loop;
 	else 
 		for var_p in
-			select id, tableoid::regclass::varchar as table_name from posting_payments where owner_id = new.id and not carried_out
+			select id, tableoid::regclass::varchar as table_name from posting_payments where owner_id = new.id and carried_out
 		loop
 			call execute_system_operation(var_p.id, 'accept'::system_operation, new.carried_out, var_p.table_name);
 		end loop;
