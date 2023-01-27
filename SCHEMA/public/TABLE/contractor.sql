@@ -1,4 +1,6 @@
 CREATE TABLE public.contractor (
+	subject public.subjects_civil_low,
+	person_id uuid
 )
 INHERITS (public.company);
 
@@ -25,6 +27,10 @@ COMMENT ON TABLE public.contractor IS 'Контрагенты';
 COMMENT ON COLUMN public.contractor.account_id IS 'Основной расчётный счёт';
 
 COMMENT ON COLUMN public.contractor.okopf_id IS 'ОКОПФ';
+
+COMMENT ON COLUMN public.contractor.subject IS 'Субъект гражданского права';
+
+COMMENT ON COLUMN public.contractor.person_id IS 'Физическое лицо, если subject = ''legal entity''::subjects_civil_low';
 
 --------------------------------------------------------------------------------
 
@@ -97,3 +103,8 @@ ALTER TABLE public.contractor
 
 ALTER TABLE public.contractor
 	ADD CONSTRAINT fk_contractor_account FOREIGN KEY (id, account_id) REFERENCES public.account(owner_id, id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.contractor
+	ADD CONSTRAINT fk_contractor_person FOREIGN KEY (person_id) REFERENCES public.person(id) ON UPDATE CASCADE ON DELETE SET NULL;

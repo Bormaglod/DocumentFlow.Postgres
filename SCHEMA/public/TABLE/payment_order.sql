@@ -3,7 +3,8 @@ CREATE TABLE public.payment_order (
 	date_operation date,
 	transaction_amount numeric(15,2),
 	direction public.payment_direction NOT NULL,
-	payment_number character varying(15)
+	payment_number character varying(15),
+	without_distrib boolean DEFAULT false NOT NULL
 )
 INHERITS (public.accounting_document);
 
@@ -20,6 +21,8 @@ ALTER TABLE public.payment_order OWNER TO postgres;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.payment_order TO users;
 
 COMMENT ON COLUMN public.payment_order.payment_number IS 'Номер платежного поручения или расходного/приходного ордера';
+
+COMMENT ON COLUMN public.payment_order.without_distrib IS 'Флаг определяет возможность проведения документа без распренделения сумм по документам';
 
 --------------------------------------------------------------------------------
 
