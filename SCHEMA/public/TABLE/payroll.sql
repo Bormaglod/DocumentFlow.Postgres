@@ -14,7 +14,9 @@ ALTER TABLE public.payroll OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.payroll TO payroll_accountant;
 
-COMMENT ON TABLE public.payroll IS 'Ведомость выплаты заработной платы';
+COMMENT ON TABLE public.payroll IS 'Платежная ведомость';
+
+COMMENT ON COLUMN public.payroll.owner_id IS 'Начисление заработной платы';
 
 --------------------------------------------------------------------------------
 

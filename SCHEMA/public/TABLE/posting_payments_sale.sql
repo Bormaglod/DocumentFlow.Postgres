@@ -64,6 +64,14 @@ CREATE TRIGGER posting_payments_sale_au_1
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER posting_payments_sale_au_0
+	AFTER UPDATE ON public.posting_payments_sale
+	FOR EACH ROW
+	WHEN ((old.carried_out <> new.carried_out))
+	EXECUTE PROCEDURE public.posting_payments_sale_accept();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.posting_payments_sale
 	ADD CONSTRAINT chk_posting_payments_sale_transaction CHECK ((transaction_amount > (0)::numeric));
 

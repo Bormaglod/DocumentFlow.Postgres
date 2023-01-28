@@ -2,7 +2,7 @@ CREATE TABLE public.payroll_employee (
 	id bigint DEFAULT nextval('public.payroll_employee_id_seq'::regclass) NOT NULL,
 	owner_id uuid NOT NULL,
 	employee_id uuid NOT NULL,
-	paid numeric(15,2) NOT NULL
+	wage numeric(15,2) NOT NULL
 );
 
 ALTER TABLE public.payroll_employee OWNER TO postgres;
@@ -11,7 +11,7 @@ COMMENT ON COLUMN public.payroll_employee.owner_id IS 'Платёжная аед
 
 COMMENT ON COLUMN public.payroll_employee.employee_id IS 'Сотрудник';
 
-COMMENT ON COLUMN public.payroll_employee.paid IS 'Выплаченная сумма';
+COMMENT ON COLUMN public.payroll_employee.wage IS 'Выплаченная сумма';
 
 --------------------------------------------------------------------------------
 

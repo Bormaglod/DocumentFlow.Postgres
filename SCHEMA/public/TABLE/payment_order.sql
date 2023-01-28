@@ -20,9 +20,11 @@ ALTER TABLE public.payment_order OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.payment_order TO users;
 
+COMMENT ON TABLE public.payment_order IS 'Расчёты с контрагентами';
+
 COMMENT ON COLUMN public.payment_order.payment_number IS 'Номер платежного поручения или расходного/приходного ордера';
 
-COMMENT ON COLUMN public.payment_order.without_distrib IS 'Флаг определяет возможность проведения документа без распренделения сумм по документам';
+COMMENT ON COLUMN public.payment_order.without_distrib IS 'Флаг определяет возможность проведения документа без распределения сумм по документам';
 
 --------------------------------------------------------------------------------
 
