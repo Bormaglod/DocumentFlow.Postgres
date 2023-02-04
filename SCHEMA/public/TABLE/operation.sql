@@ -4,7 +4,8 @@ CREATE TABLE public.operation (
 	production_rate integer,
 	type_id uuid,
 	salary numeric(15,4) DEFAULT 0,
-	manual_input boolean
+	manual_input boolean,
+	date_norm date
 )
 INHERITS (public.directory);
 
@@ -29,6 +30,8 @@ COMMENT ON COLUMN public.operation.production_rate IS 'Норма выработ
 COMMENT ON COLUMN public.operation.type_id IS 'Тип операции';
 
 COMMENT ON COLUMN public.operation.salary IS 'Плата за выполнение ед. операции';
+
+COMMENT ON COLUMN public.operation.date_norm IS 'Дата нормирования';
 
 --------------------------------------------------------------------------------
 
