@@ -41,22 +41,22 @@ begin
 		if (new.item_id is not null) then
 			select * into cut from cutting where id = new.item_id;
 		
-			new.item_name = new.item_name || ' L=' || cut.segment_length || 'мм (' || cut.left_cleaning::integer || 'мм';
+			new.item_name := new.item_name || ' L=' || cut.segment_length || 'мм (' || cut.left_cleaning::integer || 'мм';
 			if (cut.left_sweep < cut.left_cleaning) then
-				new.item_name = new.item_name || '(' || cut.left_sweep::integer || ')';
+				new.item_name := new.item_name || '(' || cut.left_sweep::integer || ')';
 			end if;
 		
-			new.item_name = new.item_name || '/' || cut.right_cleaning::integer || 'мм';
+			new.item_name := new.item_name || '/' || cut.right_cleaning::integer || 'мм';
 			if (cut.right_sweep < cut.right_cleaning) then
-				new.item_name = new.item_name || '(' || cut.right_sweep::integer || ')';
+				new.item_name := new.item_name || '(' || cut.right_sweep::integer || ')';
 			end if;
 		
-			new.item_name = new.item_name || ')';
+			new.item_name := new.item_name || ')';
 		end if;
 	else
 		if (new.item_name is null) then
 			if (new.item_id is not null) then
-				new.item_name = operation_name;
+				new.item_name := operation_name;
 			end if;
 		end if;
 	end if;
