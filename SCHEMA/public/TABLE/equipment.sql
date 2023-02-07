@@ -1,6 +1,7 @@
 CREATE TABLE public.equipment (
 	is_tools boolean DEFAULT false NOT NULL,
-	serial_number character varying(20)
+	serial_number character varying(20),
+	commissioning date
 )
 INHERITS (public.directory);
 
@@ -19,6 +20,8 @@ COMMENT ON TABLE public.equipment IS 'Оборудовани и инструме
 COMMENT ON COLUMN public.equipment.is_tools IS 'Оборудование является инструментом';
 
 COMMENT ON COLUMN public.equipment.serial_number IS 'Серийный номер';
+
+COMMENT ON COLUMN public.equipment.commissioning IS 'Дата ввода в эксплуатацию';
 
 --------------------------------------------------------------------------------
 
