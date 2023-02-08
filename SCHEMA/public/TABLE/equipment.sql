@@ -1,7 +1,8 @@
 CREATE TABLE public.equipment (
 	is_tools boolean DEFAULT false NOT NULL,
 	serial_number character varying(20),
-	commissioning date
+	commissioning date,
+	starting_hits integer
 )
 INHERITS (public.directory);
 
@@ -22,6 +23,8 @@ COMMENT ON COLUMN public.equipment.is_tools IS 'Оборудование явл�
 COMMENT ON COLUMN public.equipment.serial_number IS 'Серийный номер';
 
 COMMENT ON COLUMN public.equipment.commissioning IS 'Дата ввода в эксплуатацию';
+
+COMMENT ON COLUMN public.equipment.starting_hits IS '(только для аппликаторов) начальное количество опрессовок';
 
 --------------------------------------------------------------------------------
 
