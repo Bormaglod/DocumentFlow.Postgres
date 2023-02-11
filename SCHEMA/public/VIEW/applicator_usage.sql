@@ -12,3 +12,5 @@ CREATE VIEW public.applicator_usage AS
   ORDER BY e.item_name;
 
 ALTER VIEW public.applicator_usage OWNER TO postgres;
+
+GRANT SELECT ON TABLE public.applicator_usage TO users;

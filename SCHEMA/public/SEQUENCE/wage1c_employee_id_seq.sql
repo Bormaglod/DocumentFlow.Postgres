@@ -7,5 +7,7 @@ CREATE SEQUENCE public.wage1c_employee_id_seq
 
 ALTER SEQUENCE public.wage1c_employee_id_seq OWNER TO postgres;
 
+GRANT ALL ON SEQUENCE public.wage1c_employee_id_seq TO users;
+
 ALTER SEQUENCE public.wage1c_employee_id_seq
 	OWNED BY public.wage1c_employee.id;
