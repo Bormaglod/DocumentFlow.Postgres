@@ -5,7 +5,10 @@ CREATE TABLE public.user_alias (
 	surname character varying(40),
 	first_name character varying(20),
 	middle_name character varying(40),
-	is_system boolean DEFAULT false NOT NULL
+	is_system boolean DEFAULT false NOT NULL,
+	www_name character varying(80),
+	www_password character varying(20),
+	access_token text
 );
 
 ALTER TABLE public.user_alias OWNER TO postgres;
@@ -14,6 +17,8 @@ GRANT ALL ON TABLE public.user_alias TO admins;
 GRANT SELECT ON TABLE public.user_alias TO guest;
 GRANT SELECT ON TABLE public.user_alias TO users;
 GRANT SELECT ON TABLE public.user_alias TO managers;
+
+GRANT SELECT(access_token),UPDATE(access_token) ON TABLE public.user_alias TO www_user;
 
 COMMENT ON TABLE public.user_alias IS 'Пользователи';
 

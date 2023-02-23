@@ -1,6 +1,6 @@
 CREATE TABLE public.finished_goods (
 	goods_id uuid NOT NULL,
-	quantity integer DEFAULT 0 NOT NULL,
+	quantity numeric(12,3) DEFAULT 0 NOT NULL,
 	price numeric(15,2),
 	product_cost numeric(15,2)
 )

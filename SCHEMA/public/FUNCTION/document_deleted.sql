@@ -8,12 +8,12 @@ begin
 
 	if (old.deleted) then
 		if (exists(select 1 from document_refs where owner_id = old.id)) then 
-			raise 'Запись (id = %) содержит документы, информацию о которых необходимо удалить вручную.', old.id;
+			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, format('Запись (id = %L) содержит документы, информацию о которых необходимо удалить вручную.', old.id));
 		end if;
 
 		call send_notify(TG_TABLE_NAME::varchar, old.id, 'delete');
 	
-		-- если удлаляемая запись содержится в таблице унаследованный от accounting_document то...
+		-- если удаляемая запись содержится в таблице унаследованный от accounting_document то...
 		-- проверим наличие остатков, которые мог сгенерировать этот документ
 		if (is_inherit_of(TG_TABLE_NAME::varchar, 'accounting_document')) then
 			-- если документ был проведен, отменим проведение
@@ -26,7 +26,7 @@ begin
 			delete from balance where owner_id = old.id;
 		end if;
 	else
-		raise 'Запись (id = %) не отмечена для удаления, поэтому ее невозможно удалить', old.id;
+		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, format('Запись (id = %L) не отмечена для удаления, поэтому ее невозможно удалить.', old.id));
 	end if;
 
 	return old;

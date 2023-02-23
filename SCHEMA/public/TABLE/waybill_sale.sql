@@ -30,6 +30,8 @@ COMMENT ON COLUMN public.waybill_sale.invoice_date IS 'Дата выдачи с�
 
 COMMENT ON COLUMN public.waybill_sale.invoice_number IS 'Номер счёт-фактуры (1С)';
 
+COMMENT ON COLUMN public.waybill_sale.owner_id IS 'Заказ на изготовление';
+
 COMMENT ON COLUMN public.waybill_sale.upd IS 'Является ли документ универсальным передаточным документом';
 
 COMMENT ON COLUMN public.waybill_sale.waybill_date IS 'Дата выдачи накладной (1С)';
@@ -120,3 +122,8 @@ ALTER TABLE public.waybill_sale
 
 ALTER TABLE public.waybill_sale
 	ADD CONSTRAINT fk_waybill_sale_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.waybill_sale
+	ADD CONSTRAINT fk_waybill_sale_production_order FOREIGN KEY (owner_id) REFERENCES public.production_order(id) ON UPDATE CASCADE ON DELETE SET NULL;
