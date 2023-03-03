@@ -8,6 +8,10 @@ ALTER TABLE public.operation_goods OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.operation_goods TO users;
 
+COMMENT ON COLUMN public.operation_goods.owner_id IS 'Производственная операция';
+
+COMMENT ON COLUMN public.operation_goods.goods_id IS 'Изделие';
+
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.operation_goods

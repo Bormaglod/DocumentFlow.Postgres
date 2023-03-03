@@ -10,22 +10,22 @@ begin
 
 	select state into calc_state from calculation where id = new.owner_id;
 	if (calc_state = 'expired'::calculation_state) then
-		raise 'Калькуляция находится в архиве. Менять её нельзя.';
+		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Калькуляция находится в архиве. Менять её нельзя.');
 	end if;
 
 	if (new.item_id is null) then
-		raise 'Необходимо выбрать материал';
+		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Необходимо выбрать материал.');
 	end if;
 
-	if (not new.is_giving) then
+	if (calc_state = 'approved'::calculation_state and not new.is_giving) then
 		new.amount = coalesce(new.amount, 0);
 		if (new.amount = 0) then
-			raise 'Укажите количество материала';
+			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Укажите количество материала.');
 		end if;
 
 		new.price = coalesce(new.price, 0);
 		if (new.price = 0) then
-			raise 'Укажите цену материала';
+			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Укажите цену материала.');
 		end if;
 	end if;
 

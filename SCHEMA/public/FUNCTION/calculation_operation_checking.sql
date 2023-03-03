@@ -35,12 +35,14 @@ begin
 
 	select owner_id into gid from calculation where id = new.owner_id;
 
-	-- если существует хотя-бы одна запись с выбранной операцией
-	if (exists(select 1 from operation_goods where owner_id = new.item_id)) then
-		-- то должна быть запись и с указанным изделием, т.е. операция допустима
-		-- только для выбранных изделий
-		if (not exists(select 1 from operation_goods where owner_id = new.item_id and goods_id = gid)) then 
-			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Выбранную операцию использовать для данного изделия нельзя.');
+	if (calc_state = 'expired'::calculation_state) then
+		-- если существует хотя-бы одна запись с выбранной операцией
+		if (exists(select 1 from operation_goods where owner_id = new.item_id)) then
+			-- то должна быть запись и с указанным изделием, т.е. операция допустима
+			-- только для выбранных изделий
+			if (not exists(select 1 from operation_goods where owner_id = new.item_id and goods_id = gid)) then 
+				raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Выбранную операцию использовать для данного изделия нельзя.');
+			end if;
 		end if;
 	end if;
 

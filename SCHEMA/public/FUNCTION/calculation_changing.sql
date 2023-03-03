@@ -2,6 +2,11 @@ CREATE OR REPLACE FUNCTION public.calculation_changing() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
+	-- при вставке состояние калькуляции должно быть prepare всегда
+	if (TG_OP = 'INSERT') then 
+		new.state = 'prepare'::calculation_state;
+	end if;
+
 	new.cost_price = coalesce(new.cost_price, 0);
 	if (new.cost_price = 0) then
 		select sum(item_cost) into new.cost_price from calculation_item where owner_id = new.id and not deleted;
