@@ -28,7 +28,7 @@ begin
 				where wsp.owner_id = new.id and not g.is_service;
 			if (prods > 0 and new.document_date >= '01.01.2023') then
 				-- если количество проданых изделий ДЗСтп больше 0, выплатим премию Кравчуку по 5 руб. за изделие
-				call contractor_debt_increase(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, 'ce88fa42-1128-4e16-90a7-a19ee18e596c', '8a222918-8da9-4305-b153-667d60436bd6', prods * 5);
+				call contractor_debt_reduce(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, 'ce88fa42-1128-4e16-90a7-a19ee18e596c', '8a222918-8da9-4305-b153-667d60436bd6', prods * 5);
 			end if;
 		end if;
 	else
