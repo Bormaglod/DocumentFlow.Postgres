@@ -4,13 +4,13 @@ CREATE OR REPLACE FUNCTION public.purchase_request_checking() RETURNS trigger
 declare 
 	state_text varchar;
 begin
-	raise notice 'ПРОВЕРКА purchase_request. state = %', state_text;
-	
 	if (new.state in ('not active'::purchase_state, 'canceled'::purchase_state)) then
 		state_text = case new.state
 			when 'not active'::purchase_state then 'Не активна'
 			when 'canceled'::purchase_state then 'Отменена'
 		end;
+	
+		raise notice 'ПРОВЕРКА purchase_request. state = %', state_text;
 
 		if (exists(select 1 from waybill_receipt where owner_id = new.id and carried_out)) then
 			raise 'Заявку нельзя перевести в состояние "%", т.к. есть поступления по этой заявке.', state_text;
@@ -22,6 +22,8 @@ begin
 			when 'canceled'::purchase_state then 'Отменена'
 			when 'completed'::purchase_state then 'Выполнена'
 		end;
+	
+		raise notice 'ПРОВЕРКА purchase_request. state = %', state_text;
 
 		if (new.carried_out != old.carried_out) then
 			raise 'Нельзя изменить статус проведения заявки в состоянии "%".', state_text;
