@@ -51,6 +51,9 @@ begin
 				
 				emp_wage = coalesce(emp_wage, 0);
 				w1c := emp_wage - w1c;
+				if (w1c < 0) then
+					w1c := 0;
+				end if;
 			end if;
 		
 			if (item = 'СДЛ_1С') then
