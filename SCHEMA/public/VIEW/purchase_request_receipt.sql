@@ -33,13 +33,12 @@ CREATE VIEW public.purchase_request_receipt AS
      JOIN public.organization o ON ((o.id = purchase_request.organization_id)))
      JOIN public.contractor c ON ((c.id = purchase_request.contractor_id)))
      LEFT JOIN public.contract ON ((contract.id = purchase_request.contract_id)))
-     LEFT JOIN ( SELECT ppr.id,
-            wr2.owner_id,
+     LEFT JOIN ( SELECT wr2.owner_id,
             sum(ppr.transaction_amount) AS receipt_payment
            FROM (public.posting_payments_receipt ppr
              JOIN public.waybill_receipt wr2 ON ((wr2.id = ppr.document_id)))
           WHERE (ppr.carried_out AND wr2.carried_out AND (wr2.owner_id IS NOT NULL))
-          GROUP BY ppr.id, wr2.owner_id) t ON ((t.owner_id = purchase_request.id)))
+          GROUP BY wr2.owner_id) t ON ((t.owner_id = purchase_request.id)))
      LEFT JOIN ( SELECT wr3.owner_id,
             sum(wrp.full_cost) AS full_cost
            FROM (public.waybill_receipt_price wrp
