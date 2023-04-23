@@ -18,6 +18,7 @@ ALTER TABLE ONLY public.payroll_payment ALTER COLUMN re_carried_out SET DEFAULT 
 ALTER TABLE public.payroll_payment OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.payroll_payment TO users;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.payroll_payment TO payroll_accountant;
 
 COMMENT ON TABLE public.payroll_payment IS 'Выплата заработной платы';
 

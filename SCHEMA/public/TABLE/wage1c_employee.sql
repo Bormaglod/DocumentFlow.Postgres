@@ -9,6 +9,8 @@ ALTER TABLE public.wage1c_employee OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.wage1c_employee TO payroll_accountant;
 
+COMMENT ON TABLE public.wage1c_employee IS 'Заработная плата сотрудников расчитанная в 1с';
+
 COMMENT ON COLUMN public.wage1c_employee.owner_id IS 'Ведомость начисления';
 
 COMMENT ON COLUMN public.wage1c_employee.employee_id IS 'Сотрудник';

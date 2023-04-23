@@ -7,5 +7,7 @@ CREATE SEQUENCE public.payroll_employee_id_seq
 
 ALTER SEQUENCE public.payroll_employee_id_seq OWNER TO postgres;
 
+GRANT ALL ON SEQUENCE public.payroll_employee_id_seq TO payroll_accountant;
+
 ALTER SEQUENCE public.payroll_employee_id_seq
 	OWNED BY public.payroll_employee.id;

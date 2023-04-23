@@ -9,18 +9,36 @@ declare
 begin
    inn_arr := string_to_array(inn::character varying, NULL)::integer[];
 
-   if (array_length(inn_arr, 1) != 10 and array_length(inn_arr, 1) != 12) then
+   -- Проверка контрольного числа
+   if (array_length(inn_arr, 1) = 10) then
+      /* 
+       * 10-значный ИНН
+       * 
+       * 1. Вычислить сумму произведений цифр ИНН (с 1-й по 9-ю)
+       * 2. Вычислить остаток от деления полученной суммы на 11
+       * 3. Сравнить младший разряд полученного остатка от деления с младшим разрядом ИНН. Если они равны, то ИНН верный
+       */
+      return control_value(inn_arr, k, 11) = inn_arr[10];
+   elsif (array_length(inn_arr, 1) = 12) then
+      /*
+       * 12-значный ИНН
+       * 
+       * 1. Вычислить 1-ю контрольную цифру
+       * 1.1. Вычислить сумму произведений цифр ИНН (с 1-й по 10-ю)
+       * 1.2. Вычислить младший разряд остатка от деления полученной суммы на 11
+       * 2. Вычислить 2-ю контрольную цифру
+       * 2.1. Вычислить сумму произведений цифр ИНН (с 1-й по 11-ю)
+       * 2.2. Вычислить младший разряд остатка от деления полученной суммы на 11
+       * 3. Сравнить 1-ю контрольную цифру с 11-й цифрой ИНН и сравнить 2-ю контрольную цифру с 12-й цифрой ИНН. Если они равны, то ИНН верный
+       */
+      return (control_value(inn_arr, k1, 11) = inn_arr[11]) and (control_value(inn_arr, k2, 11) = inn_arr[12]);
+   else
+      raise notice 'Неверная длина ИНН: %', array_length(inn_arr, 1);
       return false;
    end if;
-
-   if (control_value(inn_arr, k, 11) = inn_arr[10]) then
-      if (array_length(inn_arr, 1) = 12) then
-         return control_value(inn_arr, k1, 11) == inn_arr[11] && control_value(inn_arr, k2, 11) == inn_arr[12];
-      end if;
-		
-      return true;
-   end if;
-
+  
+   raise notice 'Неверное контрольное число';
+  
    return false;
 end;
 $$;
