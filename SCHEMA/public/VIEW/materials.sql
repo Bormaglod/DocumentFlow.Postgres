@@ -32,7 +32,8 @@ CREATE VIEW public.materials AS
           WHERE ((dr.owner_id = material.id) AND (dr.thumbnail IS NOT NULL)))) AS thumbnails,
     material.wire_id,
     w.item_name AS wire_name,
-    ms.abbreviation AS measurement_name
+    ms.abbreviation AS measurement_name,
+    material.material_kind
    FROM (((((public.material
      LEFT JOIN public.material m ON ((m.id = material.owner_id)))
      LEFT JOIN public.measurement ms ON ((ms.id = material.measurement_id)))

@@ -14,6 +14,9 @@ begin
 	end if;
 
 	new.repeats := coalesce(new.repeats, 1);
+	if (new.repeats = 0) then
+		new.repeats := 1;
+	end if;
 
 	select item_name, salary into operation_name, new.price from operation where id = new.item_id;
 	select stimul_type, stimul_payment into srec from calculation where id = new.owner_id;

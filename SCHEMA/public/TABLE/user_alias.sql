@@ -8,7 +8,8 @@ CREATE TABLE public.user_alias (
 	is_system boolean DEFAULT false NOT NULL,
 	www_name character varying(80),
 	www_password character varying(20),
-	access_token text
+	access_token text,
+	user_password character varying(20)
 );
 
 ALTER TABLE public.user_alias OWNER TO postgres;

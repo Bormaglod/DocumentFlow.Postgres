@@ -1,7 +1,8 @@
 CREATE TABLE public.material (
 	min_order numeric(15,3),
 	ext_article character varying(100),
-	wire_id uuid
+	wire_id uuid,
+	material_kind public.material_kind DEFAULT 'undefined'::public.material_kind NOT NULL
 )
 INHERITS (public.product);
 

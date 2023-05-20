@@ -29,9 +29,9 @@ begin
 		end if;
 	end if;
 	
-	if (coalesce(new.repeats, 0) <= 0) then
+	/*if (coalesce(new.repeats, 0) <= 0) then
 		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Количество повторов операции должно быть больше 0!');
-	end if;
+	end if;*/
 
 	select owner_id into gid from calculation where id = new.owner_id;
 

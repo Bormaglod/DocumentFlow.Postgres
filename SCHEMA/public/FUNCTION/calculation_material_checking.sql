@@ -24,9 +24,9 @@ begin
 		end if;
 
 		new.price = coalesce(new.price, 0);
-		if (new.price = 0) then
+		/*if (new.price = 0) then
 			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Укажите цену материала.');
-		end if;
+		end if;*/
 	end if;
 
 	return new;

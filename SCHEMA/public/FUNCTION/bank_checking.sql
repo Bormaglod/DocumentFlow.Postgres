@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION public.bank_checking() RETURNS trigger
     AS $$
 begin
 	if (new.bik > 0 and new.account > 0 and not bank_test_account(new.account, new.bik, TG_TABLE_NAME::character varying)) then
-		raise exception 'Некорректное значение БИК или корр. счета';
+		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Некорректное значение БИК или корр. счета.');
 	end if;
 
 	return new;
