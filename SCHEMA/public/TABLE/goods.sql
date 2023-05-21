@@ -21,6 +21,10 @@ GRANT SELECT ON TABLE public.goods TO managers;
 
 COMMENT ON TABLE public.goods IS 'Список производимых изделий';
 
+COMMENT ON COLUMN public.goods.doc_name IS 'Наименование используемое в документах';
+
+COMMENT ON COLUMN public.goods.measurement_id IS 'Единица измерения';
+
 COMMENT ON COLUMN public.goods.price IS 'Цена продажи без НДС';
 
 COMMENT ON COLUMN public.goods.vat IS 'Ставка НДС';

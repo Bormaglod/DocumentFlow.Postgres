@@ -19,6 +19,8 @@ GRANT SELECT ON TABLE public.material TO managers;
 
 COMMENT ON COLUMN public.material.code IS 'Артикул';
 
+COMMENT ON COLUMN public.material.doc_name IS 'Наименование используемое в документах';
+
 COMMENT ON COLUMN public.material.measurement_id IS 'Единица измерения';
 
 COMMENT ON COLUMN public.material.owner_id IS 'Кросс-артикул';
@@ -34,6 +36,8 @@ COMMENT ON COLUMN public.material.min_order IS 'Минимальный зака�
 COMMENT ON COLUMN public.material.ext_article IS 'Доп. артикул';
 
 COMMENT ON COLUMN public.material.wire_id IS 'Тип провода (для записей в группе "Провода")';
+
+COMMENT ON COLUMN public.material.material_kind IS 'Тип материала';
 
 --------------------------------------------------------------------------------
 

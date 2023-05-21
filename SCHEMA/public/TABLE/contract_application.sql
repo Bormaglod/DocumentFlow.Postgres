@@ -1,7 +1,8 @@
 CREATE TABLE public.contract_application (
 	document_date date NOT NULL,
 	date_start date NOT NULL,
-	date_end date
+	date_end date,
+	note text
 )
 INHERITS (public.directory);
 
@@ -30,6 +31,8 @@ COMMENT ON COLUMN public.contract_application.document_date IS 'Дата под�
 COMMENT ON COLUMN public.contract_application.date_start IS 'Начало действия';
 
 COMMENT ON COLUMN public.contract_application.date_end IS 'Окончание действия';
+
+COMMENT ON COLUMN public.contract_application.note IS 'Примечание';
 
 --------------------------------------------------------------------------------
 
