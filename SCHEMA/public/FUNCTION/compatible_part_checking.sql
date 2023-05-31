@@ -9,11 +9,11 @@ begin
 	select material_kind into comp_kind from material where id = new.compatible_id;
 
 	if (mat_kind = 'terminal'::material_kind) then
-		if (comp_kind != 'housing'::material_kind) then
+		if (comp_kind not in ('housing'::material_kind, 'undefined'::material_kind)) then
 			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Совместимая деталь должна быть колодкой.');
 		end if;
 	elsif (mat_kind = 'housing'::material_kind) then
-		if (comp_kind not in ('terminal'::material_kind, 'seal'::material_kind)) then
+		if (comp_kind not in ('terminal'::material_kind, 'seal'::material_kind, 'undefined'::material_kind)) then
 			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Совместимая деталь должна быть контактом или уплотнителем.');
 		end if;
 	end if;

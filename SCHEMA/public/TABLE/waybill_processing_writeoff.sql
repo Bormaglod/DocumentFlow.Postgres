@@ -3,7 +3,8 @@ CREATE TABLE public.waybill_processing_writeoff (
 	operation_write_off_id uuid NOT NULL,
 	waybill_processing_id uuid NOT NULL,
 	material_id uuid NOT NULL,
-	amount numeric(12,3) DEFAULT 0 NOT NULL
+	amount numeric(12,3) DEFAULT 0 NOT NULL,
+	write_off public.write_off_method DEFAULT 'consumption'::public.write_off_method NOT NULL
 );
 
 ALTER TABLE public.waybill_processing_writeoff OWNER TO postgres;
@@ -19,6 +20,8 @@ COMMENT ON COLUMN public.waybill_processing_writeoff.waybill_processing_id IS '�
 COMMENT ON COLUMN public.waybill_processing_writeoff.material_id IS 'Давальческий материал';
 
 COMMENT ON COLUMN public.waybill_processing_writeoff.amount IS 'Количество списываемого материала';
+
+COMMENT ON COLUMN public.waybill_processing_writeoff.write_off IS 'Способ списания материалов (расход в производстве или возврат)';
 
 --------------------------------------------------------------------------------
 

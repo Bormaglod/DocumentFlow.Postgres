@@ -41,11 +41,11 @@ begin
 			loop
 				if (ms.quantity > wids.remaining) then
 					ms.quantity := ms.quantity - wids.remaining;
-					insert into waybill_processing_writeoff (operation_write_off_id, waybill_processing_id, material_id, amount)
-						values (new.id, wids.id, ms.material_id, wids.remaining);
+					insert into waybill_processing_writeoff (operation_write_off_id, waybill_processing_id, material_id, amount, write_off)
+						values (new.id, wids.id, ms.material_id, wids.remaining, 'return'::write_off_method);
 				else
-					insert into waybill_processing_writeoff (operation_write_off_id, waybill_processing_id, material_id, amount)
-						values (new.id, wids.id, ms.material_id, ms.quantity);
+					insert into waybill_processing_writeoff (operation_write_off_id, waybill_processing_id, material_id, amount, write_off)
+						values (new.id, wids.id, ms.material_id, ms.quantity, 'return'::write_off_method);
 					ms.quantity := 0;
 					exit;
 				end if;
