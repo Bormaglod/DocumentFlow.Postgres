@@ -7,7 +7,8 @@ CREATE TABLE public.contract (
 	date_start date NOT NULL,
 	date_end date,
 	signatory_id uuid,
-	org_signatory_id uuid
+	org_signatory_id uuid,
+	payment_period smallint
 )
 INHERITS (public.directory);
 
@@ -44,6 +45,8 @@ COMMENT ON COLUMN public.contract.date_end IS 'Окончание действи
 COMMENT ON COLUMN public.contract.signatory_id IS 'Лицо подписывающее договор со стороны контрагента';
 
 COMMENT ON COLUMN public.contract.org_signatory_id IS 'Лицо подписывающее договор со стороны нашей организации';
+
+COMMENT ON COLUMN public.contract.payment_period IS 'Период в течении которого ожидается оплата';
 
 --------------------------------------------------------------------------------
 
