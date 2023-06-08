@@ -1,6 +1,7 @@
 CREATE TABLE public.calculation_material (
 	amount numeric(12,3) DEFAULT 0,
-	is_giving boolean DEFAULT false
+	is_giving boolean DEFAULT false,
+	price_setting_method public.price_setting_method DEFAULT 'average'::public.price_setting_method NOT NULL
 )
 INHERITS (public.calculation_item);
 

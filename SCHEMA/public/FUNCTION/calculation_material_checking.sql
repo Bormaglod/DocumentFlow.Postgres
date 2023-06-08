@@ -17,16 +17,16 @@ begin
 		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Необходимо выбрать материал.');
 	end if;
 
-	if (calc_state = 'approved'::calculation_state and not new.is_giving) then
+	if (calc_state = 'approved'::calculation_state) then
 		new.amount = coalesce(new.amount, 0);
 		if (new.amount = 0) then
 			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Укажите количество материала.');
 		end if;
 
 		new.price = coalesce(new.price, 0);
-		/*if (new.price = 0) then
-			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Укажите цену материала.');
-		end if;*/
+		if (not new.is_giving and new.price = 0) then
+			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Не установлена цена материала.');
+		end if;
 	end if;
 
 	return new;
