@@ -3,7 +3,7 @@ CREATE TABLE public.employee (
 	post_id uuid,
 	phone character varying(30),
 	email character varying(100),
-	j_role public.job_role
+	emp_role public.employee_role DEFAULT 'not defined'::public.employee_role NOT NULL
 )
 INHERITS (public.directory);
 
@@ -31,7 +31,7 @@ COMMENT ON COLUMN public.employee.phone IS 'Рабочий телефон';
 
 COMMENT ON COLUMN public.employee.email IS 'Рабочий адрес электронной почты';
 
-COMMENT ON COLUMN public.employee.j_role IS 'Должностная роль';
+COMMENT ON COLUMN public.employee.emp_role IS 'Должностная роль';
 
 --------------------------------------------------------------------------------
 

@@ -5,6 +5,8 @@ INHERITS (public.employee);
 
 ALTER TABLE ONLY public.our_employee ALTER COLUMN deleted SET DEFAULT false;
 
+ALTER TABLE ONLY public.our_employee ALTER COLUMN emp_role SET DEFAULT 'not defined'::public.employee_role;
+
 ALTER TABLE ONLY public.our_employee ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
 
 ALTER TABLE ONLY public.our_employee ALTER COLUMN is_folder SET DEFAULT false;

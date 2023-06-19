@@ -71,6 +71,13 @@ CREATE TRIGGER contractor_bu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER contractor_biu_0
+	BEFORE INSERT OR UPDATE ON public.contractor
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.contractor_changing();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.contractor
 	ADD CONSTRAINT pk_contractor_id PRIMARY KEY (id);
 
