@@ -10,13 +10,15 @@ ALTER TABLE ONLY public.account ALTER COLUMN id SET DEFAULT public.uuid_generate
 
 ALTER TABLE ONLY public.account ALTER COLUMN is_folder SET DEFAULT false;
 
+ALTER TABLE ONLY public.account ALTER COLUMN owner_id SET NOT NULL;
+
 ALTER TABLE public.account OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.account TO users;
 
 COMMENT ON TABLE public.account IS 'Расчётные счета';
 
-COMMENT ON COLUMN public.account.owner_id IS 'Контрагент, которому принадлежит счет или NULL, если счет принадлежит нашей компании';
+COMMENT ON COLUMN public.account.owner_id IS 'Контрагент, которому принадлежит счет';
 
 COMMENT ON COLUMN public.account.account_value IS 'Номер расчётного счёта';
 
