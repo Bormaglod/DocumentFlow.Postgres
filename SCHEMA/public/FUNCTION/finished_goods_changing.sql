@@ -2,30 +2,31 @@ CREATE OR REPLACE FUNCTION public.finished_goods_changing() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 declare
-	gid uuid;
+	lot_info record;
 begin
 	if (new.owner_id is not null) then
-		
 		select 
-			c.owner_id, c.cost_price
+			c.owner_id as goods_id, c.cost_price
 		into
-			gid, new.price
+			lot_info
 		from production_lot pl
 			join calculation c on (c.id = pl.calculation_id)
 		where 
 			pl.id = new.owner_id;
+
+		new.price = coalesce(new.price, lot_info.cost_price);
 		
 		if (new.carried_out) then
 			if (new.goods_id is null) then
-				new.goods_id = gid;
+				new.goods_id := lot_info.goods_id;
 			else
-				if (new.goods_id != gid) then
-					raise 'В партии указано другое изделие!';
+				if (new.goods_id != lot_info.goods_id) then
+					raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'В партии указано другое изделие!');
 				end if;
 			end if;
 		end if;
 	else
-		if (new.goods_id is not null) then
+		if (new.goods_id is not null and new.price is null) then
 			select 
 				c.cost_price 
 			into new.price 
@@ -35,7 +36,7 @@ begin
 		end if;
 	end if;
 
-	if (new.price is not null) then
+	if (new.price is not null and new.product_cost is null) then
 		new.product_cost := new.quantity * new.price;
 	end if;
 

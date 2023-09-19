@@ -50,3 +50,8 @@ ALTER TABLE public.waybill_sale_price_goods
 
 ALTER TABLE public.waybill_sale_price_goods
 	ADD CONSTRAINT fk_waybill_sale_price_goods_ref FOREIGN KEY (reference_id) REFERENCES public.goods(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.waybill_sale_price_goods
+	ADD CONSTRAINT fk_waybill_sale_price_goods_lot FOREIGN KEY (lot_id) REFERENCES public.production_lot(id) ON UPDATE CASCADE ON DELETE SET NULL;

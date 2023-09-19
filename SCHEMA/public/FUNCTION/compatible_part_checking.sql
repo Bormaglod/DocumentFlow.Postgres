@@ -5,6 +5,12 @@ declare
 	mat_kind material_kind;
 	comp_kind material_kind;
 begin
+	if (TG_OP = 'UPDATE') then
+		if (new.owner_id != old.owner_id) then
+			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Некорректное значение owner_id.');
+		end if;
+	end if;
+
 	select material_kind into mat_kind from material where id = new.owner_id;
 	select material_kind into comp_kind from material where id = new.compatible_id;
 

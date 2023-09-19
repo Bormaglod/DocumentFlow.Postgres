@@ -1,4 +1,5 @@
 CREATE TABLE public.waybill_sale_price (
+	lot_id uuid
 )
 INHERITS (public.product_price);
 
@@ -35,6 +36,8 @@ COMMENT ON COLUMN public.waybill_sale_price.reference_id IS 'Ссылка на �
 COMMENT ON COLUMN public.waybill_sale_price.tax IS 'Ставка НДС';
 
 COMMENT ON COLUMN public.waybill_sale_price.tax_value IS 'Сумма НДС';
+
+COMMENT ON COLUMN public.waybill_sale_price.lot_id IS 'Идентификатор партии (только для изготовленной продукции, в остальных случаях - NULL)';
 
 --------------------------------------------------------------------------------
 

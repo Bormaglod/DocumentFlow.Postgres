@@ -10,11 +10,11 @@ begin
 
 	select state into calc_state from calculation where id = new.owner_id;
 	if (calc_state = 'expired'::calculation_state) then
-		raise 'Калькуляция находится в архиве. Менять её нельзя.';
+		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Калькуляция находится в архиве. Менять её нельзя.');
 	end if;
 
 	if (new.item_id is null) then
-		raise 'Необходимо выбрать статью удержания';
+		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Необходимо выбрать статью удержания');
 	end if;
 
 	return new;

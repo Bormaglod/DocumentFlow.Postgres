@@ -9,6 +9,14 @@ declare
 	prod_started bool;
 begin
 	if (new.carried_out) then
+		if (new.quantity = 0) then
+			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Необходимо указать количество изделий.');
+		end if;
+	
+		if (new.price = 0) then
+			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Необходимо указать цену изделия.');
+		end if;
+	
 		product_info.id := new.goods_id;
 		product_info.table_name := 'goods';
 		product_info.amount := new.quantity;

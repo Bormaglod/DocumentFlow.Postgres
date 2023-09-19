@@ -18,6 +18,8 @@ ALTER TABLE ONLY public.contract ALTER COLUMN id SET DEFAULT public.uuid_generat
 
 ALTER TABLE ONLY public.contract ALTER COLUMN is_folder SET DEFAULT false;
 
+ALTER TABLE ONLY public.contract ALTER COLUMN owner_id SET NOT NULL;
+
 ALTER TABLE public.contract OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.contract TO users;

@@ -70,7 +70,7 @@ CREATE TRIGGER bank_bu
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.bank
-	ADD CONSTRAINT pk_bank_id UNIQUE (id);
+	ADD CONSTRAINT pk_bank_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 

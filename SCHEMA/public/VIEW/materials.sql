@@ -16,6 +16,8 @@ CREATE VIEW public.materials AS
     material.weight,
     material.min_order,
     material.ext_article,
+    material.wire_id,
+    material.material_kind,
     m.code AS cross_name,
         CASE
             WHEN ((mp.prices IS NULL) OR (cardinality(mp.prices) = 0)) THEN 1
@@ -30,10 +32,8 @@ CREATE VIEW public.materials AS
     (EXISTS ( SELECT 1
            FROM public.document_refs dr
           WHERE ((dr.owner_id = material.id) AND (dr.thumbnail IS NOT NULL)))) AS thumbnails,
-    material.wire_id,
     w.item_name AS wire_name,
-    ms.abbreviation AS measurement_name,
-    material.material_kind
+    ms.abbreviation AS measurement_name
    FROM (((((public.material
      LEFT JOIN public.material m ON ((m.id = material.owner_id)))
      LEFT JOIN public.measurement ms ON ((ms.id = material.measurement_id)))

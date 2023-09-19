@@ -3,7 +3,7 @@ CREATE TABLE public.initial_balance_contractor (
 )
 INHERITS (public.initial_balance);
 
-ALTER TABLE ONLY public.initial_balance_contractor ALTER COLUMN amount SET DEFAULT 0;
+ALTER TABLE ONLY public.initial_balance_contractor ALTER COLUMN amount SET DEFAULT (- (1)::numeric);
 
 ALTER TABLE ONLY public.initial_balance_contractor ALTER COLUMN carried_out SET DEFAULT false;
 

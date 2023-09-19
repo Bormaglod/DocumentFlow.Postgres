@@ -46,3 +46,8 @@ ALTER TABLE public.compatible_part
 
 ALTER TABLE public.compatible_part
 	ADD CONSTRAINT unq_compatible_part UNIQUE (owner_id, compatible_id);
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.compatible_part
+	ADD CONSTRAINT chk_compatible_part CHECK ((owner_id <> compatible_id));

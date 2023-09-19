@@ -16,14 +16,14 @@ CREATE VIEW public.materials_simple AS
     material.weight,
     material.min_order,
     material.ext_article,
+    material.wire_id,
+    material.material_kind,
     m.code AS cross_name,
     (EXISTS ( SELECT 1
            FROM public.document_refs dr
           WHERE ((dr.owner_id = material.id) AND (dr.thumbnail IS NOT NULL)))) AS thumbnails,
-    material.wire_id,
     w.item_name AS wire_name,
-    ms.abbreviation AS measurement_name,
-    material.material_kind
+    ms.abbreviation AS measurement_name
    FROM (((public.material
      LEFT JOIN public.material m ON ((m.id = material.owner_id)))
      LEFT JOIN public.measurement ms ON ((ms.id = material.measurement_id)))
@@ -32,4 +32,3 @@ CREATE VIEW public.materials_simple AS
 ALTER VIEW public.materials_simple OWNER TO postgres;
 
 GRANT SELECT ON TABLE public.materials_simple TO users;
-GRANT SELECT ON TABLE public.materials_simple TO managers;

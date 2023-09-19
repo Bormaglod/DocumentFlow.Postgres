@@ -20,7 +20,8 @@ CREATE VIEW public.operations AS
     (EXISTS ( SELECT 1
            FROM (public.calculation_operation co
              JOIN public.calculation c ON ((c.id = co.owner_id)))
-          WHERE ((co.item_id = o.id) AND (c.state = 'approved'::public.calculation_state)))) AS operation_using
+          WHERE ((co.item_id = o.id) AND (c.state = 'approved'::public.calculation_state)))) AS operation_using,
+    o.date_norm
    FROM (ONLY public.operation o
      LEFT JOIN public.operation_type ot ON ((ot.id = o.type_id)));
 

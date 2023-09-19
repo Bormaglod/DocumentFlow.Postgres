@@ -9,6 +9,8 @@ ALTER TABLE ONLY public.operation_type ALTER COLUMN id SET DEFAULT public.uuid_g
 
 ALTER TABLE ONLY public.operation_type ALTER COLUMN is_folder SET DEFAULT false;
 
+ALTER TABLE ONLY public.operation_type ALTER COLUMN item_name SET NOT NULL;
+
 ALTER TABLE public.operation_type OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.operation_type TO users;
