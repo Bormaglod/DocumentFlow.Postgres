@@ -61,13 +61,13 @@ begin
 		-- если контрагент - ДЗСтп
 		if (new.contractor_id = '5a5778be-f5ae-4761-a7c5-b64c13d88078') then
 			prods := 0;
-			select sum(wsp.amount)
+			select sum(sp.amount)
 				into prods
-				from waybill_sale_price wsp
-					join goods g on g.id = wsp.reference_id
-				where wsp.owner_id = new.id and not g.is_service;
+				from waybill_sale_price sp
+					join goods g on g.id = sp.reference_id
+				where sp.owner_id = new.id and not g.is_service;
 			if (prods > 0) then
-				if (new.document_date >= '01.01.2023') then
+				if (new.document_date >= '10.06.2022') then
 					dzstp_pay = 5;
 				else
 					dzstp_pay = 2;

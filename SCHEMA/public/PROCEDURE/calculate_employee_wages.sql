@@ -69,3 +69,5 @@ end;
 $$;
 
 ALTER PROCEDURE public.calculate_employee_wages(gross_id uuid) OWNER TO postgres;
+
+COMMENT ON PROCEDURE public.calculate_employee_wages(gross_id uuid) IS 'obsolete';
