@@ -13,17 +13,17 @@ declare
 begin
 	parent_table = get_info_table(TG_TABLE_NAME::varchar);
 	if (parent_table is null) then
-		raise 'Таблица % должна наследоватся либо от directory, либо от base_document', TG_TABLE_NAME;
+		raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Таблица ' || TG_TABLE_NAME || ' должна наследоватся либо от directory, либо от base_document');
 	end if;
 
 	if (is_inherit_of(TG_TABLE_NAME::varchar, 'accounting_document')) then
 		if (new.carried_out != old.carried_out) then
 			if (not exists(select * from system_process where id = new.id and sysop = 'accept'::system_operation)) then
-				raise 'Провести (или отменить проведение) можно только с помощью процедуры execute_system_operation';
+				raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Провести (или отменить проведение) можно только с помощью процедуры execute_system_operation');
 			end if;
 		
-			if (new.deleted and new.carried_out) then 
-				raise 'Документ отмечен как удалённый. Провести его нельзя.';
+			if (new.deleted and new.carried_out) then
+				raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Документ отмечен как удалённый. Провести его нельзя.');
 			end if;
 		end if;
 	end if;
@@ -32,11 +32,11 @@ begin
 		if (new.parent_id is not null) then
 			select deleted, is_folder, item_name into parent_deleted, parent_folder, parent_name from directory where id = new.parent_id;
 			if (not parent_folder) then
-				raise 'Произведена попытка добавить запись в элемент справочника [%] не являющийся папкой', parent_name;
+				raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Произведена попытка добавить запись в элемент справочника [' || parent_name || '] не являющийся папкой.');
 			end if;
 		
 			if (parent_deleted and TG_OP = 'INSERT') then
-				raise 'Нельзя добавлять в удаленную папку.';
+				raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Нельзя добавлять в удаленную папку.');
 			end if;
 		end if;
 	
@@ -45,7 +45,7 @@ begin
 			-- что бы отсутствовали подчиненные элементы
 			if (new.is_folder != old.is_folder and not new.is_folder) then
 				if (exists(select * from directory where parent_id = new.id)) then
-					raise 'Элемент справочника % содержит подчиненные элементы, поэтому должен остаться папкой.', new.code;
+					raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Элемент справочника ' || new.code || ' содержит подчиненные элементы, поэтому должен остаться папкой.');
 				end if;
 			end if;
 		end if;
@@ -98,7 +98,7 @@ begin
 		end if;
 	
 		if (owner_id_value is null and check_owner) then
-			raise 'Владелец (id = %) не найден.', new.owner_id;
+			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Владелец (id = ' || new.owner_id || ') не найден.');
 		end if;
 	end if;
 

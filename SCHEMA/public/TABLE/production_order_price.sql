@@ -68,3 +68,8 @@ ALTER TABLE public.production_order_price
 
 ALTER TABLE public.production_order_price
 	ADD CONSTRAINT fk_production_order_price_calculation FOREIGN KEY (calculation_id) REFERENCES public.calculation(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.production_order_price
+	ADD CONSTRAINT unq_production_order_price_calc UNIQUE (owner_id, calculation_id);

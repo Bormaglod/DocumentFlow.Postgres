@@ -17,6 +17,13 @@ COMMENT ON COLUMN public.lot_sale.quantity IS 'Количество издели
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER lot_sale_aiud_0
+	AFTER INSERT OR UPDATE OR DELETE ON public.lot_sale
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.lot_sale_updated();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.lot_sale
 	ADD CONSTRAINT pk_lot_sale_id PRIMARY KEY (id);
 

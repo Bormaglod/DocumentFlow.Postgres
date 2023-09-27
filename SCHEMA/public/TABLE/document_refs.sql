@@ -5,7 +5,7 @@ CREATE TABLE public.document_refs (
 	note text,
 	file_length bigint,
 	thumbnail text,
-	file_content bytea
+	s3object character varying(255)
 );
 
 ALTER TABLE public.document_refs OWNER TO postgres;
