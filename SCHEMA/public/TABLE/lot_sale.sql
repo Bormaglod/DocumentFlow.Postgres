@@ -2,7 +2,7 @@ CREATE TABLE public.lot_sale (
 	id bigint DEFAULT nextval('public.lot_sale_id_seq'::regclass) NOT NULL,
 	waybill_sale_id uuid NOT NULL,
 	lot_id uuid NOT NULL,
-	quantity integer NOT NULL
+	quantity numeric NOT NULL
 );
 
 ALTER TABLE public.lot_sale OWNER TO postgres;
@@ -35,7 +35,7 @@ ALTER TABLE public.lot_sale
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.lot_sale
-	ADD CONSTRAINT check_lot_sale_quantity CHECK ((quantity > 0));
+	ADD CONSTRAINT check_lot_sale_quantity CHECK ((quantity > (0)::numeric));
 
 --------------------------------------------------------------------------------
 

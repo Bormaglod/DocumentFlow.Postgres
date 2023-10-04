@@ -23,12 +23,15 @@ begin
 	if (lot_sold = 0) then
 		new_sold := false;
 		do_update := coalesce(lot_info.sold, true);
+		raise notice 'LOT_SALE trigger: sold = false, do_update = %', do_update;
 	elsif (lot_sold = lot_info.quantity) then
 		new_sold := true;
 		do_update := coalesce(not lot_info.sold, true);
+		raise notice 'LOT_SALE trigger: sold = true, do_update = %', do_update;
 	else
 		new_sold := null;
 		do_update := lot_info.sold is not null;
+		raise notice 'LOT_SALE trigger: sold = NULL, do_update = %', do_update;
 	end if;
 
 	if (do_update) then
