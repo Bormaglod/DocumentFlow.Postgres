@@ -56,14 +56,6 @@ CREATE CONSTRAINT TRIGGER material_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER material_aiu_0
-	AFTER INSERT OR UPDATE ON public.material
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.product_checking();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER material_bi
 	BEFORE INSERT ON public.material
 	FOR EACH ROW
@@ -74,7 +66,7 @@ CREATE TRIGGER material_bi
 CREATE TRIGGER material_biu_0
 	BEFORE INSERT OR UPDATE ON public.material
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.product_changing();
+	EXECUTE PROCEDURE public.material_changing();
 
 --------------------------------------------------------------------------------
 

@@ -29,7 +29,7 @@ begin
 
 	raise notice 'CALCULATION CHECKING';
 	if (new.state = old.state) then
-		if (new.state = 'expired'::calculation_state) then
+		if (new.state = 'expired'::calculation_state and not is_system(new.id, 'change_code'::system_operation)) then
 			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Калькуляция находится в архиве. Менять её нельзя.');
 		end if;
 	end if;

@@ -58,7 +58,7 @@ CREATE CONSTRAINT TRIGGER goods_aiu_0
 	AFTER INSERT OR UPDATE ON public.goods
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.product_checking();
+	EXECUTE PROCEDURE public.goods_checking();
 
 --------------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ CREATE TRIGGER goods_bi
 CREATE TRIGGER goods_biu_0
 	BEFORE INSERT OR UPDATE ON public.goods
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.product_changing();
+	EXECUTE PROCEDURE public.goods_changing();
 
 --------------------------------------------------------------------------------
 
@@ -87,6 +87,13 @@ CREATE TRIGGER goods_au_0
 	AFTER UPDATE ON public.goods
 	FOR EACH ROW
 	WHEN ((NOT (old.deleted AND new.deleted)))
+	EXECUTE PROCEDURE public.goods_mark();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER goods_au_1
+	AFTER UPDATE ON public.goods
+	FOR EACH ROW
 	EXECUTE PROCEDURE public.goods_updated();
 
 --------------------------------------------------------------------------------
