@@ -14,14 +14,14 @@ begin
 	else
 		-- если фамилия указана, то возможны 3 варианта:
 		-- 1. Фамилия
-		new.item_name = initcap(new.surname);
+		new.item_name = new.surname;
 		if (new.first_name is not null) then
 			if (new.middle_name is null) then
 				-- 2. Фамилия Имя
-				new.item_name = new.item_name || ' ' || initcap(new.first_name);
+				new.item_name = initcap(new.item_name) || ' ' || initcap(new.first_name);
 			else
 				-- 3. Фамилия И. О.
-				new.item_name = new.item_name || ' ' || upper(substring(new.first_name from 1 for 1)) || '.' || ' ' || upper(substring(new.middle_name from 1 for 1)) || '.';
+				new.item_name = initcap(new.item_name) || ' ' || upper(substring(new.first_name from 1 for 1)) || '.' || ' ' || upper(substring(new.middle_name from 1 for 1)) || '.';
 			end if;
 		end if;
 	end if;
