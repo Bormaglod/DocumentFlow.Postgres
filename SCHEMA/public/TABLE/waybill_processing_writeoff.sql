@@ -15,7 +15,7 @@ COMMENT ON TABLE public.waybill_processing_writeoff IS 'Списание дав�
 
 COMMENT ON COLUMN public.waybill_processing_writeoff.operation_write_off_id IS 'Операция предпринявшая списание материала (любой документ допускающий списание)';
 
-COMMENT ON COLUMN public.waybill_processing_writeoff.waybill_processing_id IS 'Документ о поаступлении давальческого материала';
+COMMENT ON COLUMN public.waybill_processing_writeoff.waybill_processing_id IS 'Документ о поступлении давальческого материала';
 
 COMMENT ON COLUMN public.waybill_processing_writeoff.material_id IS 'Давальческий материал';
 

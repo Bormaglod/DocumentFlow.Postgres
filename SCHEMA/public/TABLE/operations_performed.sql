@@ -4,7 +4,8 @@ CREATE TABLE public.operations_performed (
 	replacing_material_id uuid,
 	quantity integer DEFAULT 0 NOT NULL,
 	salary numeric(15,2) DEFAULT 0 NOT NULL,
-	double_rate boolean DEFAULT false
+	double_rate boolean DEFAULT false,
+	skip_material boolean DEFAULT false
 )
 INHERITS (public.accounting_document);
 
@@ -35,6 +36,8 @@ COMMENT ON COLUMN public.operations_performed.quantity IS 'Количество 
 COMMENT ON COLUMN public.operations_performed.salary IS 'Заработная плата';
 
 COMMENT ON COLUMN public.operations_performed.double_rate IS 'Оплата по двойному тарифу';
+
+COMMENT ON COLUMN public.operations_performed.skip_material IS 'Если флаг установлен в TRUE, то использованный материал для операции не будет учитываться';
 
 --------------------------------------------------------------------------------
 

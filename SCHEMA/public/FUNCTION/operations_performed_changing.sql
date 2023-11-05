@@ -16,6 +16,10 @@ begin
 		new.salary := new.salary * 2;
 	end if;
 
+	if new.skip_material then
+		new.replacing_material_id := null;
+	end if;
+
 	return new;
 end;
 $$;

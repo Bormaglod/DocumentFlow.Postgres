@@ -46,8 +46,8 @@ begin
 			raise 'Количество выполненных операций [%] превышает максимально возможное [%].', op_sum, rec.op_quantity;
 		end if;
 	
-		-- если для операции требуется материал, то
-		if (rec.material_id is not null) then
+		-- если для операции требуется материал и его не пропускаем для учёта, то
+		if (rec.material_id is not null and not new.skip_material) then
 			-- он может быть заменен на альтернативный
 			if (new.replacing_material_id is not null) then
 				rec.material_id = new.replacing_material_id;
@@ -124,12 +124,6 @@ begin
 		
 		delete from balance_material where owner_id = new.id;
 	
-		for wids in
-			select * from system_process
-		loop
-			raise notice 'id = %, sysop = %', wids.id, wids.sysop;
-		end loop;
-		
 		if (not is_system(new.owner_id, 'accept'::system_operation)) then
 			prod_started := exists(select 1 from operations_performed where owner_id = new.owner_id and carried_out);
 			if (prod_started) then
