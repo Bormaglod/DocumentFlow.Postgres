@@ -2,6 +2,10 @@ CREATE OR REPLACE FUNCTION public.person_changing() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
+	if (new.is_folder) then
+		return new;
+	end if;
+
 	if (new.surname is null) then
 		-- если не указана фамилия, то возможны 2 варианта:
 		-- 1. Имя

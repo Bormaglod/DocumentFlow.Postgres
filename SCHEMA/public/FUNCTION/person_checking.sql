@@ -2,6 +2,10 @@ CREATE OR REPLACE FUNCTION public.person_checking() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 begin
+	if (new.is_folder) then
+		return new;
+	end if;
+
 	if (new.surname is null) then
 		if (new.first_name is null) then
 			raise 'Укажите имя!';
