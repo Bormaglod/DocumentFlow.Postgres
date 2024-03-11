@@ -1,7 +1,6 @@
 CREATE TABLE public.calculation_material (
 	amount numeric(12,3) DEFAULT 0,
-	is_giving boolean DEFAULT false,
-	price_setting_method public.price_setting_method DEFAULT 'average'::public.price_setting_method NOT NULL
+	price_method public.price_setting_method DEFAULT 'average'::public.price_setting_method NOT NULL
 )
 INHERITS (public.calculation_item);
 
@@ -31,8 +30,6 @@ COMMENT ON COLUMN public.calculation_material.price IS 'Цена за едини
 
 COMMENT ON COLUMN public.calculation_material.amount IS 'Количество материала на изделие';
 
-COMMENT ON COLUMN public.calculation_material.is_giving IS 'Давальческий материал';
-
 --------------------------------------------------------------------------------
 
 CREATE UNIQUE INDEX unq_calculation_material ON public.calculation_material USING btree (owner_id, item_id)
@@ -55,27 +52,6 @@ CREATE CONSTRAINT TRIGGER calculation_material_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER calculation_material_bi
-	BEFORE INSERT ON public.calculation_material
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER calculation_material_bu
-	BEFORE UPDATE ON public.calculation_material
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER calculation_material_biu_0
-	BEFORE INSERT OR UPDATE ON public.calculation_material
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.calculation_material_changing();
-
---------------------------------------------------------------------------------
-
 CREATE CONSTRAINT TRIGGER calculation_material_aiu_0
 	AFTER INSERT OR UPDATE ON public.calculation_material
 	NOT DEFERRABLE INITIALLY IMMEDIATE
@@ -91,8 +67,24 @@ CREATE TRIGGER calculation_material_aiu_1
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.calculation_material
-	ADD CONSTRAINT pk_calculation_material_id PRIMARY KEY (id);
+CREATE TRIGGER calculation_material_bi
+	BEFORE INSERT ON public.calculation_material
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER calculation_material_biu_0
+	BEFORE INSERT OR UPDATE ON public.calculation_material
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.calculation_material_changing();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER calculation_material_bu
+	BEFORE UPDATE ON public.calculation_material
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
@@ -113,3 +105,8 @@ ALTER TABLE public.calculation_material
 
 ALTER TABLE public.calculation_material
 	ADD CONSTRAINT fk_calculation_material_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.calculation_material
+	ADD CONSTRAINT pk_calculation_material_id PRIMARY KEY (id);

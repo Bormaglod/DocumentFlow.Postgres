@@ -24,9 +24,6 @@ begin
 		end if;
 
 		new.price = coalesce(new.price, 0);
-		if (not new.is_giving and new.price = 0) then
-			raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Не установлена цена материала.');
-		end if;
 	end if;
 
 	return new;

@@ -14,9 +14,13 @@ begin
 
 	if (new.profit_percent > 0 or new.profit_value > 0) then
 		if (new.profit_percent > 0) then
-			new.profit_value := new.cost_price * new.profit_percent / 100;
+			if (new.profit_value = 0) then
+				new.profit_value := new.cost_price * new.profit_percent / 100;
+			end if;
 		else
-			new.profit_percent := new.profit_value / new.cost_price * 100;
+			if (new.profit_percent = 0) then
+				new.profit_percent := new.profit_value / new.cost_price * 100;
+			end if;
 		end if;
 
 		new.price := new.cost_price + new.profit_value;

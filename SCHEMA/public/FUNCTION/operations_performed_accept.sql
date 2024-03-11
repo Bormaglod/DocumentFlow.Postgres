@@ -27,7 +27,7 @@ begin
 		where id = new.operation_id and not deleted;
 	
 	-- материал может быть давальческим
-	select is_giving 
+	select price_method = 'is_giving'::price_setting_method 
 		into giving_material
 		from calculation_material 
 		where owner_id = lot_info.calculation_id and item_id = rec.material_id;

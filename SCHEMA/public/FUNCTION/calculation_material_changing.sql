@@ -7,22 +7,20 @@ begin
 	end if;
 
 	new.amount := coalesce(new.amount, 0);
-	if (new.is_giving) then
+	if (new.price_method = 'is_giving'::price_setting_method) then
 		new.price := 0;
 		new.item_cost := 0;
 	else
 		new.price := coalesce(new.price, 0);
 		
-		raise notice 'MATERIAL CHANGING: id = %', new.item_id;
-		raise notice 'MATERIAL CHANGING: new.price = %', new.price;
-		if (new.price_setting_method = 'average'::price_setting_method) then
+		if (new.price_method = 'average'::price_setting_method) then
 			new.price := average_price(new.item_id, now());
 			raise notice 'MATERIAL CHANGING: average_price = %', new.price;
 			if (new.price is null) then
 				select price into new.price from material where id = new.item_id;
 			end if;
 			raise notice 'MATERIAL CHANGING: finally price = %', new.price;
-		elsif (new.price_setting_method = 'dictionary'::price_setting_method) then
+		elsif (new.price_method = 'dictionary'::price_setting_method) then
 			select price into new.price from material where id = new.item_id;
 		end if;
 	
