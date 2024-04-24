@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.posting_payments_receipt ALTER COLUMN id SET DEFAULT pub
 
 ALTER TABLE ONLY public.posting_payments_receipt ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.posting_payments_receipt ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.posting_payments_receipt OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.posting_payments_receipt TO users;
@@ -51,6 +53,13 @@ CREATE TRIGGER posting_payments_receipt_au_0
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER posting_payments_receipt_au_1
+	AFTER UPDATE ON public.posting_payments_receipt
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER posting_payments_receipt_bi
 	BEFORE INSERT ON public.posting_payments_receipt
 	FOR EACH ROW
@@ -65,20 +74,8 @@ CREATE TRIGGER posting_payments_receipt_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER posting_payments_receipt_au_1
-	AFTER UPDATE ON public.posting_payments_receipt
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.posting_payments_receipt
 	ADD CONSTRAINT chk_posting_payments_receipt_transaction CHECK ((transaction_amount > (0)::numeric));
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.posting_payments_receipt
-	ADD CONSTRAINT pk_posting_payments_receipt_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
@@ -104,3 +101,8 @@ ALTER TABLE public.posting_payments_receipt
 
 ALTER TABLE public.posting_payments_receipt
 	ADD CONSTRAINT fk_posting_payments_receipt_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.posting_payments_receipt
+	ADD CONSTRAINT pk_posting_payments_receipt_id PRIMARY KEY (id);

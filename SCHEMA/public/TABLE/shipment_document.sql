@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.shipment_document ALTER COLUMN id SET DEFAULT public.uui
 
 ALTER TABLE ONLY public.shipment_document ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.shipment_document ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.shipment_document OWNER TO postgres;
 
 GRANT SELECT ON TABLE public.shipment_document TO users;

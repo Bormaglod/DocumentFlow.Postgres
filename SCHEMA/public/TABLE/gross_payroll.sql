@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.gross_payroll ALTER COLUMN id SET DEFAULT public.uuid_ge
 
 ALTER TABLE ONLY public.gross_payroll ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.gross_payroll ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.gross_payroll OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.gross_payroll TO payroll_accountant;
@@ -51,6 +53,13 @@ CREATE TRIGGER gross_payroll_au_0
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER gross_payroll_au_1
+	AFTER UPDATE ON public.gross_payroll
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER gross_payroll_bi
 	BEFORE INSERT ON public.gross_payroll
 	FOR EACH ROW
@@ -62,18 +71,6 @@ CREATE TRIGGER gross_payroll_bu
 	BEFORE UPDATE ON public.gross_payroll
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER gross_payroll_au_1
-	AFTER UPDATE ON public.gross_payroll
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.gross_payroll
-	ADD CONSTRAINT pk_gross_payroll_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
@@ -89,3 +86,8 @@ ALTER TABLE public.gross_payroll
 
 ALTER TABLE public.gross_payroll
 	ADD CONSTRAINT fk_gross_payroll_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.gross_payroll
+	ADD CONSTRAINT pk_gross_payroll_id PRIMARY KEY (id);

@@ -24,7 +24,7 @@ begin
 
 	call set_system_value(purchase_request_id, 'lock_reaccept'::system_operation);
 	update purchase_request 
-		set state = p_state
+		set pstate = p_state
 		where id = purchase_request_id;
 	call clear_system_value(purchase_request_id);
 end;

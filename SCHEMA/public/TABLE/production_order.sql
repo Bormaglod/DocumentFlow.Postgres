@@ -11,6 +11,8 @@ ALTER TABLE ONLY public.production_order ALTER COLUMN id SET DEFAULT public.uuid
 
 ALTER TABLE ONLY public.production_order ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.production_order ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.production_order OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.production_order TO users;
@@ -23,10 +25,10 @@ CREATE UNIQUE INDEX unq_production_order_doc_number ON public.production_order U
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER production_order_bu
-	BEFORE UPDATE ON public.production_order
+CREATE TRIGGER production_order_ad_0
+	AFTER DELETE ON public.production_order
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
+	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -35,20 +37,6 @@ CREATE CONSTRAINT TRIGGER production_order_aiu
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_checking();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER production_order_bi
-	BEFORE INSERT ON public.production_order
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER production_order_ad_0
-	AFTER DELETE ON public.production_order
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_deleted();
 
 --------------------------------------------------------------------------------
 
@@ -75,8 +63,17 @@ CREATE TRIGGER production_order_au_2
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.production_order
-	ADD CONSTRAINT pk_production_order_id PRIMARY KEY (id);
+CREATE TRIGGER production_order_bi
+	BEFORE INSERT ON public.production_order
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER production_order_bu
+	BEFORE UPDATE ON public.production_order
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
@@ -101,4 +98,14 @@ ALTER TABLE public.production_order
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.production_order
+	ADD CONSTRAINT fk_production_order_state FOREIGN KEY (state_id) REFERENCES public.state(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.production_order
 	ADD CONSTRAINT fk_production_order_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.production_order
+	ADD CONSTRAINT pk_production_order_id PRIMARY KEY (id);

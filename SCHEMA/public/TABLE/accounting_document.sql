@@ -8,6 +8,8 @@ ALTER TABLE ONLY public.accounting_document ALTER COLUMN deleted SET DEFAULT fal
 
 ALTER TABLE ONLY public.accounting_document ALTER COLUMN id SET DEFAULT public.uuid_generate_v4();
 
+ALTER TABLE ONLY public.accounting_document ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.accounting_document OWNER TO postgres;
 
 GRANT SELECT ON TABLE public.accounting_document TO users;

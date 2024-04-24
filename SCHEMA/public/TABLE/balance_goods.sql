@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.balance_goods ALTER COLUMN id SET DEFAULT public.uuid_ge
 
 ALTER TABLE ONLY public.balance_goods ALTER COLUMN operation_summa SET DEFAULT 0;
 
+ALTER TABLE ONLY public.balance_goods ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.balance_goods OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.balance_goods TO users;
@@ -42,11 +44,26 @@ CREATE TRIGGER balance_goods_ad
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER balance_goods_ad_0
+	AFTER DELETE ON public.balance_goods
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.balance_goods_deleted();
+
+--------------------------------------------------------------------------------
+
 CREATE CONSTRAINT TRIGGER balance_goods_aiu
 	AFTER INSERT OR UPDATE ON public.balance_goods
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE CONSTRAINT TRIGGER balance_goods_aiu_0
+	AFTER INSERT OR UPDATE ON public.balance_goods
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.balance_checking();
 
 --------------------------------------------------------------------------------
 
@@ -64,26 +81,6 @@ CREATE TRIGGER balance_goods_bu
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER balance_goods_aiu_0
-	AFTER INSERT OR UPDATE ON public.balance_goods
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.balance_checking();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER balance_goods_ad_0
-	AFTER DELETE ON public.balance_goods
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.balance_goods_deleted();
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_goods
-	ADD CONSTRAINT pk_balance_goods_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.balance_goods
 	ADD CONSTRAINT fk_balance_goods_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
@@ -91,6 +88,11 @@ ALTER TABLE public.balance_goods
 
 ALTER TABLE public.balance_goods
 	ADD CONSTRAINT fk_balance_goods_document_type FOREIGN KEY (document_type_id) REFERENCES public.document_type(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_goods
+	ADD CONSTRAINT fk_balance_goods_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -105,4 +107,4 @@ ALTER TABLE public.balance_goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_goods
-	ADD CONSTRAINT fk_balance_goods_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON DELETE CASCADE;
+	ADD CONSTRAINT pk_balance_goods_id PRIMARY KEY (id);

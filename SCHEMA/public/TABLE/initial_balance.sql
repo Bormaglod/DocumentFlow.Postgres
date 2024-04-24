@@ -13,6 +13,8 @@ ALTER TABLE ONLY public.initial_balance ALTER COLUMN id SET DEFAULT public.uuid_
 
 ALTER TABLE ONLY public.initial_balance ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.initial_balance ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.initial_balance OWNER TO postgres;
 
 GRANT SELECT ON TABLE public.initial_balance TO users;

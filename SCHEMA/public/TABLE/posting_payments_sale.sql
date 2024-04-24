@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.posting_payments_sale ALTER COLUMN id SET DEFAULT public
 
 ALTER TABLE ONLY public.posting_payments_sale ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.posting_payments_sale ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.posting_payments_sale OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.posting_payments_sale TO users;
@@ -43,6 +45,21 @@ CREATE CONSTRAINT TRIGGER posting_payments_sale_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER posting_payments_sale_au_0
+	AFTER UPDATE ON public.posting_payments_sale
+	FOR EACH ROW
+	WHEN ((old.carried_out <> new.carried_out))
+	EXECUTE PROCEDURE public.posting_payments_sale_accept();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER posting_payments_sale_au_1
+	AFTER UPDATE ON public.posting_payments_sale
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER posting_payments_sale_bi
 	BEFORE INSERT ON public.posting_payments_sale
 	FOR EACH ROW
@@ -57,28 +74,13 @@ CREATE TRIGGER posting_payments_sale_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER posting_payments_sale_au_1
-	AFTER UPDATE ON public.posting_payments_sale
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER posting_payments_sale_au_0
-	AFTER UPDATE ON public.posting_payments_sale
-	FOR EACH ROW
-	WHEN ((old.carried_out <> new.carried_out))
-	EXECUTE PROCEDURE public.posting_payments_sale_accept();
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.posting_payments_sale
 	ADD CONSTRAINT chk_posting_payments_sale_transaction CHECK ((transaction_amount > (0)::numeric));
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.posting_payments_sale
-	ADD CONSTRAINT pk_posting_payments_sale_id PRIMARY KEY (id);
+	ADD CONSTRAINT fk_posting_payments_sale FOREIGN KEY (document_id) REFERENCES public.waybill_sale(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -103,4 +105,4 @@ ALTER TABLE public.posting_payments_sale
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.posting_payments_sale
-	ADD CONSTRAINT fk_posting_payments_sale FOREIGN KEY (document_id) REFERENCES public.waybill_sale(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT pk_posting_payments_sale_id PRIMARY KEY (id);

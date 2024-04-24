@@ -15,6 +15,8 @@ ALTER TABLE ONLY public.initial_balance_contractor ALTER COLUMN operation_summa 
 
 ALTER TABLE ONLY public.initial_balance_contractor ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.initial_balance_contractor ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.initial_balance_contractor OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.initial_balance_contractor TO users;
@@ -37,14 +39,6 @@ CREATE UNIQUE INDEX unq_initial_balance_contractor_doc_number ON public.initial_
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER initial_balance_contractor_au_0
-	AFTER UPDATE ON public.initial_balance_contractor
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.initial_balance_contractor_checking();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER initial_balance_contractor_ad
 	AFTER DELETE ON public.initial_balance_contractor
 	FOR EACH ROW
@@ -60,17 +54,11 @@ CREATE CONSTRAINT TRIGGER initial_balance_contractor_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER initial_balance_contractor_bi
-	BEFORE INSERT ON public.initial_balance_contractor
+CREATE CONSTRAINT TRIGGER initial_balance_contractor_au_0
+	AFTER UPDATE ON public.initial_balance_contractor
+	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER initial_balance_contractor_bu
-	BEFORE UPDATE ON public.initial_balance_contractor
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
+	EXECUTE PROCEDURE public.initial_balance_contractor_checking();
 
 --------------------------------------------------------------------------------
 
@@ -89,8 +77,22 @@ CREATE TRIGGER initial_balance_contractor_au_2
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER initial_balance_contractor_bi
+	BEFORE INSERT ON public.initial_balance_contractor
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER initial_balance_contractor_bu
+	BEFORE UPDATE ON public.initial_balance_contractor
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.initial_balance_contractor
-	ADD CONSTRAINT pk_initial_balance_contractor_id PRIMARY KEY (id);
+	ADD CONSTRAINT fk_initial_balance_contractor_contract FOREIGN KEY (contract_id) REFERENCES public.contract(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -115,4 +117,4 @@ ALTER TABLE public.initial_balance_contractor
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.initial_balance_contractor
-	ADD CONSTRAINT fk_initial_balance_contractor_contract FOREIGN KEY (contract_id) REFERENCES public.contract(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT pk_initial_balance_contractor_id PRIMARY KEY (id);

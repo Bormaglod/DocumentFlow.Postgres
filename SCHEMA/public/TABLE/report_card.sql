@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.report_card ALTER COLUMN id SET DEFAULT public.uuid_gene
 
 ALTER TABLE ONLY public.report_card ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.report_card ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.report_card OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.report_card TO payroll_accountant;
@@ -65,11 +67,6 @@ CREATE TRIGGER report_card_bu
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.report_card
-	ADD CONSTRAINT pk_report_card_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.report_card
 	ADD CONSTRAINT fk_report_card_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -81,3 +78,8 @@ ALTER TABLE public.report_card
 
 ALTER TABLE public.report_card
 	ADD CONSTRAINT fk_report_card_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.report_card
+	ADD CONSTRAINT pk_report_card_id PRIMARY KEY (id);

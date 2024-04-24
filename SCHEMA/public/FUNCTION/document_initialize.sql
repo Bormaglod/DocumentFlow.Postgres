@@ -4,6 +4,7 @@ CREATE OR REPLACE FUNCTION public.document_initialize() RETURNS trigger
 declare
 	user_id uuid;
     parent_table varchar;
+	state_starting_id smallint;
 begin
 	select id into user_id from user_alias where pg_name = session_user;
 
@@ -39,6 +40,18 @@ begin
 		end if;
 	
 		select id into new.organization_id from organization where default_org = true limit 1;
+	
+		select
+			ss.starting_id
+		into state_starting_id
+		from schema_states ss
+			join document_type dt on dt.id = ss.document_type_id
+		where 
+			dt.code = TG_TABLE_NAME::varchar;
+		
+		if (found) then
+			new.state_id := state_starting_id;
+		end if;
 	end if;
 
 	return new;

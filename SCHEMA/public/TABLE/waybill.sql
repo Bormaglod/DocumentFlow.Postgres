@@ -21,6 +21,8 @@ CREATE TABLE public.waybill (
 )
 INHERITS (public.shipment_document);
 
+ALTER TABLE ONLY public.waybill ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.waybill OWNER TO postgres;
 
 GRANT SELECT ON TABLE public.waybill TO users;

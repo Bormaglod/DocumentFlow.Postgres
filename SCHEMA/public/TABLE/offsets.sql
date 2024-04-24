@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.offsets ALTER COLUMN id SET DEFAULT public.uuid_generate
 
 ALTER TABLE ONLY public.offsets ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.offsets ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.offsets OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.offsets TO users;
@@ -65,9 +67,9 @@ CREATE TRIGGER offsets_bu
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.offsets
-	ADD CONSTRAINT pk_offsets_id PRIMARY KEY (id);
+	ADD CONSTRAINT fk_offsets_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.offsets
-	ADD CONSTRAINT fk_offsets_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+	ADD CONSTRAINT pk_offsets_id PRIMARY KEY (id);

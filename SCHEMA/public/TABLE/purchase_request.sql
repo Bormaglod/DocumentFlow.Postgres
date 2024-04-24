@@ -14,9 +14,11 @@ CREATE TABLE public.purchase_request (
 	contractor_id uuid,
 	contract_id uuid,
 	note text,
-	state public.purchase_state DEFAULT 'not active'::public.purchase_state NOT NULL
+	pstate public.purchase_state DEFAULT 'not active'::public.purchase_state NOT NULL
 )
 INHERITS (public.shipment_document);
+
+ALTER TABLE ONLY public.purchase_request ALTER COLUMN state_id SET DEFAULT 0;
 
 ALTER TABLE public.purchase_request OWNER TO postgres;
 
@@ -47,17 +49,19 @@ CREATE TRIGGER purchase_request_ad
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER purchase_request_bi
-	BEFORE INSERT ON public.purchase_request
+CREATE CONSTRAINT TRIGGER purchase_request_aiu_0
+	AFTER INSERT OR UPDATE ON public.purchase_request
+	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
+	EXECUTE PROCEDURE public.document_checking();
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER purchase_request_bu
-	BEFORE UPDATE ON public.purchase_request
+CREATE CONSTRAINT TRIGGER purchase_request_aiu_1
+	AFTER INSERT OR UPDATE ON public.purchase_request
+	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
+	EXECUTE PROCEDURE public.purchase_request_checking();
 
 --------------------------------------------------------------------------------
 
@@ -76,19 +80,10 @@ CREATE TRIGGER purchase_request_au_1
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER purchase_request_aiu_0
-	AFTER INSERT OR UPDATE ON public.purchase_request
-	NOT DEFERRABLE INITIALLY IMMEDIATE
+CREATE TRIGGER purchase_request_bi
+	BEFORE INSERT ON public.purchase_request
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_checking();
-
---------------------------------------------------------------------------------
-
-CREATE CONSTRAINT TRIGGER purchase_request_aiu_1
-	AFTER INSERT OR UPDATE ON public.purchase_request
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.purchase_request_checking();
+	EXECUTE PROCEDURE public.document_initialize();
 
 --------------------------------------------------------------------------------
 
@@ -99,8 +94,10 @@ CREATE TRIGGER purchase_request_biu_0
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.purchase_request
-	ADD CONSTRAINT pk_purchase_request_id PRIMARY KEY (id);
+CREATE TRIGGER purchase_request_bu
+	BEFORE UPDATE ON public.purchase_request
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
@@ -125,4 +122,14 @@ ALTER TABLE public.purchase_request
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.purchase_request
+	ADD CONSTRAINT fk_purchase_request_state FOREIGN KEY (state_id) REFERENCES public.state(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.purchase_request
 	ADD CONSTRAINT fk_purchase_request_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.purchase_request
+	ADD CONSTRAINT pk_purchase_request_id PRIMARY KEY (id);

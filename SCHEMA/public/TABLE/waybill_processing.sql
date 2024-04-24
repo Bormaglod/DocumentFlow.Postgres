@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.waybill_processing ALTER COLUMN id SET DEFAULT public.uu
 
 ALTER TABLE ONLY public.waybill_processing ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.waybill_processing ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.waybill_processing OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.waybill_processing TO users;
@@ -59,27 +61,6 @@ CREATE CONSTRAINT TRIGGER waybill_processing_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER waybill_processing_bi
-	BEFORE INSERT ON public.waybill_processing
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER waybill_processing_bu
-	BEFORE UPDATE ON public.waybill_processing
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER waybill_processing_biu_0
-	BEFORE INSERT OR UPDATE ON public.waybill_processing
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.waybill_changing();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER waybill_processing_au_0
 	AFTER UPDATE ON public.waybill_processing
 	FOR EACH ROW
@@ -95,8 +76,24 @@ CREATE TRIGGER waybill_processing_au_1
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.waybill_processing
-	ADD CONSTRAINT pk_waybill_processing_id PRIMARY KEY (id);
+CREATE TRIGGER waybill_processing_bi
+	BEFORE INSERT ON public.waybill_processing
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER waybill_processing_biu_0
+	BEFORE INSERT OR UPDATE ON public.waybill_processing
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.waybill_changing();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER waybill_processing_bu
+	BEFORE UPDATE ON public.waybill_processing
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
@@ -116,6 +113,11 @@ ALTER TABLE public.waybill_processing
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.waybill_processing
+	ADD CONSTRAINT fk_waybill_processing_order FOREIGN KEY (owner_id) REFERENCES public.production_order(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.waybill_processing
 	ADD CONSTRAINT fk_waybill_processing_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -126,4 +128,4 @@ ALTER TABLE public.waybill_processing
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.waybill_processing
-	ADD CONSTRAINT fk_waybill_processing_order FOREIGN KEY (owner_id) REFERENCES public.production_order(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT pk_waybill_processing_id PRIMARY KEY (id);

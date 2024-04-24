@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.payroll ALTER COLUMN id SET DEFAULT public.uuid_generate
 
 ALTER TABLE ONLY public.payroll ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.payroll ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.payroll OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.payroll TO payroll_accountant;
@@ -69,17 +71,12 @@ CREATE TRIGGER payroll_bu
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.payroll
-	ADD CONSTRAINT pk_payroll_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payroll
 	ADD CONSTRAINT fk_payroll_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.payroll
-	ADD CONSTRAINT fk_payroll_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_payroll_gross_payroll FOREIGN KEY (owner_id) REFERENCES public.gross_payroll(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -89,4 +86,9 @@ ALTER TABLE public.payroll
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.payroll
-	ADD CONSTRAINT fk_payroll_gross_payroll FOREIGN KEY (owner_id) REFERENCES public.gross_payroll(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT fk_payroll_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.payroll
+	ADD CONSTRAINT pk_payroll_id PRIMARY KEY (id);

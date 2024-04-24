@@ -15,6 +15,8 @@ ALTER TABLE ONLY public.payroll_payment ALTER COLUMN owner_id SET NOT NULL;
 
 ALTER TABLE ONLY public.payroll_payment ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.payroll_payment ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.payroll_payment OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.payroll_payment TO users;
@@ -59,6 +61,13 @@ CREATE TRIGGER payroll_payment_au_0
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER payroll_payment_au_1
+	AFTER UPDATE ON public.payroll_payment
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER payroll_payment_bi
 	BEFORE INSERT ON public.payroll_payment
 	FOR EACH ROW
@@ -70,23 +79,6 @@ CREATE TRIGGER payroll_payment_bu
 	BEFORE UPDATE ON public.payroll_payment
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER payroll_payment_au_1
-	AFTER UPDATE ON public.payroll_payment
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payroll_payment
-	ADD CONSTRAINT pk_payroll_payment_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.payroll_payment
-	ADD CONSTRAINT fl_payroll_payment_payroll FOREIGN KEY (owner_id) REFERENCES public.payroll(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 --------------------------------------------------------------------------------
 
@@ -102,3 +94,13 @@ ALTER TABLE public.payroll_payment
 
 ALTER TABLE public.payroll_payment
 	ADD CONSTRAINT fk_payroll_payment_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.payroll_payment
+	ADD CONSTRAINT fl_payroll_payment_payroll FOREIGN KEY (owner_id) REFERENCES public.payroll(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.payroll_payment
+	ADD CONSTRAINT pk_payroll_payment_id PRIMARY KEY (id);

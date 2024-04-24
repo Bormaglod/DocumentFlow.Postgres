@@ -14,6 +14,8 @@ ALTER TABLE ONLY public.production_lot ALTER COLUMN id SET DEFAULT public.uuid_g
 
 ALTER TABLE ONLY public.production_lot ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.production_lot ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.production_lot OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.production_lot TO users;
@@ -59,13 +61,6 @@ CREATE TRIGGER production_lot_au_0
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER production_lot_bi
-	BEFORE INSERT ON public.production_lot
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER production_lot_au_1
 	AFTER UPDATE ON public.production_lot
 	FOR EACH ROW
@@ -78,6 +73,13 @@ CREATE TRIGGER production_lot_au_2
 	AFTER UPDATE ON public.production_lot
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER production_lot_bi
+	BEFORE INSERT ON public.production_lot
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
 
 --------------------------------------------------------------------------------
 
@@ -96,17 +98,17 @@ CREATE TRIGGER production_lot_bu_1
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.production_lot
-	ADD CONSTRAINT pk_production_lot_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.production_lot
 	ADD CONSTRAINT fk_production_lot_calculation FOREIGN KEY (calculation_id) REFERENCES public.calculation(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.production_lot
 	ADD CONSTRAINT fk_production_lot_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.production_lot
+	ADD CONSTRAINT fk_production_lot_order FOREIGN KEY (owner_id) REFERENCES public.production_order(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -121,4 +123,4 @@ ALTER TABLE public.production_lot
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.production_lot
-	ADD CONSTRAINT fk_production_lot_order FOREIGN KEY (owner_id) REFERENCES public.production_order(id) ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT pk_production_lot_id PRIMARY KEY (id);

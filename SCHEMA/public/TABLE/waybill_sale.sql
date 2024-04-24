@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.waybill_sale ALTER COLUMN id SET DEFAULT public.uuid_gen
 
 ALTER TABLE ONLY public.waybill_sale ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.waybill_sale ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.waybill_sale OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.waybill_sale TO users;
@@ -59,25 +61,11 @@ CREATE CONSTRAINT TRIGGER waybill_sale_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER waybill_sale_bu
-	BEFORE UPDATE ON public.waybill_sale
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER waybill_sale_au_0
 	AFTER UPDATE ON public.waybill_sale
 	FOR EACH ROW
 	WHEN ((old.carried_out <> new.carried_out))
 	EXECUTE PROCEDURE public.waybill_sale_accept();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER waybill_sale_bi
-	BEFORE INSERT ON public.waybill_sale
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
 
 --------------------------------------------------------------------------------
 
@@ -88,6 +76,13 @@ CREATE TRIGGER waybill_sale_au_1
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER waybill_sale_bi
+	BEFORE INSERT ON public.waybill_sale
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER waybill_sale_biu_0
 	BEFORE INSERT OR UPDATE ON public.waybill_sale
 	FOR EACH ROW
@@ -95,8 +90,10 @@ CREATE TRIGGER waybill_sale_biu_0
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.waybill_sale
-	ADD CONSTRAINT pk_waybill_sale_id PRIMARY KEY (id);
+CREATE TRIGGER waybill_sale_bu
+	BEFORE UPDATE ON public.waybill_sale
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
@@ -121,9 +118,14 @@ ALTER TABLE public.waybill_sale
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.waybill_sale
+	ADD CONSTRAINT fk_waybill_sale_production_order FOREIGN KEY (owner_id) REFERENCES public.production_order(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.waybill_sale
 	ADD CONSTRAINT fk_waybill_sale_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.waybill_sale
-	ADD CONSTRAINT fk_waybill_sale_production_order FOREIGN KEY (owner_id) REFERENCES public.production_order(id) ON UPDATE CASCADE ON DELETE SET NULL;
+	ADD CONSTRAINT pk_waybill_sale_id PRIMARY KEY (id);

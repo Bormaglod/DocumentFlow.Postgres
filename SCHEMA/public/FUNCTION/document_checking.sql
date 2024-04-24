@@ -10,6 +10,8 @@ declare
 	parent_deleted bool;
 	owner_table varchar;
 	check_owner boolean;
+	schema_document record;
+	states record;
 begin
 	parent_table = get_info_table(TG_TABLE_NAME::varchar);
 	if (parent_table is null) then
@@ -30,7 +32,9 @@ begin
 
 	if (parent_table = 'directory') then
 		if (new.parent_id is not null) then
-			select deleted, is_folder, item_name into parent_deleted, parent_folder, parent_name from directory where id = new.parent_id;
+			execute format('select deleted, is_folder, item_name from %I where id = $1', TG_TABLE_NAME::varchar)
+				into parent_deleted, parent_folder, parent_name
+				using new.parent_id;
 			if (not parent_folder) then
 				raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Произведена попытка добавить запись в элемент справочника [' || parent_name || '] не являющийся папкой.');
 			end if;
@@ -49,6 +53,40 @@ begin
 				end if;
 			end if;
 		end if;
+	else
+		-- перевод состояния из неопределенного в любое считаем нормальным
+		if (old.state_id != 0 and new.state_id != 0 and old.state_id != new.state_id) then
+			-- найдём схему состояний для изменяемого документа
+			select
+				ss.id as schema_id,
+				ss.starting_id,
+				dt.document_name
+			into schema_document
+			from schema_states ss
+				join document_type dt on dt.id = ss.document_type_id
+			where 
+				dt.code = TG_TABLE_NAME::varchar;
+			
+			-- если схема найдена, то надо проверить правиильно ли сделан перевод состояния
+			if (found) then
+				-- ищем в таблице переходов состояния нужное соответствие
+				select
+					s_from.note as from_name,
+					s_to.note as to_name
+				into states
+				from changing_state cs
+					join state s_from on s_from.id = cs.from_state_id
+					join state s_to on s_to.id = cs.to_state_id
+				where 
+					cs.schema_id = schema_document.schema_id and 
+					cs.from_state_id = old.state_id and 
+					cs.to_state_id = new.state_id;
+			
+				if (not found) then
+					raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Переход документа "' || schema_document.document_name || '" из состояния "' || states.from_name || '" в состояние "' || states.to_name || '" невозможен.');
+				end if;
+			end if;
+		end if;
 	end if;
 
 	-- поле owner_id не во всех таблицах имеет ссылочную целостность, поэтому
@@ -57,7 +95,7 @@ begin
 		check_owner = true;
 		if (is_inherit_of(TG_TABLE_NAME::varchar, 'balance')) then
 			select code into owner_table from document_type where id = new.document_type_id;
-			execute 'select id from ' || owner_table || ' where id = $1'
+			execute format('select id from %I where id = $1', owner_table)
 				into owner_id_value
 				using new.owner_id;
 		else
@@ -87,11 +125,9 @@ begin
 			select r_constraint_key_names into constraint_keys from attrs where r_constraint_key_names = 'owner_id';
 
 			if (constraint_keys is null) then
-				if (parent_table = 'directory') then
-					select id into owner_id_value from directory where id = new.owner_id;
-				else
-					select id into owner_id_value from accounting_document where id = new.owner_id;
-				end if;
+				execute format('select id from %I where id = $1', TG_TABLE_NAME::varchar)
+					into owner_id_value
+					using new.owner_id;
 			else
 				check_owner = false;
 			end if;

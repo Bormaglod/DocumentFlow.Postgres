@@ -16,6 +16,8 @@ CREATE TABLE public.balance_material (
 )
 INHERITS (public.balance_product);
 
+ALTER TABLE ONLY public.balance_material ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.balance_material OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.balance_material TO users;
@@ -48,11 +50,26 @@ CREATE TRIGGER balance_material_ad
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER balance_material_ad_0
+	AFTER DELETE ON public.balance_material
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.balance_material_deleted();
+
+--------------------------------------------------------------------------------
+
 CREATE CONSTRAINT TRIGGER balance_material_aiu
 	AFTER INSERT OR UPDATE ON public.balance_material
 	NOT DEFERRABLE INITIALLY IMMEDIATE
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_checking();
+
+--------------------------------------------------------------------------------
+
+CREATE CONSTRAINT TRIGGER balance_material_aiu_0
+	AFTER INSERT OR UPDATE ON public.balance_material
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.balance_checking();
 
 --------------------------------------------------------------------------------
 
@@ -70,33 +87,8 @@ CREATE TRIGGER balance_material_bu
 
 --------------------------------------------------------------------------------
 
-CREATE CONSTRAINT TRIGGER balance_material_aiu_0
-	AFTER INSERT OR UPDATE ON public.balance_material
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.balance_checking();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER balance_material_ad_0
-	AFTER DELETE ON public.balance_material
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.balance_material_deleted();
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_material
-	ADD CONSTRAINT pk_balance_material_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.balance_material
 	ADD CONSTRAINT fk_balance_material_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_material
-	ADD CONSTRAINT fk_balance_material_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -106,9 +98,19 @@ ALTER TABLE public.balance_material
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_material
+	ADD CONSTRAINT fk_balance_material_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON DELETE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_material
 	ADD CONSTRAINT fk_balance_material_reference FOREIGN KEY (reference_id) REFERENCES public.material(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_material
-	ADD CONSTRAINT fk_balance_material_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON DELETE CASCADE;
+	ADD CONSTRAINT fk_balance_material_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_material
+	ADD CONSTRAINT pk_balance_material_id PRIMARY KEY (id);

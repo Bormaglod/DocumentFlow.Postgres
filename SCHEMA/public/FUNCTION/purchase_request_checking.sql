@@ -4,8 +4,8 @@ CREATE OR REPLACE FUNCTION public.purchase_request_checking() RETURNS trigger
 declare 
 	state_text varchar;
 begin
-	if (new.state in ('not active'::purchase_state, 'canceled'::purchase_state)) then
-		state_text = case new.state
+	if (new.pstate in ('not active'::purchase_state, 'canceled'::purchase_state)) then
+		state_text = case new.pstate
 			when 'not active'::purchase_state then 'Не активна'
 			when 'canceled'::purchase_state then 'Отменена'
 		end;
@@ -17,8 +17,8 @@ begin
 		end if;
 	end if;
 
-	if (old.state in ('canceled'::purchase_state, 'completed'::purchase_state)) then
-		state_text = case old.state
+	if (old.pstate in ('canceled'::purchase_state, 'completed'::purchase_state)) then
+		state_text = case old.pstate
 			when 'canceled'::purchase_state then 'Отменена'
 			when 'completed'::purchase_state then 'Выполнена'
 		end;
@@ -30,7 +30,7 @@ begin
 		end if;
 	end if;
 
-	if (new.state = 'completed'::purchase_state) then
+	if (new.pstate = 'completed'::purchase_state) then
 		if (not new.carried_out) then
 			raise 'Завершить заявку можно, но сначала надо документ провести.';
 		end if;

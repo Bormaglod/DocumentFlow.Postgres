@@ -14,6 +14,8 @@ ALTER TABLE ONLY public.initial_balance_employee ALTER COLUMN operation_summa SE
 
 ALTER TABLE ONLY public.initial_balance_employee ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.initial_balance_employee ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.initial_balance_employee OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.initial_balance_employee TO users;
@@ -65,6 +67,13 @@ CREATE TRIGGER initial_balance_employee_au_1
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER initial_balance_employee_au_2
+	AFTER UPDATE ON public.initial_balance_employee
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER initial_balance_employee_bi
 	BEFORE INSERT ON public.initial_balance_employee
 	FOR EACH ROW
@@ -76,18 +85,6 @@ CREATE TRIGGER initial_balance_employee_bu
 	BEFORE UPDATE ON public.initial_balance_employee
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER initial_balance_employee_au_2
-	AFTER UPDATE ON public.initial_balance_employee
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.initial_balance_employee
-	ADD CONSTRAINT pk_initial_balance_employee_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
@@ -108,3 +105,8 @@ ALTER TABLE public.initial_balance_employee
 
 ALTER TABLE public.initial_balance_employee
 	ADD CONSTRAINT fk_initial_initial_balance_employee_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.initial_balance_employee
+	ADD CONSTRAINT pk_initial_balance_employee_id PRIMARY KEY (id);

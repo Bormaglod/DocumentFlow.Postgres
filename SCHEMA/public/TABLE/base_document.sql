@@ -1,7 +1,8 @@
 CREATE TABLE public.base_document (
 	organization_id uuid NOT NULL,
 	document_date timestamp(0) with time zone NOT NULL,
-	document_number integer NOT NULL
+	document_number integer NOT NULL,
+	state_id smallint DEFAULT 0 NOT NULL
 )
 INHERITS (public.document_info);
 

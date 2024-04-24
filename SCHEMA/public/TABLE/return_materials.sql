@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.return_materials ALTER COLUMN id SET DEFAULT public.uuid
 
 ALTER TABLE ONLY public.return_materials ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.return_materials ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.return_materials OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.return_materials TO users;
@@ -59,6 +61,13 @@ CREATE TRIGGER return_materials_au_0
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER return_materials_au_1
+	AFTER UPDATE ON public.return_materials
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER return_materials_bi
 	BEFORE INSERT ON public.return_materials
 	FOR EACH ROW
@@ -70,18 +79,6 @@ CREATE TRIGGER return_materials_bu
 	BEFORE UPDATE ON public.return_materials
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER return_materials_au_1
-	AFTER UPDATE ON public.return_materials
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.return_materials
-	ADD CONSTRAINT pk_return_materials_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
@@ -112,3 +109,8 @@ ALTER TABLE public.return_materials
 
 ALTER TABLE public.return_materials
 	ADD CONSTRAINT fk_return_materials_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.return_materials
+	ADD CONSTRAINT pk_return_materials_id PRIMARY KEY (id);

@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.balance_product ALTER COLUMN id SET DEFAULT public.uuid_
 
 ALTER TABLE ONLY public.balance_product ALTER COLUMN operation_summa SET DEFAULT 0;
 
+ALTER TABLE ONLY public.balance_product ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.balance_product OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.balance_product TO users;

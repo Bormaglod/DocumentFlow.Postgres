@@ -17,6 +17,8 @@ ALTER TABLE ONLY public.operations_performed ALTER COLUMN id SET DEFAULT public.
 
 ALTER TABLE ONLY public.operations_performed ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.operations_performed ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.operations_performed OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.operations_performed TO users;
@@ -68,18 +70,18 @@ CREATE CONSTRAINT TRIGGER operations_performed_aiu_1
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER operations_performed_bu
-	BEFORE UPDATE ON public.operations_performed
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER operations_performed_au_0
 	AFTER UPDATE ON public.operations_performed
 	FOR EACH ROW
 	WHEN ((old.carried_out <> new.carried_out))
 	EXECUTE PROCEDURE public.operations_performed_accept();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER operations_performed_au_1
+	AFTER UPDATE ON public.operations_performed
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
 
 --------------------------------------------------------------------------------
 
@@ -97,15 +99,10 @@ CREATE TRIGGER operations_performed_biu_0
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER operations_performed_au_1
-	AFTER UPDATE ON public.operations_performed
+CREATE TRIGGER operations_performed_bu
+	BEFORE UPDATE ON public.operations_performed
 	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.operations_performed
-	ADD CONSTRAINT pk_operations_performed_id PRIMARY KEY (id);
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
@@ -136,3 +133,8 @@ ALTER TABLE public.operations_performed
 
 ALTER TABLE public.operations_performed
 	ADD CONSTRAINT fk_operations_performed_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.operations_performed
+	ADD CONSTRAINT pk_operations_performed_id PRIMARY KEY (id);

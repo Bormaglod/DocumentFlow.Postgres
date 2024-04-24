@@ -14,6 +14,8 @@ ALTER TABLE ONLY public.debt_adjustment ALTER COLUMN id SET DEFAULT public.uuid_
 
 ALTER TABLE ONLY public.debt_adjustment ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.debt_adjustment ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.debt_adjustment OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.debt_adjustment TO users;
@@ -57,6 +59,13 @@ CREATE TRIGGER debt_adjustment_au_0
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER debt_adjustment_au_1
+	AFTER UPDATE ON public.debt_adjustment
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER debt_adjustment_bi
 	BEFORE INSERT ON public.debt_adjustment
 	FOR EACH ROW
@@ -71,20 +80,13 @@ CREATE TRIGGER debt_adjustment_bu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER debt_adjustment_au_1
-	AFTER UPDATE ON public.debt_adjustment
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.debt_adjustment
-	ADD CONSTRAINT pk_debt_adjustment_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
 ALTER TABLE public.debt_adjustment
 	ADD CONSTRAINT fk_debt_adjustment_contractor FOREIGN KEY (contractor_id) REFERENCES public.contractor(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.debt_adjustment
+	ADD CONSTRAINT fk_debt_adjustment_credit FOREIGN KEY (document_credit_id) REFERENCES public.waybill_receipt(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 --------------------------------------------------------------------------------
 
@@ -94,4 +96,4 @@ ALTER TABLE public.debt_adjustment
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.debt_adjustment
-	ADD CONSTRAINT fk_debt_adjustment_credit FOREIGN KEY (document_credit_id) REFERENCES public.waybill_receipt(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+	ADD CONSTRAINT pk_debt_adjustment_id PRIMARY KEY (id);

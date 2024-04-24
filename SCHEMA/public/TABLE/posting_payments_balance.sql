@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.posting_payments_balance ALTER COLUMN id SET DEFAULT pub
 
 ALTER TABLE ONLY public.posting_payments_balance ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.posting_payments_balance ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.posting_payments_balance OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.posting_payments_balance TO users;
@@ -70,11 +72,6 @@ ALTER TABLE public.posting_payments_balance
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.posting_payments_balance
-	ADD CONSTRAINT pk_posting_payments_balance_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.posting_payments_balance
 	ADD CONSTRAINT fk_posting_payments_balance FOREIGN KEY (document_id) REFERENCES public.initial_balance_contractor(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -96,3 +93,8 @@ ALTER TABLE public.posting_payments_balance
 
 ALTER TABLE public.posting_payments_balance
 	ADD CONSTRAINT fk_posting_payments_balance_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.posting_payments_balance
+	ADD CONSTRAINT pk_posting_payments_balance_id PRIMARY KEY (id);

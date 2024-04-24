@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.wage1c ALTER COLUMN id SET DEFAULT public.uuid_generate_
 
 ALTER TABLE ONLY public.wage1c ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.wage1c ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.wage1c OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.wage1c TO payroll_accountant;
@@ -73,11 +75,6 @@ CREATE TRIGGER wage1c_bu
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.wage1c
-	ADD CONSTRAINT pk_wage1c_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.wage1c
 	ADD CONSTRAINT fk_wage1c_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -89,3 +86,8 @@ ALTER TABLE public.wage1c
 
 ALTER TABLE public.wage1c
 	ADD CONSTRAINT fk_wage1c_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.wage1c
+	ADD CONSTRAINT pk_wage1c_id PRIMARY KEY (id);

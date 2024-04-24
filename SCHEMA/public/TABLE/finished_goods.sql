@@ -14,6 +14,8 @@ ALTER TABLE ONLY public.finished_goods ALTER COLUMN id SET DEFAULT public.uuid_g
 
 ALTER TABLE ONLY public.finished_goods ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.finished_goods ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.finished_goods OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.finished_goods TO users;
@@ -55,24 +57,17 @@ CREATE TRIGGER finished_goods_au_0
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER finished_goods_bi
-	BEFORE INSERT ON public.finished_goods
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER finished_goods_bu
-	BEFORE UPDATE ON public.finished_goods
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER finished_goods_au_1
 	AFTER UPDATE ON public.finished_goods
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updated();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER finished_goods_bi
+	BEFORE INSERT ON public.finished_goods
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
 
 --------------------------------------------------------------------------------
 
@@ -83,13 +78,25 @@ CREATE TRIGGER finished_goods_biu_0
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.finished_goods
-	ADD CONSTRAINT pk_finished_goods_id PRIMARY KEY (id);
+CREATE TRIGGER finished_goods_bu
+	BEFORE UPDATE ON public.finished_goods
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.finished_goods
 	ADD CONSTRAINT fk_finished_goods_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.finished_goods
+	ADD CONSTRAINT fk_finished_goods_goods FOREIGN KEY (goods_id) REFERENCES public.goods(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.finished_goods
+	ADD CONSTRAINT fk_finished_goods_lot FOREIGN KEY (owner_id) REFERENCES public.production_lot(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -104,9 +111,4 @@ ALTER TABLE public.finished_goods
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.finished_goods
-	ADD CONSTRAINT fk_finished_goods_goods FOREIGN KEY (goods_id) REFERENCES public.goods(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.finished_goods
-	ADD CONSTRAINT fk_finished_goods_lot FOREIGN KEY (owner_id) REFERENCES public.production_lot(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT pk_finished_goods_id PRIMARY KEY (id);

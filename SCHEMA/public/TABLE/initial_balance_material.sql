@@ -13,6 +13,8 @@ ALTER TABLE ONLY public.initial_balance_material ALTER COLUMN id SET DEFAULT pub
 
 ALTER TABLE ONLY public.initial_balance_material ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.initial_balance_material ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.initial_balance_material OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.initial_balance_material TO users;
@@ -29,11 +31,11 @@ COMMENT ON COLUMN public.initial_balance_material.amount IS 'Количеств�
 
 --------------------------------------------------------------------------------
 
-CREATE UNIQUE INDEX unq_initial_balance_material_reference_id ON public.initial_balance_material USING btree (reference_id);
+CREATE UNIQUE INDEX unq_initial_balance_material_doc_number ON public.initial_balance_material USING btree (EXTRACT(year FROM date((document_date AT TIME ZONE '+04'::text))), document_number);
 
 --------------------------------------------------------------------------------
 
-CREATE UNIQUE INDEX unq_initial_balance_material_doc_number ON public.initial_balance_material USING btree (EXTRACT(year FROM date((document_date AT TIME ZONE '+04'::text))), document_number);
+CREATE UNIQUE INDEX unq_initial_balance_material_reference_id ON public.initial_balance_material USING btree (reference_id);
 
 --------------------------------------------------------------------------------
 
@@ -52,11 +54,26 @@ CREATE CONSTRAINT TRIGGER initial_balance_material_aiu
 
 --------------------------------------------------------------------------------
 
+CREATE CONSTRAINT TRIGGER initial_balance_material_au_0
+	AFTER UPDATE ON public.initial_balance_material
+	NOT DEFERRABLE INITIALLY IMMEDIATE
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.initial_balance_product_checking();
+
+--------------------------------------------------------------------------------
+
 CREATE TRIGGER initial_balance_material_au_1
 	AFTER UPDATE ON public.initial_balance_material
 	FOR EACH ROW
 	WHEN ((old.carried_out <> new.carried_out))
 	EXECUTE PROCEDURE public.initial_balance_product_accept();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER initial_balance_material_au_2
+	AFTER UPDATE ON public.initial_balance_material
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
 
 --------------------------------------------------------------------------------
 
@@ -71,26 +88,6 @@ CREATE TRIGGER initial_balance_material_bu
 	BEFORE UPDATE ON public.initial_balance_material
 	FOR EACH ROW
 	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
-CREATE CONSTRAINT TRIGGER initial_balance_material_au_0
-	AFTER UPDATE ON public.initial_balance_material
-	NOT DEFERRABLE INITIALLY IMMEDIATE
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.initial_balance_product_checking();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER initial_balance_material_au_2
-	AFTER UPDATE ON public.initial_balance_material
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.initial_balance_material
-	ADD CONSTRAINT pk_initial_balance_material_id PRIMARY KEY (id);
 
 --------------------------------------------------------------------------------
 
@@ -111,3 +108,8 @@ ALTER TABLE public.initial_balance_material
 
 ALTER TABLE public.initial_balance_material
 	ADD CONSTRAINT fk_initial_balance_material_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.initial_balance_material
+	ADD CONSTRAINT pk_initial_balance_material_id PRIMARY KEY (id);

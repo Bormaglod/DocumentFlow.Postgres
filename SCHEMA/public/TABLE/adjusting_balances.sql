@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.adjusting_balances ALTER COLUMN id SET DEFAULT public.uu
 
 ALTER TABLE ONLY public.adjusting_balances ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.adjusting_balances ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.adjusting_balances OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.adjusting_balances TO users;
@@ -45,25 +47,11 @@ CREATE CONSTRAINT TRIGGER adjusting_balances_aiu_0
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER adjusting_balances_bu
-	BEFORE UPDATE ON public.adjusting_balances
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER adjusting_balances_au_0
 	AFTER UPDATE ON public.adjusting_balances
 	FOR EACH ROW
 	WHEN ((old.carried_out <> new.carried_out))
 	EXECUTE PROCEDURE public.adjusting_balances_accept();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER adjusting_balances_bi
-	BEFORE INSERT ON public.adjusting_balances
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
 
 --------------------------------------------------------------------------------
 
@@ -74,13 +62,27 @@ CREATE TRIGGER adjusting_balances_au_1
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.adjusting_balances
-	ADD CONSTRAINT pk_adjusting_balances_id PRIMARY KEY (id);
+CREATE TRIGGER adjusting_balances_bi
+	BEFORE INSERT ON public.adjusting_balances
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER adjusting_balances_bu
+	BEFORE UPDATE ON public.adjusting_balances
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.adjusting_balances
 	ADD CONSTRAINT fk_adjusting_balances_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.adjusting_balances
+	ADD CONSTRAINT fk_adjusting_balances_material FOREIGN KEY (material_id) REFERENCES public.material(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -95,4 +97,4 @@ ALTER TABLE public.adjusting_balances
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.adjusting_balances
-	ADD CONSTRAINT fk_adjusting_balances_material FOREIGN KEY (material_id) REFERENCES public.material(id) ON UPDATE CASCADE;
+	ADD CONSTRAINT pk_adjusting_balances_id PRIMARY KEY (id);

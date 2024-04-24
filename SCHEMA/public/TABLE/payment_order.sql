@@ -16,6 +16,8 @@ ALTER TABLE ONLY public.payment_order ALTER COLUMN id SET DEFAULT public.uuid_ge
 
 ALTER TABLE ONLY public.payment_order ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.payment_order ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.payment_order OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.payment_order TO users;
@@ -47,20 +49,6 @@ CREATE CONSTRAINT TRIGGER payment_order_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER payment_order_bi
-	BEFORE INSERT ON public.payment_order
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER payment_order_bu
-	BEFORE UPDATE ON public.payment_order
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER payment_order_au_0
 	AFTER UPDATE ON public.payment_order
 	FOR EACH ROW
@@ -76,8 +64,17 @@ CREATE TRIGGER payment_order_au_1
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.payment_order
-	ADD CONSTRAINT pk_payment_order_id PRIMARY KEY (id);
+CREATE TRIGGER payment_order_bi
+	BEFORE INSERT ON public.payment_order
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER payment_order_bu
+	BEFORE UPDATE ON public.payment_order
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
@@ -98,3 +95,8 @@ ALTER TABLE public.payment_order
 
 ALTER TABLE public.payment_order
 	ADD CONSTRAINT fk_payment_order_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.payment_order
+	ADD CONSTRAINT pk_payment_order_id PRIMARY KEY (id);

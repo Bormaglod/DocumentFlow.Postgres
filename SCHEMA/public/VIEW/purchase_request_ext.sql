@@ -1,4 +1,4 @@
-CREATE VIEW public.purchase_request_receipt AS
+CREATE VIEW public.purchase_request_ext AS
 	SELECT purchase_request.id,
     purchase_request.owner_id,
     purchase_request.user_created_id,
@@ -14,26 +14,14 @@ CREATE VIEW public.purchase_request_receipt AS
     purchase_request.contractor_id,
     purchase_request.contract_id,
     purchase_request.note,
-    purchase_request.pstate AS state,
     purchase_request.state_id,
-    o.item_name AS organization_name,
-    c.item_name AS contractor_name,
-    contract.tax_payer,
-        CASE contract.tax_payer
-            WHEN true THEN 20
-            ELSE 0
-        END AS tax,
-    contract.item_name AS contract_name,
     d.cost_order,
     d.tax_value,
     d.full_cost,
     p.transaction_amount AS prepayment,
     t.receipt_payment,
     ((COALESCE(w.full_cost, (0)::numeric) + COALESCE(debt.amount, (0)::numeric)) - COALESCE(credit.amount, (0)::numeric)) AS delivery_amount
-   FROM (((((((((public.purchase_request
-     JOIN public.organization o ON ((o.id = purchase_request.organization_id)))
-     JOIN public.contractor c ON ((c.id = purchase_request.contractor_id)))
-     LEFT JOIN public.contract ON ((contract.id = purchase_request.contract_id)))
+   FROM ((((((public.purchase_request
      LEFT JOIN ( SELECT wr2.owner_id,
             sum(ppr.transaction_amount) AS receipt_payment
            FROM (public.posting_payments_receipt ppr
@@ -68,18 +56,6 @@ CREATE VIEW public.purchase_request_receipt AS
              JOIN public.waybill_receipt wr ON ((wr.id = da.document_credit_id)))
           GROUP BY wr.owner_id) credit ON ((credit.owner_id = purchase_request.id)));
 
-ALTER VIEW public.purchase_request_receipt OWNER TO postgres;
+ALTER VIEW public.purchase_request_ext OWNER TO postgres;
 
-GRANT SELECT ON TABLE public.purchase_request_receipt TO users;
-
-COMMENT ON COLUMN public.purchase_request_receipt.cost_order IS 'Сумма заказа';
-
-COMMENT ON COLUMN public.purchase_request_receipt.tax_value IS 'Сумма НДС';
-
-COMMENT ON COLUMN public.purchase_request_receipt.full_cost IS 'Сумма заказа с НДС';
-
-COMMENT ON COLUMN public.purchase_request_receipt.prepayment IS 'Предоплата';
-
-COMMENT ON COLUMN public.purchase_request_receipt.receipt_payment IS 'Оплата по документу поставки';
-
-COMMENT ON COLUMN public.purchase_request_receipt.delivery_amount IS 'Общая сумма материалов по документу поставки';
+GRANT SELECT ON TABLE public.purchase_request_ext TO users;

@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.balance_employee ALTER COLUMN id SET DEFAULT public.uuid
 
 ALTER TABLE ONLY public.balance_employee ALTER COLUMN operation_summa SET DEFAULT 0;
 
+ALTER TABLE ONLY public.balance_employee ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.balance_employee OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.balance_employee TO users;
@@ -79,11 +81,6 @@ CREATE TRIGGER balance_employee_bu
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.balance_employee
-	ADD CONSTRAINT pk_balance_employee_id PRIMARY KEY (id);
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.balance_employee
 	ADD CONSTRAINT fk_balance_employee_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
@@ -105,3 +102,8 @@ ALTER TABLE public.balance_employee
 
 ALTER TABLE public.balance_employee
 	ADD CONSTRAINT fk_balance_employee_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.balance_employee
+	ADD CONSTRAINT pk_balance_employee_id PRIMARY KEY (id);

@@ -10,6 +10,8 @@ ALTER TABLE ONLY public.waybill_receipt ALTER COLUMN id SET DEFAULT public.uuid_
 
 ALTER TABLE ONLY public.waybill_receipt ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.waybill_receipt ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.waybill_receipt OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.waybill_receipt TO users;
@@ -51,42 +53,6 @@ CREATE TRIGGER waybill_receipt_ad
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER waybill_receipt_bi
-	BEFORE INSERT ON public.waybill_receipt
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER waybill_receipt_bu
-	BEFORE UPDATE ON public.waybill_receipt
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER waybill_receipt_au_0
-	AFTER UPDATE ON public.waybill_receipt
-	FOR EACH ROW
-	WHEN ((old.carried_out <> new.carried_out))
-	EXECUTE PROCEDURE public.waybill_receipt_accept();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER waybill_receipt_biu_0
-	BEFORE INSERT OR UPDATE ON public.waybill_receipt
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.waybill_changing();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER waybill_receipt_au_1
-	AFTER UPDATE ON public.waybill_receipt
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updated();
-
---------------------------------------------------------------------------------
-
 CREATE CONSTRAINT TRIGGER waybill_receipt_aiu_0
 	AFTER INSERT OR UPDATE ON public.waybill_receipt
 	NOT DEFERRABLE INITIALLY IMMEDIATE
@@ -103,18 +69,39 @@ CREATE CONSTRAINT TRIGGER waybill_receipt_aiu_1
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.waybill_receipt
-	ADD CONSTRAINT pk_waybill_receipt_id PRIMARY KEY (id);
+CREATE TRIGGER waybill_receipt_au_0
+	AFTER UPDATE ON public.waybill_receipt
+	FOR EACH ROW
+	WHEN ((old.carried_out <> new.carried_out))
+	EXECUTE PROCEDURE public.waybill_receipt_accept();
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.waybill_receipt
-	ADD CONSTRAINT fk_waybill_receipt_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+CREATE TRIGGER waybill_receipt_au_1
+	AFTER UPDATE ON public.waybill_receipt
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updated();
 
 --------------------------------------------------------------------------------
 
-ALTER TABLE public.waybill_receipt
-	ADD CONSTRAINT fk_waybill_receipt_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+CREATE TRIGGER waybill_receipt_bi
+	BEFORE INSERT ON public.waybill_receipt
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER waybill_receipt_biu_0
+	BEFORE INSERT OR UPDATE ON public.waybill_receipt
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.waybill_changing();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER waybill_receipt_bu
+	BEFORE UPDATE ON public.waybill_receipt
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
 
 --------------------------------------------------------------------------------
 
@@ -129,9 +116,24 @@ ALTER TABLE public.waybill_receipt
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.waybill_receipt
+	ADD CONSTRAINT fk_waybill_receipt_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.waybill_receipt
 	ADD CONSTRAINT fk_waybill_receipt_organization FOREIGN KEY (organization_id) REFERENCES public.organization(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.waybill_receipt
 	ADD CONSTRAINT fk_waybill_receipt_purchase_request FOREIGN KEY (owner_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.waybill_receipt
+	ADD CONSTRAINT fk_waybill_receipt_updated FOREIGN KEY (user_updated_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.waybill_receipt
+	ADD CONSTRAINT pk_waybill_receipt_id PRIMARY KEY (id);

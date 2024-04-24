@@ -4,6 +4,10 @@ CREATE OR REPLACE FUNCTION public.goods_changing() RETURNS trigger
 declare
 	material_weight numeric;
 begin
+	if (new.is_folder) then
+		return new;
+	end if;
+
 	new.vat := coalesce(new.vat, 20);
 	
 	if (new.calculation_id is not null and (old.calculation_id is null or new.calculation_id != old.calculation_id)) then

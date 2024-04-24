@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.balance ALTER COLUMN id SET DEFAULT public.uuid_generate
 
 ALTER TABLE ONLY public.balance ALTER COLUMN owner_id SET NOT NULL;
 
+ALTER TABLE ONLY public.balance ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE public.balance OWNER TO postgres;
 
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.balance TO users;

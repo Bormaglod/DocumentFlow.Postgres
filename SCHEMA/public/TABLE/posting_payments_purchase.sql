@@ -12,6 +12,8 @@ ALTER TABLE ONLY public.posting_payments_purchase ALTER COLUMN id SET DEFAULT pu
 
 ALTER TABLE ONLY public.posting_payments_purchase ALTER COLUMN re_carried_out SET DEFAULT false;
 
+ALTER TABLE ONLY public.posting_payments_purchase ALTER COLUMN state_id SET DEFAULT 0;
+
 ALTER TABLE ONLY public.posting_payments_purchase ALTER COLUMN transaction_amount SET NOT NULL;
 
 ALTER TABLE public.posting_payments_purchase OWNER TO postgres;
@@ -47,20 +49,6 @@ CREATE CONSTRAINT TRIGGER posting_payments_purchase_aiu
 
 --------------------------------------------------------------------------------
 
-CREATE TRIGGER posting_payments_purchase_bi
-	BEFORE INSERT ON public.posting_payments_purchase
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_initialize();
-
---------------------------------------------------------------------------------
-
-CREATE TRIGGER posting_payments_purchase_bu
-	BEFORE UPDATE ON public.posting_payments_purchase
-	FOR EACH ROW
-	EXECUTE PROCEDURE public.document_updating();
-
---------------------------------------------------------------------------------
-
 CREATE TRIGGER posting_payments_purchase_au_0
 	AFTER UPDATE ON public.posting_payments_purchase
 	FOR EACH ROW
@@ -76,13 +64,37 @@ CREATE TRIGGER posting_payments_purchase_au_1
 
 --------------------------------------------------------------------------------
 
+CREATE TRIGGER posting_payments_purchase_bi
+	BEFORE INSERT ON public.posting_payments_purchase
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_initialize();
+
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER posting_payments_purchase_bu
+	BEFORE UPDATE ON public.posting_payments_purchase
+	FOR EACH ROW
+	EXECUTE PROCEDURE public.document_updating();
+
+--------------------------------------------------------------------------------
+
 ALTER TABLE public.posting_payments_purchase
-	ADD CONSTRAINT pk_posting_payments_purchase_id PRIMARY KEY (id);
+	ADD CONSTRAINT chk_posting_payments_purchase_transaction CHECK ((transaction_amount > (0)::numeric));
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.posting_payments_purchase
+	ADD CONSTRAINT fk_posting_payments_purchase FOREIGN KEY (document_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE;
 
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.posting_payments_purchase
 	ADD CONSTRAINT fk_posting_payments_purchase_created FOREIGN KEY (user_created_id) REFERENCES public.user_alias(id) ON UPDATE CASCADE;
+
+--------------------------------------------------------------------------------
+
+ALTER TABLE public.posting_payments_purchase
+	ADD CONSTRAINT fk_posting_payments_purchase_order FOREIGN KEY (owner_id) REFERENCES public.payment_order(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 --------------------------------------------------------------------------------
 
@@ -97,14 +109,4 @@ ALTER TABLE public.posting_payments_purchase
 --------------------------------------------------------------------------------
 
 ALTER TABLE public.posting_payments_purchase
-	ADD CONSTRAINT fk_posting_payments_purchase FOREIGN KEY (document_id) REFERENCES public.purchase_request(id) ON UPDATE CASCADE;
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.posting_payments_purchase
-	ADD CONSTRAINT chk_posting_payments_purchase_transaction CHECK ((transaction_amount > (0)::numeric));
-
---------------------------------------------------------------------------------
-
-ALTER TABLE public.posting_payments_purchase
-	ADD CONSTRAINT fk_posting_payments_purchase_order FOREIGN KEY (owner_id) REFERENCES public.payment_order(id) ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT pk_posting_payments_purchase_id PRIMARY KEY (id);
