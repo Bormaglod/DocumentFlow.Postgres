@@ -1,7 +1,7 @@
 CREATE TABLE public.production_lot (
 	calculation_id uuid NOT NULL,
 	quantity numeric(12,3) NOT NULL,
-	state public.lot_state DEFAULT 'created'::public.lot_state NOT NULL,
+	pstate public.lot_state DEFAULT 'created'::public.lot_state NOT NULL,
 	sold boolean DEFAULT false
 )
 INHERITS (public.accounting_document);
@@ -28,7 +28,7 @@ COMMENT ON COLUMN public.production_lot.calculation_id IS 'Калькуляци�
 
 COMMENT ON COLUMN public.production_lot.quantity IS 'Количество изделий в партии';
 
-COMMENT ON COLUMN public.production_lot.state IS 'Состояние партии';
+COMMENT ON COLUMN public.production_lot.pstate IS 'Состояние партии';
 
 COMMENT ON COLUMN public.production_lot.sold IS 'Флаг определяющий, что партия реализована (если партия реализована частично - то NULL)';
 

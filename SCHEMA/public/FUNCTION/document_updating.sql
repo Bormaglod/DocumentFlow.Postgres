@@ -16,7 +16,7 @@ begin
 		end if;
 	else
 		if (old.state_id != new.state_id) then
-
+		
 		else
 			if (not is_inherit_of(TG_TABLE_NAME::varchar, 'balance')) then
 				if (new.carried_out and old.carried_out and not is_system(new.id, 'lock_reaccept'::system_operation)) then
@@ -25,6 +25,7 @@ begin
 				end if;
 		
 				if (new.carried_out != old.carried_out) then
+					raise notice 'UPDATING document. canceling re_carried flag';
 					new.re_carried_out = false;				
 				end if;
 			end if;

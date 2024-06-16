@@ -7,9 +7,9 @@ begin
 	if (new.carried_out != old.carried_out) then
 		prod_started := exists(select 1 from operations_performed where owner_id = new.id and carried_out);
 		if (prod_started) then
-			new.state := 'production'::lot_state;
+			new.pstate := 'production'::lot_state;
 		else
-			new.state := 'created'::lot_state;
+			new.pstate := 'created'::lot_state;
 		end if;
 	end if;
 

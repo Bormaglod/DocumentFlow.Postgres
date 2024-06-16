@@ -10,6 +10,7 @@ declare
 	lot_info record;
 	lot_sold numeric;
 	finished numeric;
+	goods_type varchar;
 begin
 	if (new.carried_out) then
 		-- уменьшим остаток изделий и материалов
@@ -26,23 +27,36 @@ begin
 			call balance_product_expense(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, products);
 		
 			if (wsp.lot_id is not null) then
-				select c.owner_id as goods_id, pl.quantity, pl.document_number 
+				select g.id as goods_id, g.is_service, pl.quantity, pl.document_number 
 					into lot_info
 					from production_lot pl 
-					join calculation c on c.id = pl.calculation_id
+						join calculation c on c.id = pl.calculation_id
+						join goods g on g.id = c.owner_id
 					where pl.id = wsp.lot_id;
 				
 				if (lot_info.goods_id != wsp.id) then
-					raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Изделие ' || wsp.item_name || ' отсутствует в партии № ' || lot_info.document_number);
+					if (lot_info.is_service) then
+						goods_type := 'Услуга';
+					else
+						goods_type := 'Изделие';
+					end if;
+				
+					raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, goods_type || ' ' || wsp.item_name || ' отсутствует в партии № ' || lot_info.document_number);
 				end if;
 			
 				-- количество отгруженных изделий из партии
 				select sum(quantity) into lot_sold from lot_sale where lot_id = wsp.lot_id;
-				lot_sold = coalesce(lot_sold, 0);
+				lot_sold := coalesce(lot_sold, 0);
 			
-				-- количество изготовленных изделий в партии
-				select sum(quantity) into finished from finished_goods where owner_id = wsp.lot_id;
-				finished = coalesce(finished, 0);
+				-- если в накладной указана услуга, то в качестве количества изготовленных изделий
+				-- будет выступать количество единиц из партии
+				if (lot_info.is_service) then
+					finished := lot_info.quantity; 
+				else
+					-- количество изготовленных изделий в партии
+					select sum(quantity) into finished from finished_goods where owner_id = wsp.lot_id;
+					finished := coalesce(finished, 0);		
+				end if;
 			
 				if (wsp.amount > finished - lot_sold) then
 					raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Количество изделий ' || wsp.item_name || ' превышает остаток в партии (' || wsp.amount || ' > ' || finished - lot_sold || ')');

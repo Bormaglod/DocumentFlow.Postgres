@@ -17,7 +17,7 @@ begin
 		prices.amount = ms.quantity;
 		
 		if (new.carried_out) then
-			call balance_product_expense(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, prices);
+			call balance_product_expense(new.id, TG_TABLE_NAME::varchar, new.document_number, new.document_date, prices, true);
 		
 			for wids in
 				select 
@@ -39,7 +39,7 @@ begin
 					coalesce(wpw.written_off, 0) < wpp.amount 
 				order by wp.document_date
 			loop
-				if (ms.quantity > wids.remaining) then
+				if (ms.quantity >= wids.remaining) then
 					ms.quantity := ms.quantity - wids.remaining;
 					insert into waybill_processing_writeoff (operation_write_off_id, waybill_processing_id, material_id, amount, write_off)
 						values (new.id, wids.id, ms.material_id, wids.remaining, 'return'::write_off_method);
@@ -49,11 +49,11 @@ begin
 					ms.quantity := 0;
 					exit;
 				end if;
-			
-				if (ms.quantity > 0) then
-					raise 'Не удалось списать % ед. материала %. Операция не выполнена.', ms.quantity, ms.material_name;
-				end if;
 			end loop;
+		
+			if (ms.quantity > 0) then
+				raise exception using message = exception_text_builder(TG_TABLE_NAME, TG_NAME, 'Не удалось списать ' || ms.quantity || ' ед. материала ' || ms.material_name || '. Операция не выполнена.');
+			end if;
 		else 
 			delete from waybill_processing_writeoff where operation_write_off_id = new.id;
 			delete from balance_material where owner_id = new.id;

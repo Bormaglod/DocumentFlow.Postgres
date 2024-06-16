@@ -11,13 +11,13 @@ begin
 		end if;
 	end if;
 
-	if (new.carried_out != old.carried_out) then
+	/*if (new.carried_out != old.carried_out) then
 		if (new.carried_out) then
 			new.state_id = 1002;
 		else
 			new.state_id = 1000;
 		end if;
-	end if;
+	end if;*/
 
 	return new;
 end;
